@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "NHL Arenas",
+    "slug": "nhl-arenas",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "nhlarenas",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.nhlarenas"
+    },
+    "android": {
+      "package": "com.example.nhlarenas"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
