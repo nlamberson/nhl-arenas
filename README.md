@@ -6,73 +6,93 @@ The below sections are AI generated and will get updated as I learn more about p
 
 ## Stack Overview
 
-- **Frontend:** Expo-managed React Native (TypeScript), Firebase SDK (Auth & Storage), Axios
-- **Backend:** FastAPI, SQLAlchemy 2.0, Alembic, psycopg[binary], python-dotenv, Pydantic
+- **Frontend:** Expo/React Native (TypeScript), Firebase Auth
+- **Backend:** FastAPI, SQLAlchemy 2.0, Alembic
 - **Database:** PostgreSQL
-- **Authentication:** Firebase Authentication
-- **Monorepo Layout:** Managed manually with separate `frontend/` and `backend/` packages
+- **Auth:** Firebase Authentication
 
-## Repository Structure
-
-```
-nhl-arenas/
-├── backend/
-│   ├── app/
-│   ├── alembic/
-│   ├── alembic.ini
-│   ├── requirements.txt
-│   └── README.md
-├── frontend/
-│   ├── src/
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── README.md
-├── .gitignore
-└── README.md
-```
-
-## Local Development
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+ (latest LTS)
-- npm or yarn
+- Node.js 20+
 - Python 3.13+
 - PostgreSQL 14+
+- Firebase project
 
-### Frontend Setup
+### 1. Clone & Setup
 
-```sh
-cd frontend
-npm install
-# start Expo dev server
-npm start
-```
-
-### Backend Setup
-
-```sh
+```bash
+# Backend
 cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-### Database Migrations
-
-```sh
-cd backend
+cp .env.example .env  # Edit with your values
 alembic upgrade head
+uvicorn app.main:app --reload
+
+# Frontend (new terminal)
+cd frontend
+npm install
+cp .env.example .env  # Edit with Firebase config
+npm start
 ```
 
-### Environment Variables
+### 2. Configure Environment
 
-- Copy `backend/.env.example` to `backend/.env` and update secrets.
-- Create `frontend/.env` for Firebase configuration (API key, project ID, etc.).
+**Backend** (`backend/.env`):
+```bash
+FIREBASE_PROJECT_ID=your-project-id
+GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
+POSTGRES_USER=your_user
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=nhl_arenas
+```
 
-## Next Steps
+**Frontend** (`frontend/.env`):
+```bash
+EXPO_PUBLIC_API_URL=http://localhost:8000
+EXPO_PUBLIC_FIREBASE_API_KEY=...
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=...
+# (other Firebase config)
+```
 
-- Define SQLAlchemy models and initial Alembic migrations for arenas and visits.
-- Integrate Firebase Authentication flows in the frontend and secure backend endpoints.
-- Implement API routes for arenas, visits, and user profiles.
+### 3. Test Authentication
+
+1. Sign up/in with the test screen
+2. Click "Test Backend Authentication"
+3. User should appear in your database!
+
+## Docker
+
+```bash
+cp .env.example .env  # Edit with your values
+docker-compose up
+```
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| [backend/README.md](./backend/README.md) | Backend setup & auth patterns |
+| [backend/DEPLOYMENT.md](./backend/DEPLOYMENT.md) | Production deployment |
+| [frontend/README.md](./frontend/README.md) | Frontend setup |
+| [frontend/API_USAGE.md](./frontend/API_USAGE.md) | API client usage |
+| [ENV_SETUP.md](./ENV_SETUP.md) | Detailed env var guide |
+| [DOCKER_QUICKSTART.md](./DOCKER_QUICKSTART.md) | Docker setup |
+| [TESTING_AUTH.md](./TESTING_AUTH.md) | Auth troubleshooting |
+
+## Project Structure
+
+```
+nhl-arenas/
+├── backend/           # FastAPI backend
+│   ├── app/           # Application code
+│   ├── alembic/       # Database migrations
+│   └── Dockerfile
+├── frontend/          # Expo/React Native app
+│   └── src/
+├── docker-compose.yml
+└── README.md
+```

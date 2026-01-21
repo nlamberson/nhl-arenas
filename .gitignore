@@ -18,6 +18,7 @@ backend/__pycache__/
 backend/.mypy_cache/
 backend/.pytest_cache/
 backend/.coverage
+*_pycache_*
 
 # PyCharm / VSCode
 .idea/
@@ -26,8 +27,9 @@ backend/.coverage
 # Environment
 .env
 backend/.env
-backend/.env.local
 frontend/.env
 
-# Alembic
-backend/alembic/versions/
+# Firebase service account keys
+**/firebase-service-account*.json
+**/serviceAccount*.json
+**/*-firebase-adminsdk*.json

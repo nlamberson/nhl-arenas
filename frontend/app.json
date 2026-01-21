@@ -4,9 +4,10 @@
     "slug": "nhl-arenas",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "scheme": "nhlarenas",
     "platforms": ["ios", "android", "web"],
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.example.nhlarenas"

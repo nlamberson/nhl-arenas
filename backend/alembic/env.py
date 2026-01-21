@@ -10,6 +10,8 @@ from alembic import context
 
 from app.core.config import get_settings
 from app.db.base import Base
+# Import all models here so Alembic can detect them
+from app.models.user import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,7 +21,9 @@ if config.config_file_name is not None:
   fileConfig(config.config_file_name)
 
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Convert async database URL to sync for Alembic
+sync_db_url = settings.database_url.replace("postgresql+psycopg://", "postgresql+psycopg://")
+config.set_main_option("sqlalchemy.url", sync_db_url)
 
 target_metadata = Base.metadata
 

@@ -1,37 +1,20 @@
-import {StatusBar} from 'expo-status-bar';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { View, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-const App = () => {
+export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>NHL Arenas</Text>
-      <Text style={styles.subtitle}>
-        Welcome! Authentication and data features are coming soon.
-      </Text>
+    <SafeAreaProvider>
+      <View className="flex-1 items-center justify-center bg-slate-900">
+        <Text className="text-4xl font-bold text-white mb-4">
+          NHL Arenas
+        </Text>
+        <Text className="text-xl text-slate-300">
+          Coming Soon
+        </Text>
+      </View>
       <StatusBar style="light" />
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0a2240',
-    padding: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#f0f0f0',
-    textAlign: 'center',
-  },
-});
-
-export default App;
+}

@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.mypy_cache/
+.pytest_cache/
+.coverage
+*.log
+
+# Environment files (will be set via env vars in deployment)
+.env
+.env.local
+
+# Development files
+.git/
+.gitignore
+README.md
+*.md
+
+# IDE
+.vscode/
+.idea/
+
+# Alembic cache
+alembic/versions/__pycache__/
