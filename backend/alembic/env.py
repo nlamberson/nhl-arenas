@@ -11,7 +11,7 @@ from alembic import context
 from app.core.config import get_settings
 from app.db.base import Base
 # Import all models here so Alembic can detect them
-from app.models.user import User  # noqa: F401
+from app.models import Arena, Image, Team, User, Visit  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

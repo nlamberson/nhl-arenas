@@ -1,9 +1,11 @@
 """User model for storing user information in PostgreSQL."""
 
+import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, String, text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base
@@ -17,12 +19,20 @@ class User(Base):
     - Relational data (visits, favorites, etc.)
     - Additional profile information
     - Tracking user activity
+    
+    Internal app references use id (UUID). Auth lookups use firebase_uid.
     """
     
     __tablename__ = "users"
     
-    # Firebase UID is the primary key (unique identifier from Firebase)
-    firebase_uid: Mapped[str] = mapped_column(String(128), primary_key=True, index=True)
+    # Internal user id for app-wide references (APIs, FKs, visits, etc.)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    # Firebase UID for auth; unique, indexed (lookup by Firebase token)
+    firebase_uid: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
     
     # User information from Firebase
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
@@ -47,6 +57,11 @@ class User(Base):
         nullable=False
     )
     
+    visits: Mapped[list["Visit"]] = relationship(
+        "Visit",
+        back_populates="user",
+    )
+    
     def __repr__(self) -> str:
-        return f"User(firebase_uid={self.firebase_uid}, email={self.email})"
+        return f"User(id={self.id}, firebase_uid={self.firebase_uid}, email={self.email})"
 
