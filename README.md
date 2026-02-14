@@ -24,7 +24,7 @@ Coming soon...
 
 ## Project Structure
 
-```
+```text
 nhl-arenas/
 ├── backend/           # FastAPI backend
 │   ├── app/           # Application code

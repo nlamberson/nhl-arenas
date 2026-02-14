@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base
@@ -26,11 +26,16 @@ class Arena(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    nhl_venue_id: Mapped[int | None] = mapped_column(Integer, nullable=True, unique=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+    )
+
+    teams: Mapped[list["Team"]] = relationship(
+        "Team",
+        back_populates="arena",
+        foreign_keys="Team.arena_id",
     )
 
     def __repr__(self) -> str:

@@ -18,7 +18,10 @@ cp .env.example .env
 # 3. Run migrations
 alembic upgrade head
 
-# 4. Start server
+# 4. Seed reference data (teams from nhl-api-py, arenas from app/data/arenas.json)
+python -m app.scripts.seed_reference_data
+
+# 5. Start server
 uvicorn app.main:app --reload
 ```
 
@@ -66,10 +69,22 @@ app/
 
 All authenticated endpoints require a Firebase ID token:
 
-```
+```text
 Authorization: Bearer <firebase-id-token>
 ```
 
+## Reference Data (Teams & Arenas)
+
+Teams and arenas are populated by a seed script (not migrations). After `alembic upgrade head`, run:
+
+```bash
+python -m app.scripts.seed_reference_data
+```
+
+- **Teams:** Fetched from [nhl-api-py](https://github.com/coreyjs/nhl-api-py) (NHL API). Re-run to sync name/city changes.
+- **Arenas:** Loaded from `app/data/arenas.json` (keyed by team abbreviation). Edit that file to add or update venues.
+
+View DB Data with the following nhl-arenas APIs: `GET /api/v1/teams`, `GET /api/v1/arenas`.
 
 ## Database Migrations
 
