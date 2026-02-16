@@ -1,13 +1,49 @@
 """Authentication-related API endpoints."""
 
-from fastapi import APIRouter, Depends
+from app.core.auth import FirebaseUser, get_current_user
+from app.core.config import get_settings
+from app.db.session import get_db
+from app.schemas.auth import LoginRequest, LoginResponse
+from app.services.firebase_login import (FirebaseLoginError,
+                                         sign_in_with_password)
+from app.services.user_service import get_or_create_user
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.auth import FirebaseUser, get_current_user
-from app.db.session import get_db
-from app.services.user_service import get_or_create_user
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+
+@router.post("/login", response_model=LoginResponse, summary="Login with email and password")
+async def login(body: LoginRequest) -> LoginResponse:
+    """
+    Exchange email/password for a Firebase ID token (JWT) and refresh token.
+
+    The frontend should store the id_token and send it in the Authorization header
+    as "Bearer <id_token>" for protected endpoints. Use refresh_token to obtain
+    a new id_token when it expires (e.g. via Firebase REST refresh endpoint).
+    """
+    settings = get_settings()
+    try:
+        data = await sign_in_with_password(
+            api_key=settings.firebase_api_key,
+            email=body.email,
+            password=body.password,
+        )
+    except FirebaseLoginError as e:
+        detail = e.message
+        if e.code and e.code != e.message:
+            detail = f"{e.message} (code: {e.code})"
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from e
+
+    return LoginResponse(
+        id_token=data["idToken"],
+        refresh_token=data["refreshToken"],
+        expires_in=int(data["expiresIn"]),
+    )
 
 
 @router.get("/me", summary="Get current user information")
@@ -34,20 +70,5 @@ async def get_me(
         "display_name": user.display_name,
         "photo_url": user.photo_url,
         "created_at": user.created_at.isoformat(),
-    }
-
-
-@router.post("/verify", summary="Verify a Firebase token")
-async def verify_token(user: FirebaseUser = Depends(get_current_user)) -> dict:
-    """
-    Verify that a Firebase ID token is valid.
-    
-    Returns success if the token is valid and not expired.
-    Note: This does NOT create/update the user in the database. Use /auth/me for that.
-    """
-    return {
-        "valid": True,
-        "uid": user.uid,
-        "email": user.email,
     }
 

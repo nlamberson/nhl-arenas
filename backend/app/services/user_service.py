@@ -50,30 +50,3 @@ async def get_or_create_user(
     await db.refresh(new_user)
     return new_user
 
-
-async def get_user_by_firebase_uid(db: AsyncSession, firebase_uid: str) -> User | None:
-    """Get a user by their Firebase UID."""
-    stmt = select(User).where(User.firebase_uid == firebase_uid)
-    result = await db.execute(stmt)
-    return result.scalar_one_or_none()
-
-
-async def update_user_profile(
-    db: AsyncSession,
-    firebase_uid: str,
-    display_name: str | None = None,
-    # Add other fields you want to allow updating
-) -> User | None:
-    """Update user profile information."""
-    user = await get_user_by_firebase_uid(db, firebase_uid)
-    
-    if not user:
-        return None
-    
-    if display_name is not None:
-        user.display_name = display_name
-    
-    await db.commit()
-    await db.refresh(user)
-    return user
-

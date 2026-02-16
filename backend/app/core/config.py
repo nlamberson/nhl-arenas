@@ -26,6 +26,8 @@ class Settings(BaseSettings):
   
   # Firebase configuration
   firebase_project_id: str = Field(default="")
+  # Web API key (from Firebase Console → Project settings) - required for login endpoint
+  firebase_api_key: str = Field(default="")
   google_application_credentials: str | None = Field(default=None)
   # Alternative: base64-encoded service account JSON (for cloud platforms that don't support file mounts)
   firebase_service_account_base64: str | None = Field(default=None)

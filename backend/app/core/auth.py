@@ -57,29 +57,3 @@ async def get_current_user(
             detail=f"Invalid authentication credentials: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-async def get_current_user_optional(
-    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False))
-) -> FirebaseUser | None:
-    """
-    Optional authentication dependency - returns None if no token provided.
-    
-    Useful for endpoints that work differently for authenticated vs anonymous users.
-    
-    Usage:
-        @app.get("/optional-auth")
-        async def optional_route(user: FirebaseUser | None = Depends(get_current_user_optional)):
-            if user:
-                return {"message": f"Hello {user.email}"}
-            return {"message": "Hello anonymous user"}
-    """
-    if credentials is None:
-        return None
-    
-    try:
-        decoded_token = verify_firebase_token(credentials.credentials)
-        return FirebaseUser(decoded_token)
-    except Exception:
-        return None
-
