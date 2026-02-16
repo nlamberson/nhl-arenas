@@ -14,11 +14,12 @@ ios/
 
 # Python
 backend/.venv/
-backend/__pycache__/
+backend/**/__pycache__/
+**/__pycache__/
+*.pyc
 backend/.mypy_cache/
 backend/.pytest_cache/
 backend/.coverage
-*_pycache_*
 
 # PyCharm / VSCode
 .idea/
