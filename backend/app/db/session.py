@@ -1,9 +1,8 @@
 from collections.abc import AsyncGenerator
 
+from app.core.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-
-from app.core.config import get_settings
 
 settings = get_settings()
 
@@ -32,3 +31,21 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
       yield session
     finally:
       await session.close()
+
+async def save(entity, db: AsyncSession):
+  """Helper function to resemble a Spring Boot save. 
+    Adds an entity. Then commits and obtains latest entity values from the DB 
+    (like a udpated timestamp), and returns the updated entity to be used in a service.
+    """
+  db.add(entity)
+  await db.commit()
+  await db.refresh(entity)
+  return entity
+
+
+async def delete(entity, db: AsyncSession) -> None:
+  """Helper function to resemble a Spring Boot delete. 
+    Delete entity and commit it to the DB.
+    """
+  await db.delete(entity)
+  await db.commit()

@@ -5,7 +5,8 @@ from typing import Optional
 
 from pydantic import ConfigDict, BaseModel
 
-
+# TODO: Perhaps smaller response classes like TeamSummary and ArenaSummary
+#   For only name and id being returned if only those get needed in the service.
 class ArenaResponse(BaseModel):
     """Arena/venue response for API."""
 

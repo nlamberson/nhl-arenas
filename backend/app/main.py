@@ -1,12 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.core.config import get_settings
 from app.core.firebase import initialize_firebase
-from app.routers import auth, health, reference
+from app.routers import auth, health, reference, visits
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 settings = get_settings()
 
@@ -48,6 +47,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(reference.router)
+app.include_router(visits.router)
 
 
 @app.get("/", tags=["root"], summary="Root placeholder")

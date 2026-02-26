@@ -1,13 +1,12 @@
 """Read-only reference data endpoints: teams and arenas."""
 
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.db.session import get_db
 from app.models.arena import Arena
 from app.models.team import Team
 from app.schemas import ArenaResponse, TeamResponse
+from fastapi import APIRouter, Depends
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/v1/reference", tags=["reference"])
 

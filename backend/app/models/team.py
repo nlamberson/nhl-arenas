@@ -24,7 +24,7 @@ class Team(Base):
         server_default=text("gen_random_uuid()"),
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    abbreviation: Mapped[str] = mapped_column(String(3), nullable=False)
+    abbreviation: Mapped[str] = mapped_column(String(3), nullable=False, unique=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     arena_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
