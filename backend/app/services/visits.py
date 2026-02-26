@@ -50,11 +50,8 @@ async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) 
     """Delete a given visit if it belongs to the current user."""
 
     visit = await db.get(Visit, visit_id)
-    if visit is None:
+    if visit is None or visit.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Visit not found")
-
-    if visit.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized to delete this visit")
 
     await delete(visit, db)
 
