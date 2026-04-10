@@ -7,24 +7,37 @@ from app.core.auth import FirebaseUser, get_current_user
 from app.db.session import get_db
 from app.schemas.visit import VisitCreate, VisitResponse, VisitUpdate
 from app.services.user_service import get_or_create_user
-from app.services.visits import create_new_visit, delete_visit_by_id
-from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
+from app.services.visits import (create_new_visit, delete_visit_by_id,
+                                 get_users_visits)
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/visits", tags=["visits"])
 
+# Header Constants
+X_TOTAL_COUNT = "X-Total-Count"
+
 @router.get(
     "",
+    response_model=list[VisitResponse],
+    summary="List visits for the current user.",
 )
-async def get_visits() -> list[VisitResponse]:
-    """Get all visits for the current user."""
-    return JSONResponse(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        content={"detail": "This functionality is not yet available, please check back later."}
-    )
+async def get_visits(
+    response: Response,
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    skip: int = Query(0, ge=0, description="Number of visits to skip."),
+    limit: int = Query(20, ge=1, le=100, description="Maximum visits to return."),
+) -> list[VisitResponse]:
+    """Get paginated visits for the current user, newest first."""
+    user = await get_or_create_user(db, firebase_user)
+
+    logger.info("Request received to list visits for user: %s", user.id)
+    visits, total = await get_users_visits(user, db, skip, limit)
+    response.headers[X_TOTAL_COUNT] = str(total)
+    return visits
 
 @router.post(
     "",

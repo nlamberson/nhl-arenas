@@ -6,15 +6,34 @@ from app.db.session import delete, save
 from app.models import Arena, Team, User, Visit
 from app.schemas import ArenaResponse, TeamResponse, VisitCreate, VisitResponse
 from fastapi import HTTPException, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 
-async def get_users_visits(db: AsyncSession) -> list[VisitResponse]:
-    """Get all visits for the current user."""
+async def get_users_visits(
+    user: User, db: AsyncSession, skip: int, limit: int
+) -> tuple[list[VisitResponse], int]:
+    """List paginated visits for a user, newest visit_date first, with total count."""
 
-    # TODO: Implement
+    total = await _count_visits_for_user(user, db)
 
-    return []
+    visits_stmt = (
+        select(Visit)
+        .where(Visit.user_id == user.id)
+        .options(
+            selectinload(Visit.home_team),
+            selectinload(Visit.away_team),
+            selectinload(Visit.arena),
+        )
+        .order_by(Visit.visit_date.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    visits_result = await db.execute(visits_stmt)
+    visits = visits_result.scalars().all()
+
+    return [VisitResponse.model_validate(v) for v in visits], total
 
 async def create_new_visit(visit: VisitCreate, user: User, db: AsyncSession) -> VisitResponse:
     """Create a new visit for the current user."""
@@ -56,6 +75,16 @@ async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) 
     await delete(visit, db)
 
 # Helper functions
+async def _count_visits_for_user(user: User, db: AsyncSession) -> int:
+    count_stmt = (
+        select(func.count())
+        .select_from(Visit)
+        .where(Visit.user_id == user.id)
+    )
+    count_result = await db.execute(count_stmt)
+    return count_result.scalar_one()
+
+
 def _validate_teams_and_arena(
     home_team: Team | None,
     away_team: Team | None,
