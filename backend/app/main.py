@@ -3,9 +3,11 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
 from app.core.firebase import initialize_firebase
+from app.exceptions import VisitNotFoundError
 from app.routers import auth, health, reference, visits
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 settings = get_settings()
 
@@ -28,6 +30,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
+
+
+@app.exception_handler(VisitNotFoundError)
+async def visit_not_found_handler(_request: Request, _exc: VisitNotFoundError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": "Visit not found"},
+    )
+
 
 # Configure CORS - parse comma-separated origins or use "*" for development
 cors_origins = (

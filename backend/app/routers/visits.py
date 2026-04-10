@@ -8,7 +8,7 @@ from app.db.session import get_db
 from app.schemas.visit import VisitCreate, VisitResponse, VisitUpdate
 from app.services.user_service import get_or_create_user
 from app.services.visits import (create_new_visit, delete_visit_by_id,
-                                 get_users_visits)
+                                 get_users_visits, get_visit_by_id_for_user)
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -57,6 +57,24 @@ async def create_visit(
     created_visit = await create_new_visit(visit, user, db)
 
     return created_visit
+
+
+@router.get(
+    "/{visit_id}",
+    response_model=VisitResponse,
+    summary="Get a single visit for the current user.",
+)
+async def get_visit(
+    visit_id: uuid.UUID,
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VisitResponse:
+    """Return one visit if it belongs to the current user."""
+    user = await get_or_create_user(db, firebase_user)
+
+    logger.info("Request received to get visit %s for user: %s", visit_id, user.id)
+    return await get_visit_by_id_for_user(visit_id, user, db)
+
 
 @router.delete(
     "/{visit_id}",

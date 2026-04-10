@@ -3,6 +3,7 @@
 import uuid
 
 from app.db.session import delete, save
+from app.exceptions import VisitNotFoundError
 from app.models import Arena, Team, User, Visit
 from app.schemas import ArenaResponse, TeamResponse, VisitCreate, VisitResponse
 from fastapi import HTTPException, status
@@ -34,6 +35,29 @@ async def get_users_visits(
     visits = visits_result.scalars().all()
 
     return [VisitResponse.model_validate(v) for v in visits], total
+
+
+async def get_visit_by_id_for_user(
+    visit_id: uuid.UUID, user: User, db: AsyncSession
+) -> VisitResponse:
+    """Return one visit if it exists and belongs to the user."""
+
+    visit_stmt = (
+        select(Visit)
+        .where(Visit.id == visit_id, Visit.user_id == user.id)
+        .options(
+            selectinload(Visit.home_team),
+            selectinload(Visit.away_team),
+            selectinload(Visit.arena),
+        )
+    )
+    visit_result = await db.execute(visit_stmt)
+    visit = visit_result.scalar_one_or_none()
+    if visit is None:
+        raise VisitNotFoundError()
+
+    return VisitResponse.model_validate(visit)
+
 
 async def create_new_visit(visit: VisitCreate, user: User, db: AsyncSession) -> VisitResponse:
     """Create a new visit for the current user."""
@@ -70,7 +94,7 @@ async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) 
 
     visit = await db.get(Visit, visit_id)
     if visit is None or visit.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Visit not found")
+        raise VisitNotFoundError()
 
     await delete(visit, db)
 
