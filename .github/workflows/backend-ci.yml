@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  # Run unit tests for coverage report
+  # Step 1: Run unit tests for coverage report
   test:
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +34,7 @@ jobs:
       with:
         file: ./backend/coverage.xml
 
-  # Build and push the Docker image
+  # Step 2: Build and push the Docker image
   build:
     needs: test  # Only build if tests pass
     runs-on: ubuntu-latest
@@ -58,3 +58,9 @@ jobs:
         tags: |
           yourusername/nhl-arenas-api:latest
           yourusername/nhl-arenas-api:${{ github.sha }}
+
+  # Step 3: Deploy to <TBD>
+  # Could be broken out into deployment action later on, 
+  #   might make this just a build step
+
+  
