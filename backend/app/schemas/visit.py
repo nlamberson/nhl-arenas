@@ -1,12 +1,12 @@
 """Pydantic schemas for visit data."""
 
 import uuid
-from typing import Optional
 from datetime import date, datetime
-
-from pydantic import ConfigDict, BaseModel
+from typing import Optional
 
 from app.schemas.reference import ArenaResponse, TeamResponse
+from pydantic import BaseModel, ConfigDict
+
 
 # Request Objects
 class VisitCreate(BaseModel):

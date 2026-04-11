@@ -5,11 +5,19 @@ import uuid
 from app.db.session import delete, save
 from app.exceptions import VisitNotFoundError
 from app.models import Arena, Team, User, Visit
-from app.schemas import ArenaResponse, TeamResponse, VisitCreate, VisitResponse
+from app.schemas import (ArenaResponse, TeamResponse, VisitCreate,
+                         VisitResponse, VisitUpdate)
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+# Eager loads for VisitResponse (home/away teams + arena); keep list and single GET in sync.
+_VISIT_RELATION_LOADS = (
+    selectinload(Visit.home_team),
+    selectinload(Visit.away_team),
+    selectinload(Visit.arena),
+)
 
 
 async def get_users_visits(
@@ -18,21 +26,7 @@ async def get_users_visits(
     """List paginated visits for a user, newest visit_date first, with total count."""
 
     total = await _count_visits_for_user(user, db)
-
-    visits_stmt = (
-        select(Visit)
-        .where(Visit.user_id == user.id)
-        .options(
-            selectinload(Visit.home_team),
-            selectinload(Visit.away_team),
-            selectinload(Visit.arena),
-        )
-        .order_by(Visit.visit_date.desc())
-        .offset(skip)
-        .limit(limit)
-    )
-    visits_result = await db.execute(visits_stmt)
-    visits = visits_result.scalars().all()
+    visits = await _list_visits_for_user(user, db, skip, limit)
 
     return [VisitResponse.model_validate(v) for v in visits], total
 
@@ -42,20 +36,7 @@ async def get_visit_by_id_for_user(
 ) -> VisitResponse:
     """Return one visit if it exists and belongs to the user."""
 
-    visit_stmt = (
-        select(Visit)
-        .where(Visit.id == visit_id, Visit.user_id == user.id)
-        .options(
-            selectinload(Visit.home_team),
-            selectinload(Visit.away_team),
-            selectinload(Visit.arena),
-        )
-    )
-    visit_result = await db.execute(visit_stmt)
-    visit = visit_result.scalar_one_or_none()
-    if visit is None:
-        raise VisitNotFoundError()
-
+    visit = await _get_visit_for_user(visit_id, user, db)
     return VisitResponse.model_validate(visit)
 
 
@@ -89,6 +70,30 @@ async def create_new_visit(visit: VisitCreate, user: User, db: AsyncSession) -> 
         updated_at=saved_visit.updated_at
     )
 
+async def update_visit_for_user(
+    visit_id: uuid.UUID,
+    payload: VisitUpdate,
+    user: User,
+    db: AsyncSession,
+) -> VisitResponse:
+    """Apply a partial update to a visit owned by the user."""
+
+    visit = await _get_visit_for_user(visit_id, user, db)
+
+    data = payload.model_dump(exclude_unset=True)
+    if not data:
+        return VisitResponse.model_validate(visit)
+
+    await _validate_patch_foreign_keys(db, data)
+
+    for key, value in data.items():
+        setattr(visit, key, value)
+
+    await db.commit()
+
+    return await get_visit_by_id_for_user(visit_id, user, db)
+
+
 async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) -> None:
     """Delete a given visit if it belongs to the current user."""
 
@@ -99,6 +104,42 @@ async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) 
     await delete(visit, db)
 
 # Helper functions
+async def _list_visits_for_user(
+    user: User, db: AsyncSession, skip: int, limit: int
+) -> list[Visit]:
+    """Paginated visits for a user, newest first, with the same relations as GET-by-id."""
+
+    stmt = (
+        select(Visit)
+        .where(Visit.user_id == user.id)
+        .options(*_VISIT_RELATION_LOADS)
+        .order_by(Visit.visit_date.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+async def _get_visit_for_user(
+    visit_id: uuid.UUID,
+    user: User,
+    db: AsyncSession,
+) -> Visit:
+    """Load one visit by id for this user with arena and teams (same graph as GET)."""
+
+    stmt = (
+        select(Visit)
+        .where(Visit.id == visit_id, Visit.user_id == user.id)
+        .options(*_VISIT_RELATION_LOADS)
+    )
+    result = await db.execute(stmt)
+    visit = result.scalar_one_or_none()
+    if visit is None:
+        raise VisitNotFoundError()
+    return visit
+
+
 async def _count_visits_for_user(user: User, db: AsyncSession) -> int:
     count_stmt = (
         select(func.count())
@@ -107,6 +148,29 @@ async def _count_visits_for_user(user: User, db: AsyncSession) -> int:
     )
     count_result = await db.execute(count_stmt)
     return count_result.scalar_one()
+
+
+async def _validate_patch_foreign_keys(db: AsyncSession, data: dict) -> None:
+    """Ensure any ID fields in a PATCH body reference existing rows."""
+
+    if "home_team_id" in data:
+        if await db.get(Team, data["home_team_id"]) is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Home team not found",
+            )
+    if "away_team_id" in data:
+        if await db.get(Team, data["away_team_id"]) is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Away team not found",
+            )
+    if "arena_id" in data:
+        if await db.get(Arena, data["arena_id"]) is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Arena not found",
+            )
 
 
 def _validate_teams_and_arena(
