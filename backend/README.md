@@ -9,7 +9,9 @@ FastAPI backend for the NHL Arenas app with Firebase Authentication.
 cd backend
 python3.13 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e ".[dev]"
+
+# Runtime only (no pytest): pip install -e .
 
 # 2. Configure environment
 cp .env.example .env
@@ -26,6 +28,16 @@ uvicorn app.main:app --reload
 ```
 
 Visit http://localhost:8000/docs for API documentation.
+
+## Tests
+
+Dependencies for pytest live in the optional **`[dev]`** extra in [`pyproject.toml`](./pyproject.toml). Install them with `pip install -e ".[dev]"`, then from `backend/`:
+
+```bash
+pytest
+```
+
+CI should run the same install (including `[dev]`) in the test job; production images install without `[dev]` (see `Dockerfile`).
 
 ## Environment Variables
 

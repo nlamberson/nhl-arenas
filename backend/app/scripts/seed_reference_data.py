@@ -23,7 +23,7 @@ except ModuleNotFoundError:
         "Missing dependency. Run from the backend directory with the venv activated:\n"
         "  cd backend\n"
         "  source .venv/bin/activate\n"
-        "  pip install -r requirements.txt\n"
+        "  pip install -e .\n"
         "  python -m app.scripts.seed_reference_data",
         file=sys.stderr,
     )

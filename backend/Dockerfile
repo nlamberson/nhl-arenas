@@ -10,14 +10,13 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for better Docker layer caching)
-COPY requirements.txt .
-
-# Install Python dependencies
+# Install dependencies (runtime only — no [dev] extra)
+COPY pyproject.toml .
+COPY app ./app
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir .
 
-# Copy application code
+# Remaining application files (alembic, scripts, etc.)
 COPY . .
 
 # Make startup script executable
