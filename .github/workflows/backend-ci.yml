@@ -56,11 +56,10 @@ jobs:
         context: ./backend
         push: true
         tags: |
-          yourusername/nhl-arenas-api:latest
-          yourusername/nhl-arenas-api:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:latest
+          ${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:${{ github.sha }}
 
   # Step 3: Deploy to <TBD>
   # Could be broken out into deployment action later on, 
   #   might make this just a build step
 
-  
