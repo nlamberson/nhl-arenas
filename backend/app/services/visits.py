@@ -2,12 +2,11 @@
 
 import uuid
 
+from app.core.exceptions import ResourceNotFoundError, VisitNotFoundError
 from app.db.session import delete, save
-from app.exceptions import VisitNotFoundError
 from app.models import Arena, Team, User, Visit
 from app.schemas import (ArenaResponse, TeamResponse, VisitCreate,
                          VisitResponse, VisitUpdate)
-from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -155,22 +154,13 @@ async def _validate_patch_foreign_keys(db: AsyncSession, data: dict) -> None:
 
     if "home_team_id" in data:
         if await db.get(Team, data["home_team_id"]) is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Home team not found",
-            )
+            raise ResourceNotFoundError("Home team not found")
     if "away_team_id" in data:
         if await db.get(Team, data["away_team_id"]) is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Away team not found",
-            )
+            raise ResourceNotFoundError("Away team not found")
     if "arena_id" in data:
         if await db.get(Arena, data["arena_id"]) is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Arena not found",
-            )
+            raise ResourceNotFoundError("Arena not found")
 
 
 def _validate_teams_and_arena(
@@ -179,8 +169,8 @@ def _validate_teams_and_arena(
     arena: Arena | None,
 ) -> None:
     if home_team is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Home team not found")
+        raise ResourceNotFoundError("Home team not found")
     if away_team is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Away team not found")
+        raise ResourceNotFoundError("Away team not found")
     if arena is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Arena not found")
+        raise ResourceNotFoundError("Arena not found")

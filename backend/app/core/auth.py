@@ -2,9 +2,10 @@
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.core.exceptions import UnauthorizedError
 from app.core.firebase import verify_firebase_token
 
 # HTTP Bearer token scheme for extracting Authorization header
@@ -44,7 +45,7 @@ async def get_current_user(
         FirebaseUser object containing user information.
         
     Raises:
-        HTTPException: 401 if token is invalid or missing.
+        UnauthorizedError: 401 if token is invalid or missing.
     """
     token = credentials.credentials
     
@@ -52,8 +53,6 @@ async def get_current_user(
         decoded_token = verify_firebase_token(token)
         return FirebaseUser(decoded_token)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+        raise UnauthorizedError(
             detail=f"Invalid authentication credentials: {str(e)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e

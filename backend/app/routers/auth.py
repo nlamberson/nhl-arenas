@@ -2,12 +2,13 @@
 
 from app.core.auth import FirebaseUser, get_current_user
 from app.core.config import get_settings
+from app.core.exceptions import UnauthorizedError
 from app.db.session import get_db
 from app.schemas.auth import LoginRequest, LoginResponse
 from app.services.firebase_login import (FirebaseLoginError,
                                          sign_in_with_password)
 from app.services.user_service import get_or_create_user
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -33,11 +34,7 @@ async def login(body: LoginRequest) -> LoginResponse:
         detail = e.message
         if e.code and e.code != e.message:
             detail = f"{e.message} (code: {e.code})"
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=detail,
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from e
+        raise UnauthorizedError(detail=detail) from e
 
     return LoginResponse(
         id_token=data["idToken"],

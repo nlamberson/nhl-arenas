@@ -2,12 +2,18 @@ import logging
 from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
+from app.core.error_handlers import (
+    api_exception_handler,
+    integrity_error_handler,
+    request_validation_handler,
+)
+from app.core.exceptions import APIException
 from app.core.firebase import initialize_firebase
-from app.exceptions import VisitNotFoundError
 from app.routers import auth, health, reference, visits
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 
 settings = get_settings()
 
@@ -31,13 +37,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
-
-@app.exception_handler(VisitNotFoundError)
-async def visit_not_found_handler(_request: Request, _exc: VisitNotFoundError) -> JSONResponse:
-    return JSONResponse(
-        status_code=status.HTTP_404_NOT_FOUND,
-        content={"detail": "Visit not found"},
-    )
+app.add_exception_handler(APIException, api_exception_handler)
+app.add_exception_handler(RequestValidationError, request_validation_handler)
+app.add_exception_handler(IntegrityError, integrity_error_handler)
 
 
 # Configure CORS - parse comma-separated origins or use "*" for development
