@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: nhl-arenas-api-build
 
 on:
   push:
