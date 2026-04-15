@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   # Step 1: Run unit tests for coverage report
   test:
@@ -24,8 +21,24 @@ jobs:
     - name: Install dependencies
       run: |
         cd backend
-        pip install -e ".[dev]"
-        pip install pytest pytest-cov pytest-asyncio
+        retry() {
+          local attempts=$1
+          shift
+          local n=1
+          until "$@"; do
+            if [ "$n" -ge "$attempts" ]; then
+              echo "Command failed after $n attempts: $*"
+              return 1
+            fi
+            echo "Attempt $n failed. Retrying in 5s..."
+            n=$((n + 1))
+            sleep 5
+          done
+        }
+
+        python -m pip install --upgrade pip
+        retry 3 pip install --retries 10 --timeout 60 --disable-pip-version-check -e ".[dev]"
+        retry 3 pip install --retries 10 --timeout 60 --disable-pip-version-check pytest pytest-cov pytest-asyncio
     
     - name: Run tests
       run: |
