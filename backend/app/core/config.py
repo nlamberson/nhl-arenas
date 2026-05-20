@@ -1,7 +1,11 @@
+import socket
 from functools import lru_cache
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_LOCAL_DB_HOSTS = frozenset({"localhost", "127.0.0.1", "db"})
 
 
 def normalize_database_url(url: str) -> str:
@@ -13,6 +17,27 @@ def normalize_database_url(url: str) -> str:
   if url.startswith("postgres://"):
     return "postgresql+psycopg://" + url.removeprefix("postgres://")
   return url
+
+
+def prefer_ipv4_database_url(url: str) -> str:
+  """Add hostaddr so libpq uses IPv4; host is kept for SSL (Supabase, Render, etc.)."""
+  parsed = urlparse(url)
+  hostname = parsed.hostname
+  if not hostname or hostname in _LOCAL_DB_HOSTS:
+    return url
+  if "hostaddr=" in (parsed.query or ""):
+    return url
+  try:
+    port = parsed.port or 5432
+    infos = socket.getaddrinfo(hostname, port, socket.AF_INET, socket.SOCK_STREAM)
+    ipv4 = infos[0][4][0]
+  except (socket.gaierror, OSError):
+    return url
+  query_params = dict(parse_qsl(parsed.query, keep_blank_values=True))
+  query_params["hostaddr"] = ipv4
+  if hostname.endswith(".supabase.co") and "sslmode" not in query_params:
+    query_params["sslmode"] = "require"
+  return urlunparse(parsed._replace(query=urlencode(query_params)))
 
 
 class Settings(BaseSettings):
@@ -53,6 +78,7 @@ class Settings(BaseSettings):
       )
     else:
       self.database_url = normalize_database_url(self.database_url)
+    self.database_url = prefer_ipv4_database_url(self.database_url)
     return self
 
 
