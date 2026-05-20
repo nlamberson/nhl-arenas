@@ -1,0 +1,49 @@
+# Dependabot keeps backend dependencies current and opens PRs for known vulnerabilities.
+#
+# Security updates: opened as soon as GitHub finds an advisory (not tied to the schedule below).
+# Version updates: opened on the schedule below for routine upgrades.
+#
+# Enable in the repo: Settings → Code security and analysis
+#   - Dependabot alerts
+#   - Dependabot security updates
+#
+# PRs targeting main run backend-ci (.github/workflows/backend-ci.yml).
+
+version: 2
+updates:
+  # Python runtime and libraries (pyproject.toml)
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - backend
+    commit-message:
+      prefix: backend
+    pull-request-branch-name-prefix: dependabot/backend-pip
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    groups:
+      python-runtime:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  # Base image in backend/Dockerfile (e.g. python:3.13-slim)
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - backend
+      - docker
+    commit-message:
+      prefix: backend
+    pull-request-branch-name-prefix: dependabot/backend-docker
+    open-pull-requests-limit: 5
