@@ -50,9 +50,10 @@ jobs:
       with:
         files: ./backend/coverage.xml
 
-  # Step 2: Build and push the Docker image
+  # Step 2: Build and push the Docker image (main only — PRs skip; Dependabot has no registry secrets)
   build:
-    needs: test  # Only build if tests pass
+    needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
