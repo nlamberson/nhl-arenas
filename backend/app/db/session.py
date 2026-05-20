@@ -6,15 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 settings = get_settings()
 
-# Convert postgresql:// to postgresql+asyncpg:// for async support
-# If using psycopg, use postgresql+psycopg://
-database_url = settings.database_url.replace(
-    "postgresql+psycopg://", "postgresql+psycopg://"
-).replace(
-    "postgresql://", "postgresql+psycopg://"
-)
-
-engine = create_async_engine(database_url, echo=False, future=True)
+engine = create_async_engine(settings.database_url, echo=False, future=True)
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     class_=AsyncSession,

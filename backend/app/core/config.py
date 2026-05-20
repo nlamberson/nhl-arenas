@@ -4,6 +4,17 @@ from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def normalize_database_url(url: str) -> str:
+  """Use psycopg3 driver; plain postgresql:// defaults to psycopg2 in SQLAlchemy."""
+  if url.startswith("postgresql+psycopg://"):
+    return url
+  if url.startswith("postgresql://"):
+    return "postgresql+psycopg://" + url.removeprefix("postgresql://")
+  if url.startswith("postgres://"):
+    return "postgresql+psycopg://" + url.removeprefix("postgres://")
+  return url
+
+
 class Settings(BaseSettings):
   """Application settings loaded from environment variables."""
 
@@ -40,6 +51,8 @@ class Settings(BaseSettings):
         f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}"
         f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
       )
+    else:
+      self.database_url = normalize_database_url(self.database_url)
     return self
 
 

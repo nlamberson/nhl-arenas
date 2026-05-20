@@ -21,9 +21,7 @@ if config.config_file_name is not None:
   fileConfig(config.config_file_name)
 
 settings = get_settings()
-# Convert async database URL to sync for Alembic
-sync_db_url = settings.database_url.replace("postgresql+psycopg://", "postgresql+psycopg://")
-config.set_main_option("sqlalchemy.url", sync_db_url)
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
 target_metadata = Base.metadata
 
