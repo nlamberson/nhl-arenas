@@ -22,7 +22,6 @@ updates:
       - backend
     commit-message:
       prefix: backend
-    pull-request-branch-name-prefix: dependabot/backend-pip
     open-pull-requests-limit: 10
     versioning-strategy: increase
     groups:
@@ -45,5 +44,4 @@ updates:
       - docker
     commit-message:
       prefix: backend
-    pull-request-branch-name-prefix: dependabot/backend-docker
     open-pull-requests-limit: 5
