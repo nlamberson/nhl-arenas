@@ -17,7 +17,7 @@ dependencies = [
     "python-dotenv==1.2.2",
     "pydantic==2.13.4",
     "pydantic-settings==2.14.1",
-    "email-validator>=2.0.0",
+    "email-validator>=2.3.0",
     "firebase-admin==7.4.0",
     "httpx==0.28.1",
     "nhl-api-py>=3.3.0",
