@@ -9,6 +9,7 @@ on:
 jobs:
   # Step 1: Run unit tests for coverage report
   test:
+    name: "Test"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
@@ -52,6 +53,7 @@ jobs:
 
   # Step 2: Build and push the Docker image (main only — PRs skip; Dependabot has no registry secrets)
   build:
+    name: "Build and Push Docker Image"
     needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
