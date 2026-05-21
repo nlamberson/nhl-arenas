@@ -55,6 +55,12 @@ jobs:
     needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    concurrency:
+      group: docker-build-main
+      cancel-in-progress: false
     steps:
     - uses: actions/checkout@v6
     
@@ -67,22 +73,26 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    # Tag shape: v<pyproject version>.<UTC date>.<run_number>, e.g. v0.1.0.2026-04-13.42
-    # run_number is monotonic for this workflow (not reset at midnight). For a strict
-    # "nth build today" counter, add a step that queries the GitHub API for runs on the current date.
+    # Tag shape: v<pyproject version>.<UTC date>.<nth build today>, e.g. v0.1.0.2026-05-20.3
+    # Daily counter resets at UTC midnight; counts main-branch runs of this workflow (incl. this run).
     - name: Compute Docker image version tag
       id: docker_meta
       working-directory: backend
       env:
-        RUN_NUMBER: ${{ github.run_number }}
+        GH_TOKEN: ${{ github.token }}
       run: |
+        set -euo pipefail
         VERSION=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/^version *= *"([^"]+)".*/\1/')
         BUILD_DATE=$(date -u +%Y-%m-%d)
-        IMAGE_TAG="v${VERSION}.${BUILD_DATE}.${RUN_NUMBER}"
+        RUNS_TODAY=$(gh api \
+          "repos/${GITHUB_REPOSITORY}/actions/workflows/backend-ci.yml/runs?branch=main&per_page=100" \
+          --jq "[.workflow_runs[] | select(.created_at | startswith(\"${BUILD_DATE}\"))] | length")
+        IMAGE_TAG="v${VERSION}.${BUILD_DATE}.${RUNS_TODAY}"
         echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
         echo "build_date=${BUILD_DATE}" >> "$GITHUB_OUTPUT"
+        echo "daily_build_number=${RUNS_TODAY}" >> "$GITHUB_OUTPUT"
         echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-        echo "Docker image tag: ${IMAGE_TAG}"
+        echo "Docker image tag: ${IMAGE_TAG} (build ${RUNS_TODAY} on ${BUILD_DATE} UTC)"
 
     - name: Build and push
       uses: docker/build-push-action@v7
@@ -93,7 +103,5 @@ jobs:
           ${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:latest
           ${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:${{ steps.docker_meta.outputs.image_tag }}
 
-  # Step 3: Deploy to <TBD>
-  # Could be broken out into deployment action later on, 
-  #   might make this just a build step
+  # Deploy: run .github/workflows/backend-cd.yml manually with the image_tag from this job's logs.
 
