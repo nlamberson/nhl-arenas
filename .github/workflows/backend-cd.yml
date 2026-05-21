@@ -64,8 +64,7 @@ jobs:
             exit 1
           fi
 
-          # Render imgURL uses @ between repo and tag (not :). Host/path must match the service image URL.
-          IMG_PATH="docker.io/${DOCKER_USERNAME}/nhl-arenas-api@${IMAGE_TAG}"
+          IMG_PATH="docker.io/${DOCKER_USERNAME}/nhl-arenas-api:${IMAGE_TAG}"
           IMG_URL_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${IMG_PATH}', safe=''))")
 
           if [[ "$DEPLOY_HOOK" == *'?'* ]]; then
