@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   deploy:
+    name: "Deploy Docker Image to Render"
     runs-on: ubuntu-latest
     environment: production
     permissions:
