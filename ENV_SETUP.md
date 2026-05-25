@@ -1,70 +1,80 @@
 # Environment Variables Setup
 
-## Quick Start - Use Templates!
+## Quick Start
 
-### Root `.env` (for Docker Compose)
-```bash
-cp .env.example .env
-# Then edit .env with your values
-```
+Copy the backend template and edit values:
 
-### Backend `.env` (for local development)
 ```bash
 cp backend/.env.example backend/.env
-# Then edit backend/.env with your values
 ```
 
-## For Docker Compose
+All configuration lives in `backend/.env` (gitignored). The FastAPI app loads it when you run locally from the `backend/` directory.
 
-Create a `.env` file in the **root directory** (next to `docker-compose.yml`):
+## Local Development
 
-```bash
-# Firebase Configuration
-FIREBASE_PROJECT_ID=your-firebase-project-id
-
-# Database Configuration
-POSTGRES_USER=nhl_arenas_user
-POSTGRES_PASSWORD=change-this-to-a-secure-password
-POSTGRES_DB=nhl_arenas
-```
-
-**Important**: This `.env` file is gitignored and will NOT be committed!
-
-## For Local Development (Without Docker)
-
-Create `backend/.env`:
+Create `backend/.env` with at least:
 
 ```bash
-# Firebase Configuration
+# Firebase
 FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_API_KEY=your-web-api-key
+GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
 
-# Database Configuration (separate variables)
+# Database — Option 1: individual components (local Postgres on localhost)
 POSTGRES_USER=nhl_arenas_user
 POSTGRES_PASSWORD=your-password-here
 POSTGRES_DB=nhl_arenas
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
 
-# Database URL (auto-constructed from above, or set manually)
-# This will be built as: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
-# Or set manually:
-# DATABASE_URL=postgresql+psycopg://nhl_arenas_user:your-password@localhost:5432/nhl_arenas
+# Database — Option 2: full URL (Supabase, Railway, etc.)
+# DATABASE_URL=postgresql+psycopg://user:pass@host:5432/nhl_arenas
 
 # Optional
 APP_NAME=NHL Arena Tracker API
 ENVIRONMENT=development
+CORS_ORIGINS=*
 ```
+
+If `DATABASE_URL` is set, it takes priority over the `POSTGRES_*` components. See `backend/.env.example` for Firebase service account options (file, base64, or Google Cloud ADC).
+
+## Database URL Configuration
+
+### Option 1: Individual components
+
+```bash
+POSTGRES_USER=nhl_arenas_user
+POSTGRES_PASSWORD=your-password
+POSTGRES_DB=nhl_arenas
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+The backend builds: `postgresql+psycopg://user:pass@host:port/db`
+
+### Option 2: Full `DATABASE_URL` (recommended for production)
+
+```bash
+DATABASE_URL=postgresql+psycopg://user:pass@host:5432/nhl_arenas
+```
+
+Use your Supabase or other provider connection string. Plain `postgresql://` URIs are normalized to use psycopg3.
+
+**Note:** If both are set, `DATABASE_URL` takes priority.
 
 ## Security Best Practices
 
 ### Development
-- ✅ Use `.env` files (gitignored)
-- ✅ Different passwords for each environment
-- ✅ Never commit `.env` files
+
+- Use `backend/.env` (gitignored)
+- Use different credentials per environment
+- Never commit `.env` files or Firebase JSON keys
 
 ### Production
-- ✅ Use secrets management (AWS Secrets Manager, Google Secret Manager, Railway variables)
-- ✅ Use strong passwords (20+ characters)
-- ✅ Rotate credentials regularly
-- ✅ Use environment variables in deployment platform
+
+- Use your platform’s secrets / env vars (`DATABASE_URL`, `FIREBASE_PROJECT_ID`, etc.)
+- Use strong passwords and rotate credentials
+- Prefer managed PostgreSQL (Supabase, Railway, RDS, etc.)
 
 ## Getting Your Firebase Project ID
 
@@ -75,119 +85,75 @@ ENVIRONMENT=development
 
 ## Generating Secure Passwords
 
-### On macOS/Linux:
+### macOS/Linux
+
 ```bash
-# Generate a secure random password
 openssl rand -base64 32
 ```
 
-### On Windows (PowerShell):
+### Windows (PowerShell)
+
 ```powershell
-# Generate a secure random password
 -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | % {[char]$_})
-```
-
-## Database URL Configuration - Two Options
-
-The backend now supports **two ways** to configure the database:
-
-### Option 1: Individual Components (Recommended)
-
-```bash
-POSTGRES_USER=nhl_arenas_user
-POSTGRES_PASSWORD=your-password
-POSTGRES_DB=nhl_arenas
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-```
-
-The backend automatically builds: `postgresql+psycopg://user:pass@host:port/db`
-
-**Pros:**
-- ✅ Easier to read and update
-- ✅ Works seamlessly with Docker Compose
-- ✅ Consistent format across environments
-
-### Option 2: Full DATABASE_URL (Alternative)
-
-```bash
-DATABASE_URL=postgresql+psycopg://nhl_arenas_user:your-password@localhost:5432/nhl_arenas
-```
-
-**Pros:**
-- ✅ Works with cloud provider connection strings
-- ✅ Copy-paste from Railway, Render, etc.
-
-**Note:** If both are set, `DATABASE_URL` takes priority.
-
-## Example `.env` Files
-
-### Root `.env` (for Docker Compose)
-```bash
-FIREBASE_PROJECT_ID=my-nhl-app-abc123
-POSTGRES_USER=nhl_arenas_user
-POSTGRES_PASSWORD=X9mKp2@nQ5wRtY8#vL3zF6hJ9dS4bN7c
-POSTGRES_DB=nhl_arenas
-```
-
-### Backend `.env` (for local development)
-```bash
-FIREBASE_PROJECT_ID=my-nhl-app-abc123
-POSTGRES_USER=nhl_arenas_user
-POSTGRES_PASSWORD=X9mKp2@nQ5wRtY8#vL3zF6hJ9dS4bN7c
-POSTGRES_DB=nhl_arenas
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
 ```
 
 ## Deployment Platform Examples
 
-### Railway
-Set in Dashboard → Variables:
-- `FIREBASE_PROJECT_ID`
-- Database URL is auto-generated
+### Render
 
-### AWS ECS/Fargate
-Set in Task Definition → Environment variables or use Secrets Manager
+Create a web-service. Then set in the dashboard:
+
+Environment Variables:
+
+- `DATABASE_URL` (often auto-provided when you attach Postgres)
+- `FIREBASE_API_KEY`
+- `FIREBASE_PROJECT_ID`
+- `GOOGLE_APPLICATION_CREDENTIALS` (Set to ./firebase-service-account.json)
+
+Secret Files:
+
+- `firebase-service-account.json` (Get from firebase console)
 
 ### Google Cloud Run
+
 ```bash
 gcloud run deploy nhl-arenas-backend \
   --set-env-vars FIREBASE_PROJECT_ID=your-id \
   --set-secrets DATABASE_URL=projects/PROJECT/secrets/db-url:latest
 ```
 
-### Docker Container
+### Docker container
+
 ```bash
 docker run -d \
   -e FIREBASE_PROJECT_ID="your-id" \
-  -e DATABASE_URL="postgresql://..." \
+  -e DATABASE_URL="postgresql+psycopg://..." \
   nhl-arenas-backend
 ```
 
+See [backend/DEPLOYMENT.md](./backend/DEPLOYMENT.md) for full deployment options.
+
 ## Verifying Environment Variables
 
-### Check if loaded correctly:
-
 ```bash
-# In Docker Compose
-docker-compose exec backend env | grep FIREBASE
-
-# In running container
-docker exec nhl-arenas-backend env | grep DATABASE_URL
+# Local — from backend/ with venv active
+cd backend && python -c "from app.core.config import get_settings; s=get_settings(); print(s.firebase_project_id, s.database_url[:30]+'...')"
 ```
 
 ## Troubleshooting
 
 ### "Missing Firebase configuration"
-- Verify `FIREBASE_PROJECT_ID` is set in `.env`
-- Restart Docker Compose: `docker-compose down && docker-compose up`
+
+- Verify `FIREBASE_PROJECT_ID` is set in `backend/.env`
+- Restart the dev server after changing `.env`
 
 ### Database connection failed
-- Check `POSTGRES_PASSWORD` matches in both db and backend services
-- Verify database URL format is correct
-- Ensure database is running: `docker-compose ps`
+
+- Check `DATABASE_URL` or `POSTGRES_*` values match your database
+- For Supabase, use the connection string from the dashboard (Session pooler on hosts without IPv6)
+- Ensure migrations have run: `alembic upgrade head`
 
 ### Changes not taking effect
-- Restart services: `docker-compose restart`
-- Or full restart: `docker-compose down && docker-compose up`
+
+- Restart `uvicorn` after editing `backend/.env`
+- For production containers, redeploy or restart the service so new env vars are picked up

@@ -1,31 +1,8 @@
 # Deployment Guide
 
-This guide covers deploying your NHL Arenas backend with Docker.
+This guide covers deploying the NHL Arenas backend with Docker.
 
-## Quick Start with Docker Compose
-
-### 1. Set Environment Variables
-
-Create a `.env` file in the **root directory** (next to `docker-compose.yml`):
-
-```bash
-FIREBASE_PROJECT_ID=your-firebase-project-id
-```
-
-### 2. Start Everything
-
-```bash
-# Start database and backend
-docker-compose up -d
-
-# View logs
-docker-compose logs -f backend
-
-# Stop everything
-docker-compose down
-```
-
-The API will be available at http://localhost:8000
+For local development, use `backend/.env` and run from the `backend/` directory — see [README.md](./README.md) and [ENV_SETUP.md](../ENV_SETUP.md).
 
 ## Building the Docker Image
 
@@ -157,14 +134,9 @@ Use a managed PostgreSQL service:
 
 Get the connection URL and set it as `DATABASE_URL`.
 
-### Option 2: Database in Docker
+### Option 2: Self-hosted Postgres on a VM
 
-If running on your own VM, you can use the `docker-compose.yml` but with **persistent volumes**:
-
-```bash
-# Production docker-compose
-docker-compose -f docker-compose.prod.yml up -d
-```
+Run PostgreSQL on the same VM (or a separate host) and point `DATABASE_URL` at it. Use a managed database when possible; self-hosted Postgres requires your own backups, upgrades, and SSL configuration.
 
 ## Migrations in Production
 
@@ -200,10 +172,6 @@ async def health_check():
 View logs:
 
 ```bash
-# Docker Compose
-docker-compose logs -f backend
-
-# Docker
 docker logs -f nhl-arenas-backend
 
 # Cloud Run

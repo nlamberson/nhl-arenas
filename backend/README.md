@@ -114,13 +114,15 @@ alembic downgrade -1
 ## Docker
 
 ```bash
-# Build and run with Docker Compose (from project root)
-docker-compose up
-
-# Or build standalone
+# From backend/
 docker build -t nhl-arenas-backend .
-docker run -p 8000:8000 -e FIREBASE_PROJECT_ID=your-id nhl-arenas-backend
+docker run -p 8000:8000 \
+  -e DATABASE_URL="postgresql+psycopg://user:pass@host:5432/nhl_arenas" \
+  -e FIREBASE_PROJECT_ID=your-id \
+  nhl-arenas-backend
 ```
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment.
 
 ## Deployment
 

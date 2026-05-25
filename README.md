@@ -30,8 +30,8 @@ nhl-arenas/
 │   ├── app/           # Application code
 │   ├── alembic/       # Database migrations
 │   └── Dockerfile
-├── frontend/          # Expo/React Native app
-│   └── src/
-├── docker-compose.yml
+├── frontend/          # Expo SDK 56 + Expo Router + NativeWind v4
+│   └── app/           # File-based routes
+├── ENV_SETUP.md       # Environment variable reference
 └── README.md
 ```
