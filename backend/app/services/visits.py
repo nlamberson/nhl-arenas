@@ -7,7 +7,8 @@ from app.db.session import delete, save
 from app.models import Arena, Team, User, Visit
 from app.schemas import (ArenaResponse, TeamResponse, VisitCreate,
                          VisitResponse, VisitUpdate)
-from sqlalchemy import func, select
+from app.schemas.stats import VisitStatsResponse
+from sqlalchemy import func, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -17,6 +18,47 @@ _VISIT_RELATION_LOADS = (
     selectinload(Visit.away_team),
     selectinload(Visit.arena),
 )
+
+
+async def get_user_visit_stats(user: User, db: AsyncSession) -> VisitStatsResponse:
+    """
+    Get counts for a users visits, teams seen, and arenas seen, without loading \
+    full visit data.
+    """
+
+    total = await _count_visits_for_user(user, db)
+
+    team_ids = union_all(
+        select(Visit.home_team_id.label("team_id")).where(Visit.user_id == user.id),
+        select(Visit.away_team_id.label("team_id")).where(Visit.user_id == user.id),
+    ).subquery()
+
+    teams_stmt = select(func.count(func.distinct(team_ids.c.team_id)))
+    teams_result = await db.execute(teams_stmt)
+    teams_seen = teams_result.scalar_one() or 0
+
+    arenas_stmt = select(func.count(func.distinct(Visit.arena_id))).where(
+        Visit.user_id == user.id
+    )
+    arenas_result = await db.execute(arenas_stmt)
+    arenas_visited = arenas_result.scalar_one() or 0
+
+    return VisitStatsResponse(
+        total_visits=total,
+        teams_seen=teams_seen,
+        arenas_visited=arenas_visited,
+    )
+
+
+async def get_latest_visit_for_user(
+    user: User, db: AsyncSession
+) -> VisitResponse | None:
+    """Most recent visit by visit_date. Returns None if the user has no visits."""
+
+    visits = await _list_visits_for_user(user, db, skip=0, limit=1)
+    if not visits:
+        return None
+    return VisitResponse.model_validate(visits[0])
 
 
 async def get_users_visits(

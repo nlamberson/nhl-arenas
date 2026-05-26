@@ -7,6 +7,7 @@ import pytest
 from app.core.auth import get_current_user
 from app.core.exceptions import VisitNotFoundError
 from app.db.session import get_db
+from app.schemas.game import VisitGameResponse
 from app.schemas.visit import VisitCreate
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,11 +31,49 @@ def visits_client(visits_test_app, test_firebase_user, test_db_user):
     visits_test_app.dependency_overrides.clear()
 
 
+def test_get_visit_stats_returns_aggregates(visits_client: TestClient) -> None:
+    from app.schemas.stats import VisitStatsResponse
+
+    with patch(
+        "app.routers.visits.get_user_visit_stats",
+        new_callable=AsyncMock,
+    ) as m:
+        m.return_value = VisitStatsResponse(
+            total_visits=31,
+            teams_seen=12,
+            arenas_visited=8,
+        )
+        r = visits_client.get("/api/v1/visits/stats")
+
+    assert r.status_code == 200
+    data = r.json()
+    assert data["total_visits"] == 31
+    assert data["teams_seen"] == 12
+    assert data["arenas_visited"] == 8
+
+
+def test_get_latest_visit_returns_null_when_empty(visits_client: TestClient) -> None:
+    with patch(
+        "app.routers.visits.get_latest_visit_for_user",
+        new_callable=AsyncMock,
+    ) as m:
+        m.return_value = None
+        r = visits_client.get("/api/v1/visits/latest")
+
+    assert r.status_code == 200
+    assert r.json() is None
+
+
 def test_get_visits_returns_list_and_total_header(visits_client: TestClient) -> None:
     vr = sample_visit_response()
     with patch("app.routers.visits.get_users_visits", new_callable=AsyncMock) as m:
         m.return_value = ([vr], 42)
-        r = visits_client.get("/api/v1/visits")
+        with patch(
+            "app.routers.visits.enrich_visits_with_game_scores",
+            new_callable=AsyncMock,
+        ) as m_scores:
+            m_scores.return_value = [vr]
+            r = visits_client.get("/api/v1/visits")
 
     assert r.status_code == 200
     assert r.headers.get("X-Total-Count") == "42"
@@ -47,7 +86,12 @@ def test_get_visit_returns_single(visits_client: TestClient) -> None:
     vr = sample_visit_response()
     with patch("app.routers.visits.get_visit_by_id_for_user", new_callable=AsyncMock) as m:
         m.return_value = vr
-        r = visits_client.get(f"/api/v1/visits/{vr.id}")
+        with patch(
+            "app.routers.visits.lookup_game_for_visit",
+            new_callable=AsyncMock,
+        ) as m_scores:
+            m_scores.return_value = VisitGameResponse(matched=False)
+            r = visits_client.get(f"/api/v1/visits/{vr.id}")
 
     assert r.status_code == 200
     assert r.json()["id"] == str(vr.id)

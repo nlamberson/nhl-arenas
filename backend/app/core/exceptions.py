@@ -40,6 +40,13 @@ class ValidationError(APIException):
         super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail)
 
 
+class ConflictError(APIException):
+    """Raised when a resource already exists or conflicts with the request."""
+
+    def __init__(self, detail: str = "Conflict") -> None:
+        super().__init__(status.HTTP_409_CONFLICT, detail)
+
+
 class UnauthorizedError(APIException):
     """Raised when authentication is missing or invalid."""
 

@@ -10,6 +10,13 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RegisterRequest(BaseModel):
+    """Credentials for email/password registration."""
+
+    email: EmailStr
+    password: str
+
+
 class LoginResponse(BaseModel):
     """JWT and refresh token returned after successful login."""
 

@@ -27,3 +27,4 @@ class TeamResponse(BaseModel):
     name: str
     abbreviation: str
     city: Optional[str] = None
+    arena_id: Optional[uuid.UUID] = None

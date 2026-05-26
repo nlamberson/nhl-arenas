@@ -4,6 +4,7 @@ import uuid
 from datetime import date, datetime
 from typing import Optional
 
+from app.schemas.game import VisitGameResponse
 from app.schemas.reference import ArenaResponse, TeamResponse
 from pydantic import BaseModel, ConfigDict
 
@@ -44,3 +45,5 @@ class VisitResponse(BaseModel):
     # TODO: Optional[list[ImageResponse]] for images
     created_at: datetime
     updated_at: datetime
+    game: Optional[VisitGameResponse] = None
+    # TODO: Populate game from DB (once completed) to reduce NHLE calls in the service layer.

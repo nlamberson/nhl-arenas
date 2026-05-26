@@ -79,7 +79,11 @@ app/
 
 ## Authentication
 
-All authenticated endpoints require a Firebase ID token:
+- `POST /api/v1/auth/login` — sign in; returns `id_token` and `refresh_token`
+- `POST /api/v1/auth/register` — create Firebase Auth user and app DB row; same token response
+- `GET /api/v1/auth/me` — profile for the current user (Bearer token required)
+
+All other authenticated endpoints require a Firebase ID token:
 
 ```text
 Authorization: Bearer <firebase-id-token>

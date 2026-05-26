@@ -5,10 +5,15 @@ import uuid
 
 from app.core.auth import FirebaseUser, get_current_user
 from app.db.session import get_db
+from app.schemas.stats import VisitStatsResponse
 from app.schemas.visit import VisitCreate, VisitResponse, VisitUpdate
+from app.services.nhl_game_lookup import (enrich_visits_with_game_scores,
+                                          lookup_game_for_visit)
 from app.services.user_service import get_or_create_user
 from app.services.visits import (create_new_visit, delete_visit_by_id,
-                                 get_users_visits, get_visit_by_id_for_user,
+                                 get_latest_visit_for_user,
+                                 get_user_visit_stats, get_users_visits,
+                                 get_visit_by_id_for_user,
                                  update_visit_for_user)
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +24,41 @@ router = APIRouter(prefix="/api/v1/visits", tags=["visits"])
 
 # Header Constants
 X_TOTAL_COUNT = "X-Total-Count"
+
+
+@router.get(
+    "/stats",
+    response_model=VisitStatsResponse,
+    summary="Aggregate visit stats for the current user.",
+)
+async def get_visit_stats(
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VisitStatsResponse:
+    """SQL-only counters for home profile (no visit rows, no NHL calls)."""
+    user = await get_or_create_user(db, firebase_user)
+    logger.info("Request received to get visit stats for user: %s", user.id)
+    return await get_user_visit_stats(user, db)
+
+
+@router.get(
+    "/latest",
+    response_model=VisitResponse | None,
+    summary="Most recent visit for the current user.",
+)
+async def get_latest_visit(
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VisitResponse | None:
+    """Get latest visit for the current user."""
+    user = await get_or_create_user(db, firebase_user)
+    logger.info("Request received to get latest visit for user: %s", user.id)
+    visit = await get_latest_visit_for_user(user, db)
+    if visit is None:
+        return None
+    game = await lookup_game_for_visit(visit)
+    return visit.model_copy(update={"game": game})
+
 
 @router.get(
     "",
@@ -38,7 +78,9 @@ async def get_visits(
     logger.info("Request received to list visits for user: %s", user.id)
     visits, total = await get_users_visits(user, db, skip, limit)
     response.headers[X_TOTAL_COUNT] = str(total)
-    return visits
+    # TODO: Add saving game data to the DB and favor that over re-calling NHLE.
+    return await enrich_visits_with_game_scores(visits)
+
 
 @router.get(
     "/{visit_id}",
@@ -54,7 +96,12 @@ async def get_visit(
     user = await get_or_create_user(db, firebase_user)
 
     logger.info("Request received to get visit %s for user: %s", visit_id, user.id)
-    return await get_visit_by_id_for_user(visit_id, user, db)
+    visit = await get_visit_by_id_for_user(visit_id, user, db)
+    # TODO: Add saving game data to the DB and favor that over re-calling NHLE. 
+    # Refetch from NHLE if game is less than a day old (score changes while live).
+    game = await lookup_game_for_visit(visit)
+    return visit.model_copy(update={"game": game})
+
 
 @router.post(
     "",
@@ -72,8 +119,9 @@ async def create_visit(
 
     logger.info("Request received to create visit for user: %s", user.id)
     created_visit = await create_new_visit(visit, user, db)
-
-    return created_visit
+    # TODO: Add saving game data to the DB and favor that over re-calling NHLE.
+    game = await lookup_game_for_visit(created_visit)
+    return created_visit.model_copy(update={"game": game})
 
 
 @router.patch(
@@ -98,7 +146,7 @@ async def update_visit(
     "/{visit_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a given visit for the current user.",
-) 
+)
 async def delete_visit(
     visit_id: uuid.UUID,
     firebase_user: FirebaseUser = Depends(get_current_user),
