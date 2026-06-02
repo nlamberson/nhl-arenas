@@ -1,3 +1,7 @@
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-ci.yml?style=flat-square&logo=githubactions&label=Backend%20build&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-ci.yml)
+![Docker Image Version](https://img.shields.io/docker/v/nlamberson/nhl-arenas-api?style=flat-square&logo=docker&label=Latest%20Image&link=https%3A%2F%2Fhub.docker.com%2Frepository%2Fdocker%2Fnlamberson%2Fnhl-arenas-api%2Fgeneral)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-cd.yml?style=flat-square&logo=githubactions&label=Backend%20deploy&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-cd.yml)
+
 # NHL Arenas
 
 Mobile application for logging my visits to NHL arenas! I'm trying to model this off the MLB Ballpark app where you can log games and visits, keeping track of teams seen, ballparks visited, and more. I want that same experience for NHL fans like myself so working to make it.
