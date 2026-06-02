@@ -1,6 +1,6 @@
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-ci.yml?style=flat-square&logo=githubactions&label=Backend%20build&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-ci.yml)
-![Docker Image Version](https://img.shields.io/docker/v/nlamberson/nhl-arenas-api?style=flat-square&logo=docker&label=Latest%20Image&link=https%3A%2F%2Fhub.docker.com%2Frepository%2Fdocker%2Fnlamberson%2Fnhl-arenas-api%2Fgeneral&color=2496ED)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-cd.yml?style=flat-square&logo=githubactions&label=Backend%20deploy&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-cd.yml)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-ci.yml?style=flat-square&logo=githubactions&label=Backend%20build&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-ci.yml)](https://github.com/nlamberson/nhl-arenas/actions/workflows/backend-ci.yml)
+[![Docker Image Version](https://img.shields.io/docker/v/nlamberson/nhl-arenas-api?style=flat-square&logo=docker&label=Latest%20Image&link=https%3A%2F%2Fhub.docker.com%2Frepository%2Fdocker%2Fnlamberson%2Fnhl-arenas-api%2Fgeneral&color=2496ED)](https://hub.docker.com/repository/docker/nlamberson/nhl-arenas-api/general)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-cd.yml?style=flat-square&logo=githubactions&label=Backend%20deploy&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-cd.yml)](https://github.com/nlamberson/nhl-arenas/actions/workflows/backend-cd.yml)
 
 # NHL Arenas
 
