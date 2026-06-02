@@ -1,5 +1,5 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-ci.yml?style=flat-square&logo=githubactions&label=Backend%20build&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-ci.yml)
-![Docker Image Version](https://img.shields.io/docker/v/nlamberson/nhl-arenas-api?style=flat-square&logo=docker&label=Latest%20Image&link=https%3A%2F%2Fhub.docker.com%2Frepository%2Fdocker%2Fnlamberson%2Fnhl-arenas-api%2Fgeneral)
+![Docker Image Version](https://img.shields.io/docker/v/nlamberson/nhl-arenas-api?style=flat-square&logo=docker&label=Latest%20Image&link=https%3A%2F%2Fhub.docker.com%2Frepository%2Fdocker%2Fnlamberson%2Fnhl-arenas-api%2Fgeneral&color=2496ED)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/nlamberson/nhl-arenas/backend-cd.yml?style=flat-square&logo=githubactions&label=Backend%20deploy&link=https%3A%2F%2Fgithub.com%2Fnlamberson%2Fnhl-arenas%2Factions%2Fworkflows%2Fbackend-cd.yml)
 
 # NHL Arenas
