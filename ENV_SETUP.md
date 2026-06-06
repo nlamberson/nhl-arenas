@@ -1,16 +1,22 @@
 # Environment Variables Setup
 
+## Note
+
+This doc is AI generated. I will loop back at the end to re-write this myself, but if you notice issuse ahead of time please let me know!
+
 ## Quick Start
 
-Copy the backend template and edit values:
+Copy both templates and edit values:
 
 ```bash
 cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-All configuration lives in `backend/.env` (gitignored). The FastAPI app loads it when you run locally from the `backend/` directory.
+- **Backend:** `backend/.env` (gitignored) — loaded by FastAPI when you run from `backend/`
+- **Frontend:** `frontend/.env` (gitignored) — loaded by Expo at dev/build time; only variables prefixed with `EXPO_PUBLIC_` are exposed to the app
 
-## Local Development
+## Backend — Local Development
 
 Create `backend/.env` with at least:
 
@@ -37,6 +43,55 @@ CORS_ORIGINS=*
 ```
 
 If `DATABASE_URL` is set, it takes priority over the `POSTGRES_*` components. See `backend/.env.example` for Firebase service account options (file, base64, or Google Cloud ADC).
+
+## Frontend — Local Development
+
+Create `frontend/.env` with at least:
+
+```bash
+# Backend API (no trailing slash)
+EXPO_PUBLIC_API_URL=http://localhost:8000
+
+# Firebase Web API key — same value as backend FIREBASE_API_KEY
+EXPO_PUBLIC_FIREBASE_API_KEY=your-web-api-key
+```
+
+### Variable reference
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `EXPO_PUBLIC_API_URL` | Yes | Base URL for the FastAPI backend. Used by the axios client in `frontend/src/lib/api.ts`. |
+| `EXPO_PUBLIC_FIREBASE_API_KEY` | Yes (for session refresh) | Firebase Web API key. Used when the app refreshes an expired `id_token` after a 401 (`frontend/src/lib/firebaseAuth.ts`). Login and register still go through the backend; this key is not used for sign-in directly. |
+
+Get the Firebase Web API key from Firebase Console → Project Settings → General → **Web API Key** (same key as `FIREBASE_API_KEY` in `backend/.env`).
+
+### Running the frontend
+
+From `frontend/`:
+
+```bash
+npm install
+npm start          # Expo dev server (press w / i / a for web / iOS / Android)
+```
+
+Ensure the backend is running and reachable at `EXPO_PUBLIC_API_URL` before signing in or loading visits.
+
+### `.env` formatting (Expo)
+
+Keep comments on their own line. Expo's env loader does **not** strip inline `#` comments from values, so a line like `EXPO_PUBLIC_API_URL=http://localhost:8000 # dev` can produce an invalid URL and axios "Network Error" responses.
+
+### Physical devices and simulators
+
+| Target | Typical `EXPO_PUBLIC_API_URL` |
+|--------|-------------------------------|
+| Web (`npm run web`) | `http://localhost:8000` |
+| iOS Simulator | `http://localhost:8000` |
+| Android Emulator | `http://10.0.2.2:8000` (host machine from the emulator) |
+| Physical phone (Expo Go) | `http://<your-lan-ip>:8000` (e.g. `http://192.168.1.42:8000`) |
+
+The backend must listen on an interface the device can reach (e.g. `uvicorn` bound to `0.0.0.0`, not only `127.0.0.1`). For local dev, keep `CORS_ORIGINS=*` in `backend/.env`.
+
+Restart the Expo dev server after changing `frontend/.env` — Metro caches env values at startup.
 
 ## Database URL Configuration
 
@@ -66,9 +121,10 @@ Use your Supabase or other provider connection string. Plain `postgresql://` URI
 
 ### Development
 
-- Use `backend/.env` (gitignored)
+- Use `backend/.env` and `frontend/.env` (both gitignored)
 - Use different credentials per environment
 - Never commit `.env` files or Firebase JSON keys
+- `EXPO_PUBLIC_*` values are embedded in the client bundle — safe for the Firebase **Web API key** (it is restricted by Firebase console rules), but never put server secrets (service account JSON, database URLs, etc.) in frontend env vars
 
 ### Production
 
@@ -136,9 +192,15 @@ See [backend/DEPLOYMENT.md](./backend/DEPLOYMENT.md) for full deployment options
 ## Verifying Environment Variables
 
 ```bash
-# Local — from backend/ with venv active
+# Backend — from backend/ with venv active
 cd backend && python -c "from app.core.config import get_settings; s=get_settings(); print(s.firebase_project_id, s.database_url[:30]+'...')"
+
+# Frontend — start Expo and check the startup log shows env loaded, or from frontend/
+cd frontend && npx expo start
+# Look for: "env: load .env" and "env: export EXPO_PUBLIC_API_URL ..."
 ```
+
+If `EXPO_PUBLIC_API_URL` is missing, the app logs a console warning at startup and API calls will fail until `frontend/.env` is configured.
 
 ## Troubleshooting
 
@@ -156,4 +218,17 @@ cd backend && python -c "from app.core.config import get_settings; s=get_setting
 ### Changes not taking effect
 
 - Restart `uvicorn` after editing `backend/.env`
+- Restart the Expo dev server (`npm start`) after editing `frontend/.env`
 - For production containers, redeploy or restart the service so new env vars are picked up
+
+### Frontend "Network Error" or API calls fail
+
+- Confirm `EXPO_PUBLIC_API_URL` is set with **no trailing slash** and no inline `#` comment on the same line
+- Confirm the backend is running: `curl http://localhost:8000/docs` (or your configured URL)
+- On a physical device, use your machine's LAN IP, not `localhost`
+- On Android Emulator, try `http://10.0.2.2:8000` instead of `localhost`
+
+### Session expires immediately or 401 loops
+
+- Set `EXPO_PUBLIC_FIREBASE_API_KEY` to the same Web API key as `FIREBASE_API_KEY` in `backend/.env`
+- Without it, token refresh on 401 fails and the app clears the session
