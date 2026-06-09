@@ -1,0 +1,79 @@
+name: nhl-arenas-web-build
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  # Step 1: Catch TypeScript errors before attempting a full build
+  type-check:
+    name: "Type Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type check
+        working-directory: frontend
+        run: npm run type-check
+
+  # Step 2: Produce the static web export and confirm it compiles end-to-end
+  # (push to main only — PRs validate via type-check alone to keep CI fast)
+  build:
+    name: "Build Web Export"
+    needs: type-check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # EXPO_PUBLIC_* variables are inlined at build time by Metro.
+      # For CI we use repo-level variables (Settings → Variables) with a safe
+      # fallback so the build succeeds even before those are configured.
+      # The real values are set as environment variables on the Render static
+      # site service and are only needed when Render runs its own build.
+      - name: Export web build
+        working-directory: frontend
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || 'https://api.example.com' }}
+          EXPO_PUBLIC_FIREBASE_API_KEY: ${{ vars.EXPO_PUBLIC_FIREBASE_API_KEY || 'ci-placeholder' }}
+        run: npm run build:web
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist-${{ github.sha }}
+          path: frontend/dist/
+          retention-days: 7
+
+  # Deploy: run .github/workflows/frontend-cd.yml manually after reviewing
+  # the build output above.

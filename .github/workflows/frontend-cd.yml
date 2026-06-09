@@ -1,0 +1,54 @@
+name: nhl-arenas-web-deploy
+
+on:
+  workflow_dispatch:
+
+# One production deploy at a time; do not cancel an in-flight deploy.
+concurrency:
+  group: frontend-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: "Deploy Web to Render Static Site"
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Show deployment target
+        run: |
+          echo "Branch:  ${GITHUB_REF_NAME}"
+          echo "Commit:  $(git rev-parse HEAD)"
+          git log -1 --oneline
+
+      - name: Validate deploy hook secret
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "${DEPLOY_HOOK:-}" ]; then
+            echo "::error::RENDER_FRONTEND_DEPLOY_HOOK_URL is not set."
+            echo "::error::Add it as a repo secret or a 'production' environment secret."
+            echo "::error::Obtain the URL from Render → your static site → Settings → Deploy Hook."
+            exit 1
+          fi
+
+      - name: Deploy to Render Static Site
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
+
+          # Render re-pulls the connected branch and re-runs the build command
+          # configured in the dashboard (npm ci && npm run build:web).
+          HTTP_CODE=$(curl -sS -o /tmp/render-response.txt -w "%{http_code}" -X POST "$DEPLOY_HOOK")
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Render deploy hook returned HTTP ${HTTP_CODE}"
+            cat /tmp/render-response.txt
+            exit 1
+          fi
+
+          cat /tmp/render-response.txt
+          echo "Render static site deploy triggered successfully."
