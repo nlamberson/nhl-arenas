@@ -17,6 +17,18 @@ const PICKER_ACCENT = '#0ea5e9';
 /** Slightly above dark `card` (17.5% L) so the calendar reads as its own surface. */
 const DARK_PICKER_SURFACE = 'hsl(217, 33%, 22%)';
 
+/** iOS Safari/Chrome block programmatic date-picker opens on hidden inputs. */
+function isIOSWebBrowser() {
+  if (Platform.OS !== 'web' || typeof navigator === 'undefined') {
+    return false;
+  }
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) {
+    return true;
+  }
+  return ua.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document;
+}
+
 function iosPickerThemeProps(colorScheme: 'light' | 'dark') {
   return {
     themeVariant: colorScheme === 'dark' ? ('dark' as const) : ('light' as const),
@@ -67,6 +79,7 @@ export function DatePickerField({
   maximumDate,
 }: DatePickerFieldProps) {
   const isDark = APP_COLOR_SCHEME === 'dark';
+  const isIOSWeb = isIOSWebBrowser();
   const labelId = `${nativeID}-label`;
   const [open, setOpen] = useState(false);
   const [pickerDate, setPickerDate] = useState(() => dateFromIsoDate(value));
@@ -82,7 +95,7 @@ export function DatePickerField({
   const pickerValue = open ? pickerDate : dateFromIsoDate(value);
 
   const openPicker = () => {
-    if (disabled) {
+    if (disabled || isIOSWeb) {
       return;
     }
     if (Platform.OS === 'web') {
@@ -97,49 +110,69 @@ export function DatePickerField({
     setOpen(true);
   };
 
+  const webDateInput =
+    Platform.OS === 'web' ? (
+      <input
+        ref={webInputRef}
+        type="date"
+        value={value}
+        min={minimumDate ? isoDateFromDate(minimumDate) : undefined}
+        max={maximumDate ? isoDateFromDate(maximumDate) : undefined}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        style={
+          isIOSWeb
+            ? {
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                colorScheme: isDark ? 'dark' : 'auto',
+                zIndex: 1,
+              }
+            : {
+                position: 'absolute',
+                width: 1,
+                height: 1,
+                opacity: 0,
+                pointerEvents: 'none',
+                colorScheme: isDark ? 'dark' : 'auto',
+              }
+        }
+        aria-label={label}
+        aria-labelledby={isIOSWeb ? labelId : undefined}
+        aria-hidden={isIOSWeb ? undefined : true}
+        tabIndex={isIOSWeb ? 0 : -1}
+      />
+    ) : null;
+
   return (
     <View className="gap-2">
       <Label nativeID={labelId}>{label}</Label>
-      <Pressable
-        nativeID={nativeID}
-        accessibilityLabelledBy={labelId}
-        disabled={disabled}
-        onPress={openPicker}
-        className={`flex h-10 flex-row items-center rounded-md border border-input bg-background px-3 ${
-          disabled ? 'opacity-50' : 'active:opacity-80'
-        } ${error ? 'border-destructive' : ''}`}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        accessibilityState={{ expanded: open }}
-      >
-        <Text className={value ? '' : 'text-muted-foreground'}>{displayLabel}</Text>
-      </Pressable>
+      <View className="relative">
+        <Pressable
+          nativeID={nativeID}
+          accessibilityLabelledBy={labelId}
+          disabled={disabled}
+          onPress={openPicker}
+          pointerEvents={isIOSWeb ? 'none' : 'auto'}
+          className={`flex h-10 flex-row items-center rounded-md border border-input bg-background px-3 ${
+            disabled ? 'opacity-50' : 'active:opacity-80'
+          } ${error ? 'border-destructive' : ''}`}
+          accessibilityRole="button"
+          accessibilityLabel={label}
+          accessibilityState={{ expanded: open }}
+        >
+          <Text className={value ? '' : 'text-muted-foreground'}>{displayLabel}</Text>
+        </Pressable>
+        {webDateInput}
+      </View>
       {error ? (
         <Text className="text-sm text-destructive" accessibilityLiveRegion="polite">
           {error}
         </Text>
-      ) : null}
-
-      {Platform.OS === 'web' ? (
-        <input
-          ref={webInputRef}
-          type="date"
-          value={value}
-          min={minimumDate ? isoDateFromDate(minimumDate) : undefined}
-          max={maximumDate ? isoDateFromDate(maximumDate) : undefined}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            position: 'absolute',
-            width: 1,
-            height: 1,
-            opacity: 0,
-            pointerEvents: 'none',
-            colorScheme: isDark ? 'dark' : 'auto',
-          }}
-          aria-hidden
-          tabIndex={-1}
-        />
       ) : null}
 
       {Platform.OS === 'ios' ? (
