@@ -1,7 +1,7 @@
 import DateTimePicker, {
     type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Platform, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -16,18 +16,6 @@ const PICKER_ACCENT = '#0ea5e9';
 
 /** Slightly above dark `card` (17.5% L) so the calendar reads as its own surface. */
 const DARK_PICKER_SURFACE = 'hsl(217, 33%, 22%)';
-
-/** iOS Safari/Chrome block programmatic date-picker opens on hidden inputs. */
-function isIOSWebBrowser() {
-  if (Platform.OS !== 'web' || typeof navigator === 'undefined') {
-    return false;
-  }
-  const ua = navigator.userAgent;
-  if (/iPad|iPhone|iPod/.test(ua)) {
-    return true;
-  }
-  return ua.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document;
-}
 
 function iosPickerThemeProps(colorScheme: 'light' | 'dark') {
   return {
@@ -67,7 +55,73 @@ function handlePickerChange(
   }
 }
 
-export function DatePickerField({
+/**
+ * Web uses native HTML only — RN Pressable/hidden inputs block iOS mobile browsers.
+ */
+function WebDatePickerField({
+  label,
+  nativeID,
+  value,
+  onChange,
+  error,
+  disabled = false,
+  minimumDate,
+  maximumDate,
+}: DatePickerFieldProps) {
+  const isDark = APP_COLOR_SCHEME === 'dark';
+  const labelId = `${nativeID}-label`;
+  const inputId = `${nativeID}-input`;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={inputId} id={labelId} className="text-sm font-medium text-foreground">
+        {label}
+      </label>
+      <input
+        id={inputId}
+        name={nativeID}
+        type="date"
+        role="textbox"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        min={minimumDate ? isoDateFromDate(minimumDate) : undefined}
+        max={maximumDate ? isoDateFromDate(maximumDate) : undefined}
+        aria-labelledby={labelId}
+        aria-invalid={Boolean(error)}
+        className={[
+          'box-border min-h-11 w-full rounded-md border border-input bg-background px-3 text-foreground',
+          'outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
+          error ? 'border-destructive' : '',
+          disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={{
+          colorScheme: isDark ? 'dark' : 'auto',
+          fontSize: 16,
+          lineHeight: '1.25rem',
+          touchAction: 'manipulation',
+        }}
+      />
+      {error ? (
+        <span className="text-sm text-destructive" role="alert">
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+export function DatePickerField(props: DatePickerFieldProps) {
+  if (Platform.OS === 'web') {
+    return <WebDatePickerField {...props} />;
+  }
+
+  return <NativeDatePickerField {...props} />;
+}
+
+function NativeDatePickerField({
   label,
   nativeID,
   value,
@@ -79,11 +133,9 @@ export function DatePickerField({
   maximumDate,
 }: DatePickerFieldProps) {
   const isDark = APP_COLOR_SCHEME === 'dark';
-  const isIOSWeb = isIOSWebBrowser();
   const labelId = `${nativeID}-label`;
   const [open, setOpen] = useState(false);
   const [pickerDate, setPickerDate] = useState(() => dateFromIsoDate(value));
-  const webInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -95,80 +147,29 @@ export function DatePickerField({
   const pickerValue = open ? pickerDate : dateFromIsoDate(value);
 
   const openPicker = () => {
-    if (disabled || isIOSWeb) {
-      return;
-    }
-    if (Platform.OS === 'web') {
-      const input = webInputRef.current;
-      if (input?.showPicker) {
-        input.showPicker();
-      } else {
-        input?.click();
-      }
+    if (disabled) {
       return;
     }
     setOpen(true);
   };
 
-  const webDateInput =
-    Platform.OS === 'web' ? (
-      <input
-        ref={webInputRef}
-        type="date"
-        value={value}
-        min={minimumDate ? isoDateFromDate(minimumDate) : undefined}
-        max={maximumDate ? isoDateFromDate(maximumDate) : undefined}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        style={
-          isIOSWeb
-            ? {
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                opacity: 0,
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                colorScheme: isDark ? 'dark' : 'auto',
-                zIndex: 1,
-              }
-            : {
-                position: 'absolute',
-                width: 1,
-                height: 1,
-                opacity: 0,
-                pointerEvents: 'none',
-                colorScheme: isDark ? 'dark' : 'auto',
-              }
-        }
-        aria-label={label}
-        aria-labelledby={isIOSWeb ? labelId : undefined}
-        aria-hidden={isIOSWeb ? undefined : true}
-        tabIndex={isIOSWeb ? 0 : -1}
-      />
-    ) : null;
-
   return (
     <View className="gap-2">
       <Label nativeID={labelId}>{label}</Label>
-      <View className="relative">
-        <Pressable
-          nativeID={nativeID}
-          accessibilityLabelledBy={labelId}
-          disabled={disabled}
-          onPress={openPicker}
-          pointerEvents={isIOSWeb ? 'none' : 'auto'}
-          className={`flex h-10 flex-row items-center rounded-md border border-input bg-background px-3 ${
-            disabled ? 'opacity-50' : 'active:opacity-80'
-          } ${error ? 'border-destructive' : ''}`}
-          accessibilityRole="button"
-          accessibilityLabel={label}
-          accessibilityState={{ expanded: open }}
-        >
-          <Text className={value ? '' : 'text-muted-foreground'}>{displayLabel}</Text>
-        </Pressable>
-        {webDateInput}
-      </View>
+      <Pressable
+        nativeID={nativeID}
+        accessibilityLabelledBy={labelId}
+        disabled={disabled}
+        onPress={openPicker}
+        className={`flex h-10 flex-row items-center rounded-md border border-input bg-background px-3 ${
+          disabled ? 'opacity-50' : 'active:opacity-80'
+        } ${error ? 'border-destructive' : ''}`}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ expanded: open }}
+      >
+        <Text className={value ? '' : 'text-muted-foreground'}>{displayLabel}</Text>
+      </Pressable>
       {error ? (
         <Text className="text-sm text-destructive" accessibilityLiveRegion="polite">
           {error}
