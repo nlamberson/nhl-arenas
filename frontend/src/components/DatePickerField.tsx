@@ -1,13 +1,13 @@
 import DateTimePicker, {
-  type DateTimePickerEvent,
+    type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, Platform, Pressable, View } from 'react-native';
 
-import { APP_COLOR_SCHEME } from '@/constants/theme';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
+import { APP_COLOR_SCHEME } from '@/constants/theme';
 import { dateFromIsoDate, isoDateFromDate } from '@/lib/date';
 import { formatVisitDate } from '@/lib/formatDate';
 

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
 import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { FlatList, Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -64,6 +64,8 @@ function SelectTrigger({
   const triggerRef = React.useRef<React.ComponentRef<typeof SelectPrimitive.Trigger>>(null);
 
   const updateTriggerPosition = React.useCallback(() => {
+    // setTriggerPosition is native-only; web uses Radix positioning.
+    if (Platform.OS === 'web' || !setTriggerPosition) return;
     triggerRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
       setTriggerPosition({ width, pageX, pageY, height });
     });
@@ -298,16 +300,17 @@ function SelectScrollDownButton({
 
 
 export {
-  NativeSelectScrollView,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-  type Option,
+    NativeSelectScrollView,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectScrollDownButton,
+    SelectScrollUpButton,
+    SelectSeparator,
+    SelectTrigger,
+    SelectValue,
+    type Option
 };
+
