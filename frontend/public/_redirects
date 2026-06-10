@@ -1,0 +1,3 @@
+# SPA fallback for Expo Router client-side routes (Render Static Site).
+# See https://render.com/docs/static-site-redirects-rewrites
+/*    /index.html   200

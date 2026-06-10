@@ -1,6 +1,42 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 import type { LoginResponse } from './types';
+
+async function getStorageItem(key: string): Promise<string | null> {
+  if (Platform.OS === 'web') {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+  return SecureStore.getItemAsync(key);
+}
+
+async function setStorageItem(key: string, value: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // localStorage unavailable (e.g. private browsing)
+    }
+    return;
+  }
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function deleteStorageItem(key: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // localStorage unavailable
+    }
+    return;
+  }
+  await SecureStore.deleteItemAsync(key);
+}
 
 const ID_TOKEN_KEY = 'nhl_arenas_id_token';
 const REFRESH_TOKEN_KEY = 'nhl_arenas_refresh_token';
@@ -43,18 +79,18 @@ export async function getIdToken(): Promise<string | null> {
     if (token) return token;
   }
   if (inMemoryIdToken) return inMemoryIdToken;
-  return SecureStore.getItemAsync(ID_TOKEN_KEY);
+  return getStorageItem(ID_TOKEN_KEY);
 }
 
 export async function getRefreshToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  return getStorageItem(REFRESH_TOKEN_KEY);
 }
 
 export async function loadStoredSession(): Promise<StoredSession | null> {
   const [idToken, refreshToken, expiresAtRaw] = await Promise.all([
-    SecureStore.getItemAsync(ID_TOKEN_KEY),
-    SecureStore.getItemAsync(REFRESH_TOKEN_KEY),
-    SecureStore.getItemAsync(EXPIRES_AT_KEY),
+    getStorageItem(ID_TOKEN_KEY),
+    getStorageItem(REFRESH_TOKEN_KEY),
+    getStorageItem(EXPIRES_AT_KEY),
   ]);
 
   if (!idToken || !refreshToken) {
@@ -70,17 +106,17 @@ export async function saveTokens(tokens: LoginResponse): Promise<void> {
   const expiresAt = expiresAtFromLogin(tokens);
   inMemoryIdToken = tokens.id_token;
   await Promise.all([
-    SecureStore.setItemAsync(ID_TOKEN_KEY, tokens.id_token),
-    SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refresh_token),
-    SecureStore.setItemAsync(EXPIRES_AT_KEY, String(expiresAt)),
+    setStorageItem(ID_TOKEN_KEY, tokens.id_token),
+    setStorageItem(REFRESH_TOKEN_KEY, tokens.refresh_token),
+    setStorageItem(EXPIRES_AT_KEY, String(expiresAt)),
   ]);
 }
 
 export async function clearTokens(): Promise<void> {
   inMemoryIdToken = null;
   await Promise.all([
-    SecureStore.deleteItemAsync(ID_TOKEN_KEY),
-    SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
-    SecureStore.deleteItemAsync(EXPIRES_AT_KEY),
+    deleteStorageItem(ID_TOKEN_KEY),
+    deleteStorageItem(REFRESH_TOKEN_KEY),
+    deleteStorageItem(EXPIRES_AT_KEY),
   ]);
 }

@@ -1,0 +1,24 @@
+# Render Blueprint — NHL Arenas
+#
+# TODO: Connect this blueprint in Render Dashboard → Blueprints → New Blueprint Instance,
+#       or create the static site manually using the settings below.
+#
+
+staticSites:
+  - name: nhl-arenas-web
+    # TODO: Set your repo URL if using Blueprint sync
+    # repo: https://github.com/TODO_GITHUB_USER/nhl-arenas
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci && npm run build:web
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: EXPO_PUBLIC_API_URL
+        sync: false
+      - key: EXPO_PUBLIC_FIREBASE_API_KEY
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

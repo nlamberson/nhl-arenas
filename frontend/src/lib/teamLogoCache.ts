@@ -10,7 +10,8 @@ function cacheKey(abbreviation: string, variant: TeamLogoVariant): string {
 }
 
 export function logoVariantForAppScheme(): TeamLogoVariant {
-  return APP_COLOR_SCHEME === 'light' ? 'dark' : 'light';
+  // App is always dark mode — use light-variant logos on dark backgrounds.
+  return APP_COLOR_SCHEME === 'dark' ? 'light' : 'dark';
 }
 
 export function getCachedTeamLogoSvg(
