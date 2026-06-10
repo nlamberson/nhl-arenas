@@ -18,7 +18,6 @@ jobs:
   build-web:
     name: "Typecheck and build web export"
     runs-on: ubuntu-latest
-    environment: production
     defaults:
       run:
         working-directory: frontend
@@ -45,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${EXPO_PUBLIC_API_URL:-}" ] || [ -z "${EXPO_PUBLIC_FIREBASE_API_KEY:-}" ]; then
-            echo "::error::EXPO_PUBLIC_API_URL and EXPO_PUBLIC_FIREBASE_API_KEY must be set in the production environment."
+            echo "::error::EXPO_PUBLIC_API_URL and EXPO_PUBLIC_FIREBASE_API_KEY must be set as repository secrets."
             exit 1
           fi
           npm run build:web
