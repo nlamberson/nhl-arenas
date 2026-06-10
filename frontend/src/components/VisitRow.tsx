@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 
 import { VisitCard } from '@/components/VisitCard';
+import { prefetchVisit } from '@/lib/prefetchVisit';
 import type { VisitResponse } from '@/lib/types';
 import { formatVisitDateShort } from '@/lib/formatDate';
 
@@ -15,7 +16,10 @@ export function VisitRow({ visit }: VisitRowProps) {
     <VisitCard
       className="mb-3 shadow-sm"
       visit={visit}
-      onPress={() => router.push(`/visits/${visit.id}`)}
+      onPress={() => {
+        prefetchVisit(visit.id);
+        router.push(`/visits/${visit.id}`);
+      }}
       accessibilityLabel={`${matchup} at ${visit.arena.name}, ${formatVisitDateShort(visit.visit_date)}`}
     />
   );

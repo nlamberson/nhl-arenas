@@ -16,6 +16,7 @@ import { Text } from '@/components/ui/text';
 import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
 import { DatePickerField } from '@/components/DatePickerField';
 import { FormTextField } from '@/components/FormTextField';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SelectField, type SelectFieldOption } from '@/components/SelectField';
 import { useCreateVisit } from '@/hooks/visits';
@@ -131,9 +132,10 @@ export default function LogVisitScreen() {
       <ScreenHeader title="Log a visit" backAccessibilityLabel="Cancel" trailingSpacerWidth="md" />
 
       {referenceLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
+        <PageLoadingIndicator
+          message="Loading teams and arenas…"
+          description="This may take a moment if the server is waking up."
+        />
       ) : referenceError ? (
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-destructive">{referenceError}</Text>

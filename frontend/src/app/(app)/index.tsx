@@ -1,17 +1,12 @@
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  View,
-} from 'react-native';
+import { Image, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { AddVisitButton } from '@/components/AddVisitButton';
 import { LatestVisitCard } from '@/components/LatestVisitCard';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { useAuth } from '@/context/AuthContext';
 import { useHomeVisits } from '@/hooks/visits';
 import type { MeResponse } from '@/lib/types';
@@ -74,7 +69,7 @@ function ProfileAvatar({ user }: { user: MeResponse | null }) {
 
 export default function AppHomeScreen() {
   const { user, refreshUser, logout } = useAuth();
-  const { stats, latestVisit, loading, error, refetch } = useHomeVisits();
+  const { stats, latestVisit, loading, fetching, error, refetch } = useHomeVisits();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -86,7 +81,7 @@ export default function AppHomeScreen() {
     }
   }, [refetch, refreshUser]);
 
-  const showInitialLoader = loading && !stats && !latestVisit && !error;
+  const showInitialLoader = loading && !error;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
@@ -109,9 +104,10 @@ export default function AppHomeScreen() {
         </View>
 
         {showInitialLoader ? (
-          <View className="items-center py-12">
-            <ActivityIndicator size="large" />
-          </View>
+          <PageLoadingIndicator
+            message="Loading your stats…"
+            description="This may take a moment if the server is waking up."
+          />
         ) : (
           <>
             {error ? (
@@ -126,7 +122,7 @@ export default function AppHomeScreen() {
               <StatItem value={stats?.total_visits ?? 0} label="Total visits" />
             </View>
 
-            <LatestVisitCard visit={latestVisit} loading={loading} />
+            <LatestVisitCard visit={latestVisit} loading={fetching && !latestVisit} />
           </>
         )}
 

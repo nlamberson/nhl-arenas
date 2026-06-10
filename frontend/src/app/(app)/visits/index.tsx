@@ -1,14 +1,10 @@
 import { useMemo } from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  SectionList,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, SectionList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { AddVisitButton } from '@/components/AddVisitButton';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { VisitRow } from '@/components/VisitRow';
 import { usePaginatedVisits } from '@/hooks/visits';
@@ -34,9 +30,10 @@ export default function VisitsIndexScreen() {
       <ScreenHeader title="Visit history" />
 
       {loading && visits.length === 0 ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
+        <PageLoadingIndicator
+          message="Loading visit history…"
+          description="This may take a moment if the server is waking up."
+        />
       ) : (
         <SectionList<VisitResponse, VisitSeasonSection>
           sections={sections}

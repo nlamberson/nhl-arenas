@@ -1,5 +1,5 @@
 import DateTimePicker, {
-    type DateTimePickerEvent,
+  type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import { Modal, Platform, Pressable, View } from 'react-native';

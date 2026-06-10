@@ -1,11 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { EditVisitSeatingSheet } from '@/components/EditVisitSeatingSheet';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { ScoreBug } from '@/components/ScoreBug';
 import { useVisit } from '@/hooks/visits';
@@ -88,9 +89,10 @@ export default function VisitDetailScreen() {
       <ScreenHeader title="Visit" trailingSpacerWidth="md" />
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
+        <PageLoadingIndicator
+          message="Loading visit…"
+          description="This may take a moment if the server is waking up."
+        />
       ) : error || !visit ? (
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-destructive">

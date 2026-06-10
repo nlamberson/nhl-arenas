@@ -31,13 +31,13 @@ export function useReferenceData(): UseReferenceDataResult {
 
   const {
     data: teams = [],
-    isLoading: teamsLoading,
+    isPending: teamsPending,
     error: teamsError,
     refetch: refetchTeams,
   } = teamsQuery;
   const {
     data: arenas = [],
-    isLoading: arenasLoading,
+    isPending: arenasPending,
     error: arenasError,
     refetch: refetchArenas,
   } = arenasQuery;
@@ -67,7 +67,7 @@ export function useReferenceData(): UseReferenceDataResult {
     };
   }, [teams]);
 
-  const loading = teamsLoading || arenasLoading || logosPrefetching;
+  const loading = teamsPending || arenasPending || logosPrefetching;
 
   const error = useMemo(() => {
     const err = teamsError ?? arenasError;

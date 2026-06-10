@@ -50,7 +50,7 @@ export function usePaginatedVisits(
     isFetchingNextPage,
     fetchNextPage,
     refetch,
-    isLoading,
+    isPending,
     isRefetching,
     error,
   } = query;
@@ -68,9 +68,9 @@ export function usePaginatedVisits(
   return {
     visits,
     total: resolvedTotal,
-    loading: isLoading,
+    loading: isPending,
     loadingMore: isFetchingNextPage,
-    refreshing: isRefetching && !isLoading && !isFetchingNextPage,
+    refreshing: isRefetching && !isPending && !isFetchingNextPage,
     error: error ? getErrorMessage(error, 'Failed to load visits') : null,
     hasMore: Boolean(hasNextPage),
     loadMore,
@@ -86,7 +86,7 @@ export interface UseVisitResult {
 }
 
 export function useVisit(id: string | undefined): UseVisitResult {
-  const { data, isLoading, error, refetch: refetchQuery } = useQuery({
+  const { data, isPending, error, refetch: refetchQuery } = useQuery({
     queryKey: queryKeys.visits.detail(id ?? ''),
     queryFn: () => {
       if (!id) {
@@ -103,7 +103,7 @@ export function useVisit(id: string | undefined): UseVisitResult {
 
   return {
     visit: data ?? null,
-    loading: isLoading,
+    loading: isPending,
     error: !id
       ? 'Visit not found'
       : error
@@ -116,7 +116,10 @@ export function useVisit(id: string | undefined): UseVisitResult {
 export interface UseHomeVisitsResult {
   stats: VisitStatsResponse | null;
   latestVisit: VisitResponse | null;
+  /** True while either home query has no cached data yet. */
   loading: boolean;
+  /** True while either query is still fetching (including background refetch). */
+  fetching: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
@@ -137,18 +140,21 @@ export function useHomeVisits(): UseHomeVisitsResult {
 
   const {
     data: stats,
-    isLoading: statsLoading,
+    isPending: statsPending,
+    isFetching: statsFetching,
     error: statsError,
     refetch: refetchStats,
   } = statsQuery;
   const {
     data: latestVisit,
-    isLoading: latestLoading,
+    isPending: latestPending,
+    isFetching: latestFetching,
     error: latestError,
     refetch: refetchLatest,
   } = latestQuery;
 
-  const loading = statsLoading || latestLoading;
+  const loading = statsPending || latestPending;
+  const fetching = statsFetching || latestFetching;
 
   const error = useMemo(() => {
     const err = statsError ?? latestError;
@@ -163,6 +169,7 @@ export function useHomeVisits(): UseHomeVisitsResult {
     stats: stats ?? null,
     latestVisit: latestVisit ?? null,
     loading,
+    fetching,
     error,
     refetch,
   };

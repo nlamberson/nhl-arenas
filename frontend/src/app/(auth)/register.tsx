@@ -1,12 +1,12 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
 import { AuthScreenShell } from '@/components/AuthScreenShell';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { FormTextField } from '@/components/FormTextField';
 import { useAuth } from '@/context/AuthContext';
 import { getErrorMessage } from '@/lib/errors';
@@ -45,6 +45,13 @@ export default function RegisterScreen() {
 
   return (
     <AuthScreenShell>
+      {isSubmitting ? (
+        <PageLoadingIndicator
+          message="Creating your account…"
+          description="This may take a moment if the server is waking up."
+          className="items-center justify-center py-16"
+        />
+      ) : (
       <View className="gap-5">
         <FormTextField
           control={control}
@@ -92,11 +99,7 @@ export default function RegisterScreen() {
         ) : null}
 
         <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
-          {isSubmitting ? (
-            <ActivityIndicator color={PRIMARY_BUTTON_SPINNER_COLOR} />
-          ) : (
-            <Text>Create account</Text>
-          )}
+          <Text>Create account</Text>
         </Button>
 
         <View className="flex-row justify-center gap-1">
@@ -108,6 +111,7 @@ export default function RegisterScreen() {
           </Link>
         </View>
       </View>
+      )}
     </AuthScreenShell>
   );
 }
