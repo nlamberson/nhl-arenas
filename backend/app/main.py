@@ -42,18 +42,28 @@ app.add_exception_handler(RequestValidationError, request_validation_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
 
 
-# Configure CORS - parse comma-separated origins or use "*" for development
+# Configure CORS - parse comma-separated origins or use "*" for development.
+# Bearer tokens do not use cookies, so allow_credentials stays False (required for
+# allow_origins=["*"] and avoids browser preflight failures).
 cors_origins = (
-    ["*"] if settings.cors_origins == "*" 
-    else [origin.strip() for origin in settings.cors_origins.split(",")]
+    ["*"]
+    if settings.cors_origins.strip() == "*"
+    else [
+        origin.strip()
+        for origin in settings.cors_origins.split(",")
+        if origin.strip()
+    ]
 )
+
+logger.info("CORS allow_origins: %s", cors_origins)
 
 app.add_middleware(
   CORSMiddleware,
   allow_origins=cors_origins,
-  allow_credentials=True,
+  allow_credentials=False,
   allow_methods=["*"],
   allow_headers=["*"],
+  expose_headers=["x-total-count", "X-Total-Count"],
 )
 
 # Include routers

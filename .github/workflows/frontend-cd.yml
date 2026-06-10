@@ -2,11 +2,6 @@ name: nhl-arenas-web-deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type "deploy" to confirm production web deploy'
-        required: true
-        type: string
 
 # One production web deploy at a time; do not cancel an in-flight deploy.
 concurrency:
@@ -21,15 +16,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Confirm deploy intent
-        env:
-          CONFIRM: ${{ inputs.confirm }}
-        run: |
-          if [ "$CONFIRM" != "deploy" ]; then
-            echo "::error::Confirmation failed. Re-run and type \"deploy\" in the confirm field."
-            exit 1
-          fi
-
       - name: Deploy to Render Static Site
         env:
           DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL }}

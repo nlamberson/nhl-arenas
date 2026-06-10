@@ -1,4 +1,4 @@
-/** NHL assets CDN — unofficial; keyed by team abbreviation. */
+/** NHL assets CDN — used as fallback when EXPO_PUBLIC_API_URL is unset (native dev). */
 const NHL_LOGO_CDN = 'https://assets.nhle.com/logos/nhl/svg';
 
 /**
@@ -13,5 +13,10 @@ export function teamLogoUrl(
   variant: TeamLogoVariant = 'light',
 ): string {
   const abbr = abbreviation.trim().toUpperCase();
+  const apiBase = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (apiBase) {
+    // Proxied through our API to avoid browser CORS blocks on assets.nhle.com.
+    return `${apiBase}/api/v1/reference/team-logos/${abbr}?variant=${variant}`;
+  }
   return `${NHL_LOGO_CDN}/${abbr}_${variant}.svg`;
 }

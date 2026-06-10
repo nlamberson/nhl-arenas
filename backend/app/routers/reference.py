@@ -4,7 +4,9 @@ from app.db.session import get_db
 from app.models.arena import Arena
 from app.models.team import Team
 from app.schemas import ArenaResponse, TeamResponse
-from fastapi import APIRouter, Depends
+from app.services.team_logo import fetch_team_logo_svg
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,3 +37,28 @@ async def list_arenas(db: AsyncSession = Depends(get_db)) -> list[ArenaResponse]
     result = await db.execute(select(Arena).order_by(Arena.name))
     arenas = result.scalars().all()
     return [ArenaResponse.model_validate(a) for a in arenas]
+
+
+@router.get(
+    "/team-logos/{abbreviation}",
+    summary="Proxy NHL team logo SVG",
+    description=(
+        "Fetches a team logo from the NHL assets CDN server-side so web clients "
+        "are not blocked by cross-origin restrictions."
+    ),
+    responses={200: {"content": {"image/svg+xml": {}}}},
+)
+async def get_team_logo(
+    abbreviation: str,
+    variant: str = Query(
+        default="light",
+        description="`light` logos for dark backgrounds; `dark` for light backgrounds.",
+    ),
+) -> Response:
+    """Return team logo SVG bytes with cache headers."""
+    content = await fetch_team_logo_svg(abbreviation, variant)
+    return Response(
+        content=content,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
