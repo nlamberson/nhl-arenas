@@ -6,6 +6,8 @@
 
 Mobile application for logging my visits to NHL arenas! I'm trying to model this off the MLB Ballpark app where you can log games and visits, keeping track of teams seen, ballparks visited, and more. I want that same experience for NHL fans like myself so working to make it.
 
+**Website:** [https://nhl-arenas.onrender.com/](https://nhl-arenas.onrender.com/)
+
 ## Stack Overview
 
 - **Frontend:** Expo/React Native (TypeScript), Firebase Auth
@@ -24,7 +26,17 @@ Mobile application for logging my visits to NHL arenas! I'm trying to model this
 
 ### How to Run
 
-Coming soon...
+Use the [web version](https://nhl-arenas.onrender.com/) or run locally. See [ENV_SETUP.md](./ENV_SETUP.md) for environment variables, then to run locally, run these commands:
+
+```bash
+# Backend (from backend/)
+uvicorn app.main:app --reload
+```
+
+```bash
+# Frontend (from frontend/)
+npm install && npm run web
+```
 
 ## Project Structure
 

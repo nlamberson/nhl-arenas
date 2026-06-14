@@ -102,6 +102,10 @@ gcloud run deploy nhl-arenas-backend \
 5. Deploy!
 
 **Render:**
+
+The frontend static site is live at [https://nhl-arenas.onrender.com/](https://nhl-arenas.onrender.com/). See [`render.yaml`](../../render.yaml) for the static site blueprint.
+
+Backend:
 1. New Web Service → Docker
 2. Connect repo, select backend
 3. Set environment variables

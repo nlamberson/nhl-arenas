@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, View } from 'react-native';
 
+import { AuthScreenShell } from '@/components/AuthScreenShell';
+import { FormTextField } from '@/components/FormTextField';
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { AuthScreenShell } from '@/components/AuthScreenShell';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { FormTextField } from '@/components/FormTextField';
 import { useAuth } from '@/context/AuthContext';
 import { getErrorMessage } from '@/lib/errors';
 
@@ -34,7 +34,7 @@ export default function LoginScreen() {
     setSubmitError(null);
     try {
       await login(email, password);
-      router.replace('/(app)');
+      router.replace('/(app)/dashboard');
     } catch (err) {
       const message = getErrorMessage(err, 'Login failed');
       setSubmitError(message);

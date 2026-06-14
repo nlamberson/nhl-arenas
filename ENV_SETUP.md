@@ -84,6 +84,7 @@ Keep comments on their own line. Expo's env loader does **not** strip inline `#`
 
 | Target | Typical `EXPO_PUBLIC_API_URL` |
 |--------|-------------------------------|
+| Production web ([nhl-arenas.onrender.com](https://nhl-arenas.onrender.com/)) | Your deployed backend URL (set in Render env vars) |
 | Web (`npm run web`) | `http://localhost:8000` |
 | iOS Simulator | `http://localhost:8000` |
 | Android Emulator | `http://10.0.2.2:8000` (host machine from the emulator) |
@@ -157,7 +158,9 @@ openssl rand -base64 32
 
 ### Render
 
-Create a web-service. Then set in the dashboard:
+The production web version is live at [https://nhl-arenas.onrender.com/](https://nhl-arenas.onrender.com/).
+
+Create a web service (backend) or static site (frontend) as needed. Then set in the dashboard:
 
 Environment Variables:
 

@@ -3,6 +3,7 @@ import '../global.css';
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { QueryProvider } from '@/providers/QueryProvider';
+import { PortalHost } from '@rn-primitives/portal';
 import {
   DarkTheme,
   Redirect,
@@ -10,17 +11,16 @@ import {
   ThemeProvider,
   useSegments,
 } from 'expo-router';
-import { PortalHost } from '@rn-primitives/portal';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router';
 
 // Keep splash visible until auth bootstrap completes (hidden in RootLayoutNav).
@@ -62,7 +62,7 @@ function RootLayoutNav() {
   }
 
   if (isAuthenticated && !inAppGroup) {
-    return <Redirect href="/(app)" />;
+    return <Redirect href="/(app)/dashboard" />;
   }
 
   return (

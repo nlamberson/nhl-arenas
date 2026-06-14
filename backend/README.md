@@ -29,6 +29,8 @@ uvicorn app.main:app --reload
 
 Visit http://localhost:8000/docs for API documentation.
 
+The web version is deployed at [https://nhl-arenas.onrender.com/](https://nhl-arenas.onrender.com/).
+
 ## Tests
 
 Dependencies for pytest live in the optional **`[dev]`** extra in [`pyproject.toml`](./pyproject.toml). Install them with `pip install -e ".[dev]"`, then from `backend/`:
