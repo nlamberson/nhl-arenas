@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import '../global.css';
 
+import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { PortalHost } from '@rn-primitives/portal';
@@ -23,7 +24,7 @@ export {
   ErrorBoundary
 } from 'expo-router';
 
-// Keep splash visible until auth bootstrap completes (hidden in RootLayoutNav).
+// Hide native splash once React mounts; auth bootstrap shows PageLoadingIndicator.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -45,13 +46,20 @@ function RootLayoutNav() {
   const segments = useSegments();
 
   useEffect(() => {
-    if (!isLoading) {
+    if (isLoading) {
       SplashScreen.hideAsync();
     }
   }, [isLoading]);
 
   if (isLoading) {
-    return null;
+    return (
+      <View className="dark flex-1 bg-background">
+        <PageLoadingIndicator
+          message="Loading…"
+          description="This may take a moment if the server is waking up."
+        />
+      </View>
+    );
   }
 
   const inAuthGroup = segments[0] === '(auth)';
