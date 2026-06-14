@@ -101,11 +101,6 @@ export default function DashboardScreen() {
           <Text variant="h3" className="text-center">
             {"Welcome back, " + getDisplayName(user) + "!"}
           </Text>
-          {user?.email && user.display_name ? (
-            <Text variant="muted" className="text-center">
-              {user.email}
-            </Text>
-          ) : null}
         </View>
 
         {showInitialLoader ? (

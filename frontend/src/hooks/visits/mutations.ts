@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { createVisit, updateVisit } from '@/lib/api';
+import { createVisit, deleteVisit, updateVisit } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import type { VisitCreate, VisitResponse, VisitUpdate } from '@/lib/types';
 
@@ -31,6 +31,21 @@ export function useUpdateVisit(options?: {
       queryClient.setQueryData(queryKeys.visits.detail(updated.id), updated);
       await queryClient.invalidateQueries({ queryKey: queryKeys.visits.all });
       options?.onSuccess?.(updated);
+    },
+  });
+}
+
+export function useDeleteVisit(options?: {
+  onSuccess?: () => void;
+}) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteVisit(id),
+    onSuccess: async (_data, id) => {
+      queryClient.removeQueries({ queryKey: queryKeys.visits.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.visits.all });
+      options?.onSuccess?.();
     },
   });
 }

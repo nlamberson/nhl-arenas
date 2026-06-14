@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 
-import { Text } from '@/components/ui/text';
 import { MatchupScoreboardHalf } from '@/components/MatchupScoreboardHalf';
+import { Text } from '@/components/ui/text';
 import { getTeamColors } from '@/lib/teamColors';
 import type { TeamResponse } from '@/lib/types';
 
@@ -12,7 +12,6 @@ const LOGO_HEIGHT_RATIO = 0.54;
 
 /** Horizontal offset from center at top/bottom; symmetric so the split passes through center. */
 const SPLIT_SKEW_RATIO = 0.02;
-/** Space between each score and the center divider (room for double-digit scores). */
 const SCORE_CENTER_GAP = 28;
 const DIVIDER_STROKE_WIDTH = 4;
 

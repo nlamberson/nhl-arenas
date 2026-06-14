@@ -1,10 +1,11 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { DeleteVisitConfirmation } from '@/components/DeleteVisitConfirmation';
 import { EditVisitSeatingSheet } from '@/components/EditVisitSeatingSheet';
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -83,6 +84,7 @@ export default function VisitDetailScreen() {
   const visitId = resolveVisitId(id);
   const { visit, loading, error } = useVisit(visitId);
   const [editingSeating, setEditingSeating] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
@@ -117,11 +119,29 @@ export default function VisitDetailScreen() {
 
           <ImageGridStub />
 
+          <Button
+            variant="destructive"
+            className="bg-destructive/75 active:bg-destructive/85"
+            onPress={() => setConfirmingDelete(true)}
+          >
+            <Text>Delete a Visit</Text>
+          </Button>
+
           <EditVisitSeatingSheet
             visitId={visit.id}
             initialSeatingLocation={visit.seating_location}
             visible={editingSeating}
             onClose={() => setEditingSeating(false)}
+          />
+
+          <DeleteVisitConfirmation
+            visitId={visit.id}
+            visible={confirmingDelete}
+            onClose={() => setConfirmingDelete(false)}
+            onDeleted={() => {
+              setConfirmingDelete(false);
+              router.back();
+            }}
           />
         </ScrollView>
       )}

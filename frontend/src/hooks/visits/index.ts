@@ -8,4 +8,4 @@ export {
   type UseVisitResult,
 } from './queries';
 
-export { useCreateVisit, useUpdateVisit } from './mutations';
+export { useCreateVisit, useDeleteVisit, useUpdateVisit } from './mutations';

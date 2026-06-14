@@ -193,6 +193,10 @@ export async function updateVisit(
   return data;
 }
 
+export async function deleteVisit(id: string): Promise<void> {
+  await api.delete(`/api/v1/visits/${id}`);
+}
+
 export async function getTeams(): Promise<TeamResponse[]> {
   const { data } = await api.get<TeamResponse[]>('/api/v1/reference/teams');
   return data;
