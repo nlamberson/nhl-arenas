@@ -1,11 +1,8 @@
 import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from 'expo-auth-session';
 import Constants from 'expo-constants';
-import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
-
-WebBrowser.maybeCompleteAuthSession();
 
 export class GoogleAuthError extends Error {
   constructor(message: string) {

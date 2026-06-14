@@ -1,6 +1,8 @@
 import 'react-native-gesture-handler';
 import '../global.css';
 
+import * as WebBrowser from 'expo-web-browser';
+
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { QueryProvider } from '@/providers/QueryProvider';
@@ -10,6 +12,7 @@ import {
   Redirect,
   Stack,
   ThemeProvider,
+  usePathname,
   useSegments,
 } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -23,6 +26,9 @@ export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary
 } from 'expo-router';
+
+// Completes Google OAuth in the popup/tab that lands on /oauthredirect (must run on app load).
+WebBrowser.maybeCompleteAuthSession();
 
 // Hide native splash once React mounts; auth bootstrap shows PageLoadingIndicator.
 SplashScreen.preventAutoHideAsync();
@@ -44,6 +50,8 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const { isLoading, isAuthenticated } = useAuth();
   const segments = useSegments();
+  const pathname = usePathname();
+  const isOAuthRedirect = pathname === '/oauthredirect';
 
   useEffect(() => {
     if (isLoading) {
@@ -65,11 +73,11 @@ function RootLayoutNav() {
   const inAuthGroup = segments[0] === '(auth)';
   const inAppGroup = segments[0] === '(app)';
 
-  if (!isAuthenticated && !inAuthGroup) {
+  if (!isAuthenticated && !inAuthGroup && !isOAuthRedirect) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  if (isAuthenticated && !inAppGroup) {
+  if (isAuthenticated && !inAppGroup && !isOAuthRedirect) {
     return <Redirect href="/(app)/dashboard" />;
   }
 
@@ -79,6 +87,7 @@ function RootLayoutNav() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />
+          <Stack.Screen name="oauthredirect" />
           <Stack.Screen name="+not-found" />
         </Stack>
         <PortalHost />
