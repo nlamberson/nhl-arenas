@@ -17,6 +17,12 @@ class RegisterRequest(BaseModel):
     password: str
 
 
+class GoogleSignInRequest(BaseModel):
+    """Google ID token from the client OAuth flow."""
+
+    id_token: str
+
+
 class LoginResponse(BaseModel):
     """JWT and refresh token returned after successful login."""
 

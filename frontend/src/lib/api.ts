@@ -87,7 +87,11 @@ export const api: AxiosInstance = axios.create({
 });
 
 function isPublicAuthRoute(url: string | undefined): boolean {
-  return Boolean(url?.includes('/auth/login') || url?.includes('/auth/register'));
+  return Boolean(
+    url?.includes('/auth/login') ||
+      url?.includes('/auth/register') ||
+      url?.includes('/auth/google'),
+  );
 }
 
 api.interceptors.request.use(async (config) => {
@@ -135,6 +139,14 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 
 export async function register(credentials: LoginRequest): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>('/api/v1/auth/register', credentials);
+  await saveTokens(data);
+  return data;
+}
+
+export async function loginWithGoogle(googleIdToken: string): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>('/api/v1/auth/google', {
+    id_token: googleIdToken,
+  });
   await saveTokens(data);
   return data;
 }

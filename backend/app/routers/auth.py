@@ -4,11 +4,19 @@ from app.core.auth import FirebaseUser, get_current_user
 from app.core.config import get_settings
 from app.core.firebase import verify_firebase_token
 from app.db.session import get_db
-from app.schemas.auth import LoginRequest, LoginResponse, RegisterRequest
+from app.schemas.auth import (
+    GoogleSignInRequest,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+)
 from app.services.auth_errors import raise_auth_http_error
-from app.services.firebase_login import (FirebaseLoginError,
-                                         sign_in_with_password,
-                                         sign_up_with_password)
+from app.services.firebase_login import (
+    FirebaseLoginError,
+    sign_in_with_google_id_token,
+    sign_in_with_password,
+    sign_up_with_password,
+)
 from app.services.user_service import get_or_create_user
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,6 +78,36 @@ async def register(
         )
     except FirebaseLoginError as e:
         raise_auth_http_error(e, register=True)
+
+    decoded = verify_firebase_token(data["idToken"])
+    await get_or_create_user(db, FirebaseUser(decoded))
+
+    return _login_response_from_firebase(data)
+
+
+@router.post(
+    "/google",
+    response_model=LoginResponse,
+    summary="Sign in with Google",
+)
+async def google_sign_in(
+    body: GoogleSignInRequest,
+    db: AsyncSession = Depends(get_db),
+) -> LoginResponse:
+    """
+    Exchange a Google ID token for Firebase Auth tokens and sync the user into the database.
+
+    The client obtains the Google ID token via OAuth (expo-auth-session), then sends it here.
+    Returns the same token payload as login/register.
+    """
+    settings = get_settings()
+    try:
+        data = await sign_in_with_google_id_token(
+            api_key=settings.firebase_api_key,
+            google_id_token=body.id_token,
+        )
+    except FirebaseLoginError as e:
+        raise_auth_http_error(e, register=False)
 
     decoded = verify_firebase_token(data["idToken"])
     await get_or_create_user(db, FirebaseUser(decoded))

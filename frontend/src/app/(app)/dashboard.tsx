@@ -11,9 +11,14 @@ import { useAuth } from '@/context/AuthContext';
 import { useHomeVisits } from '@/hooks/visits';
 import type { MeResponse } from '@/lib/types';
 
+function getFirstName(displayName: string | null | undefined): string | null {
+  const first = displayName?.trim().split(/\s+/)[0];
+  return first || null;
+}
+
 function getDisplayName(user: MeResponse | null): string {
   if (!user) return 'Fan';
-  return user.display_name?.trim() || user.email || 'Fan';
+  return getFirstName(user.display_name) || user.email || 'Fan';
 }
 
 function getInitials(user: MeResponse | null): string {
@@ -94,7 +99,7 @@ export default function DashboardScreen() {
         <View className="items-center gap-3 pb-8">
           <ProfileAvatar user={user} />
           <Text variant="h3" className="text-center">
-            {getDisplayName(user)}
+            {"Welcome back, " + getDisplayName(user) + "!"}
           </Text>
           {user?.email && user.display_name ? (
             <Text variant="muted" className="text-center">

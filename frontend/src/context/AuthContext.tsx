@@ -12,6 +12,7 @@ import {
 import {
   getMe,
   login as apiLogin,
+  loginWithGoogle as apiLoginWithGoogle,
   register as apiRegister,
   setOnSessionCleared,
   setOnTokensRefreshed,
@@ -38,6 +39,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<MeResponse>;
   register: (email: string, password: string) => Promise<MeResponse>;
+  loginWithGoogle: (googleIdToken: string) => Promise<MeResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<MeResponse | null>;
 }
@@ -108,6 +110,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (email: string, password: string): Promise<MeResponse> => {
       const tokens = await apiRegister({ email: email.trim(), password });
+      applyTokens(tokens);
+      const me = await getMe();
+      setUser(me);
+      return me;
+    },
+    [applyTokens],
+  );
+
+  const loginWithGoogle = useCallback(
+    async (googleIdToken: string): Promise<MeResponse> => {
+      const tokens = await apiLoginWithGoogle(googleIdToken);
       applyTokens(tokens);
       const me = await getMe();
       setUser(me);
@@ -192,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(idToken && user),
       login,
       register,
+      loginWithGoogle,
       logout,
       refreshUser,
     }),
@@ -203,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       login,
       register,
+      loginWithGoogle,
       logout,
       refreshUser,
     ],

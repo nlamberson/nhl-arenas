@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, View } from 'react-native';
 
+import { AuthDivider } from '@/components/AuthDivider';
 import { AuthScreenShell } from '@/components/AuthScreenShell';
 import { FormTextField } from '@/components/FormTextField';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -101,6 +103,17 @@ export default function RegisterScreen() {
         <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
           <Text>Create account</Text>
         </Button>
+
+        <AuthDivider />
+
+        <GoogleSignInButton
+          label="Sign up with Google"
+          onSuccess={() => router.replace('/(app)/dashboard')}
+          onError={(message) => {
+            setSubmitError(message);
+            Alert.alert('Google Sign-In failed', message);
+          }}
+        />
 
         <View className="flex-row justify-center gap-1">
           <Text variant="muted">Already have an account?</Text>

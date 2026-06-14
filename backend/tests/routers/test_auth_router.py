@@ -111,3 +111,67 @@ async def test_register_weak_password(auth_client: AsyncClient) -> None:
 
     assert response.status_code == 422
     assert "6 characters" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_google_sign_in_success(auth_client: AsyncClient, test_db_user) -> None:
+    firebase_data = {
+        "idToken": "google-firebase-id-token",
+        "refreshToken": "google-refresh-token",
+        "expiresIn": "3600",
+        "localId": "google-firebase-uid",
+        "email": "google@example.com",
+    }
+    decoded = {
+        "uid": "google-firebase-uid",
+        "email": "google@example.com",
+        "email_verified": True,
+        "name": "Google User",
+        "picture": "https://example.com/photo.jpg",
+    }
+
+    with (
+        patch(
+            "app.routers.auth.sign_in_with_google_id_token",
+            new_callable=AsyncMock,
+            return_value=firebase_data,
+        ),
+        patch("app.routers.auth.verify_firebase_token", return_value=decoded),
+        patch(
+            "app.routers.auth.get_or_create_user",
+            new_callable=AsyncMock,
+            return_value=test_db_user,
+        ) as mock_get_or_create,
+    ):
+        response = await auth_client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "google-oauth-id-token"},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body == {
+        "id_token": "google-firebase-id-token",
+        "refresh_token": "google-refresh-token",
+        "expires_in": 3600,
+    }
+    mock_get_or_create.assert_awaited_once()
+    firebase_user = mock_get_or_create.await_args.args[1]
+    assert isinstance(firebase_user, FirebaseUser)
+    assert firebase_user.uid == "google-firebase-uid"
+    assert firebase_user.name == "Google User"
+
+
+@pytest.mark.asyncio
+async def test_google_sign_in_invalid_token(auth_client: AsyncClient) -> None:
+    with patch(
+        "app.routers.auth.sign_in_with_google_id_token",
+        new_callable=AsyncMock,
+        side_effect=FirebaseLoginError("INVALID_IDP_RESPONSE", code="INVALID_IDP_RESPONSE"),
+    ):
+        response = await auth_client.post(
+            "/api/v1/auth/google",
+            json={"id_token": "bad-token"},
+        )
+
+    assert response.status_code == 401
