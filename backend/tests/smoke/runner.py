@@ -1,18 +1,17 @@
 """
-Weekly keep-alive smoke test against a live NHL Arenas API deployment.
+Live API smoke tests against a deployed NHL Arenas API.
 
-Exercises auth, reference data, and full visit CRUD to keep Supabase/Render active
-and catch regressions in production.
+Exercises auth, reference data, and full visit CRUD to catch regressions in production.
 
 Required environment variables:
-  KEEPALIVE_API_URL   Base API URL (no trailing slash), e.g. https://api.example.com
-  KEEPALIVE_EMAIL     Dedicated Firebase test user email
-  KEEPALIVE_PASSWORD  Password for the test user
+  SMOKE_TEST_API_URL   Base API URL (no trailing slash), e.g. https://api.example.com
+  SMOKE_TEST_EMAIL     Dedicated Firebase test user email
+  SMOKE_TEST_PASSWORD  Password for the test user
 
 Optional:
-  KEEPALIVE_ITERATIONS  Number of create/read/update cycles (default: 10)
-  KEEPALIVE_HEALTH_RETRIES  Health-check attempts while waking cold starts (default: 12)
-  KEEPALIVE_HEALTH_DELAY_SEC  Seconds between health retries (default: 15)
+  SMOKE_TEST_ITERATIONS  Number of create/read/update cycles (default: 10)
+  SMOKE_TEST_HEALTH_RETRIES  Health-check attempts while waking cold starts (default: 12)
+  SMOKE_TEST_HEALTH_DELAY_SEC  Seconds between health retries (default: 15)
 """
 
 from __future__ import annotations
@@ -36,12 +35,12 @@ DEFAULT_HEALTH_DELAY_SEC = 15
 REQUEST_TIMEOUT_SEC = 120.0
 
 
-class KeepaliveError(Exception):
-    """Raised when a keep-alive smoke step fails."""
+class SmokeTestError(Exception):
+    """Raised when a smoke test step fails."""
 
 
 @dataclass
-class KeepaliveConfig:
+class SmokeTestConfig:
     api_url: str
     email: str
     password: str
@@ -51,7 +50,7 @@ class KeepaliveConfig:
 
 
 @dataclass
-class KeepaliveResult:
+class SmokeTestResult:
     """Summary returned after a successful run (useful for future perf baselines)."""
 
     iterations: int
@@ -61,37 +60,37 @@ class KeepaliveResult:
     step_timings_sec: dict[str, float] = field(default_factory=dict)
 
 
-def load_config_from_env() -> KeepaliveConfig:
-    api_url = os.environ.get("KEEPALIVE_API_URL", "").rstrip("/")
-    email = os.environ.get("KEEPALIVE_EMAIL", "")
-    password = os.environ.get("KEEPALIVE_PASSWORD", "")
+def load_config_from_env() -> SmokeTestConfig:
+    api_url = os.environ.get("SMOKE_TEST_API_URL", "").rstrip("/")
+    email = os.environ.get("SMOKE_TEST_EMAIL", "")
+    password = os.environ.get("SMOKE_TEST_PASSWORD", "")
 
     missing = [
         name
         for name, value in [
-            ("KEEPALIVE_API_URL", api_url),
-            ("KEEPALIVE_EMAIL", email),
-            ("KEEPALIVE_PASSWORD", password),
+            ("SMOKE_TEST_API_URL", api_url),
+            ("SMOKE_TEST_EMAIL", email),
+            ("SMOKE_TEST_PASSWORD", password),
         ]
         if not value
     ]
     if missing:
-        raise KeepaliveError(
+        raise SmokeTestError(
             f"Missing required environment variable(s): {', '.join(missing)}"
         )
 
-    iterations = int(os.environ.get("KEEPALIVE_ITERATIONS", DEFAULT_ITERATIONS))
+    iterations = int(os.environ.get("SMOKE_TEST_ITERATIONS", DEFAULT_ITERATIONS))
     health_retries = int(
-        os.environ.get("KEEPALIVE_HEALTH_RETRIES", DEFAULT_HEALTH_RETRIES)
+        os.environ.get("SMOKE_TEST_HEALTH_RETRIES", DEFAULT_HEALTH_RETRIES)
     )
     health_delay_sec = int(
-        os.environ.get("KEEPALIVE_HEALTH_DELAY_SEC", DEFAULT_HEALTH_DELAY_SEC)
+        os.environ.get("SMOKE_TEST_HEALTH_DELAY_SEC", DEFAULT_HEALTH_DELAY_SEC)
     )
 
     if iterations < 1:
-        raise KeepaliveError("KEEPALIVE_ITERATIONS must be at least 1")
+        raise SmokeTestError("SMOKE_TEST_ITERATIONS must be at least 1")
 
-    return KeepaliveConfig(
+    return SmokeTestConfig(
         api_url=api_url,
         email=email,
         password=password,
@@ -109,10 +108,10 @@ def _raise_for_status(response: httpx.Response, context: str) -> None:
     if response.is_success:
         return
     detail = response.text[:500] if response.text else response.reason_phrase
-    raise KeepaliveError(f"{context}: HTTP {response.status_code} — {detail}")
+    raise SmokeTestError(f"{context}: HTTP {response.status_code} — {detail}")
 
 
-def wait_for_health(client: httpx.Client, config: KeepaliveConfig) -> None:
+def wait_for_health(client: httpx.Client, config: SmokeTestConfig) -> None:
     url = f"{config.api_url}/health/"
     last_error: Exception | None = None
 
@@ -122,10 +121,10 @@ def wait_for_health(client: httpx.Client, config: KeepaliveConfig) -> None:
             _raise_for_status(response, "Health check")
             payload = response.json()
             if payload.get("status") != "ok":
-                raise KeepaliveError(f"Health check returned unexpected payload: {payload}")
+                raise SmokeTestError(f"Health check returned unexpected payload: {payload}")
             logger.info("Health check passed (attempt %s/%s)", attempt, config.health_retries)
             return
-        except (httpx.HTTPError, KeepaliveError) as exc:
+        except (httpx.HTTPError, SmokeTestError) as exc:
             last_error = exc
             if attempt == config.health_retries:
                 break
@@ -138,12 +137,12 @@ def wait_for_health(client: httpx.Client, config: KeepaliveConfig) -> None:
             )
             time.sleep(config.health_delay_sec)
 
-    raise KeepaliveError(
+    raise SmokeTestError(
         f"API did not become healthy after {config.health_retries} attempts"
     ) from last_error
 
 
-def login(client: httpx.Client, config: KeepaliveConfig) -> str:
+def login(client: httpx.Client, config: SmokeTestConfig) -> str:
     response = client.post(
         f"{config.api_url}/api/v1/auth/login",
         json={"email": config.email, "password": config.password},
@@ -152,27 +151,27 @@ def login(client: httpx.Client, config: KeepaliveConfig) -> str:
     data = response.json()
     id_token = data.get("id_token")
     if not id_token:
-        raise KeepaliveError("Login response missing id_token")
+        raise SmokeTestError("Login response missing id_token")
     return id_token
 
 
-def fetch_reference_ids(client: httpx.Client, config: KeepaliveConfig) -> tuple[UUID, UUID, UUID]:
+def fetch_reference_ids(client: httpx.Client, config: SmokeTestConfig) -> tuple[UUID, UUID, UUID]:
     teams_response = client.get(f"{config.api_url}/api/v1/reference/teams")
     _raise_for_status(teams_response, "List teams")
     teams: list[dict[str, Any]] = teams_response.json()
     if len(teams) < 2:
-        raise KeepaliveError("Need at least two teams in reference data")
+        raise SmokeTestError("Need at least two teams in reference data")
 
     home_team = teams[0]
     away_team = next((team for team in teams[1:] if team["id"] != home_team["id"]), None)
     if away_team is None:
-        raise KeepaliveError("Could not find two distinct teams")
+        raise SmokeTestError("Could not find two distinct teams")
 
     arenas_response = client.get(f"{config.api_url}/api/v1/reference/arenas")
     _raise_for_status(arenas_response, "List arenas")
     arenas: list[dict[str, Any]] = arenas_response.json()
     if not arenas:
-        raise KeepaliveError("Need at least one arena in reference data")
+        raise SmokeTestError("Need at least one arena in reference data")
 
     arena_id = home_team.get("arena_id") or arenas[0]["id"]
 
@@ -181,7 +180,7 @@ def fetch_reference_ids(client: httpx.Client, config: KeepaliveConfig) -> tuple[
 
 def create_visit(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     *,
     home_team_id: UUID,
@@ -204,13 +203,13 @@ def create_visit(
     _raise_for_status(response, "Create visit")
     visit_id = response.json().get("id")
     if not visit_id:
-        raise KeepaliveError("Create visit response missing id")
+        raise SmokeTestError("Create visit response missing id")
     return UUID(visit_id)
 
 
 def get_visit(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     visit_id: UUID,
 ) -> dict[str, Any]:
@@ -224,7 +223,7 @@ def get_visit(
 
 def list_visits_contains(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     visit_id: UUID,
 ) -> None:
@@ -236,12 +235,12 @@ def list_visits_contains(
     _raise_for_status(response, "List visits")
     visits: list[dict[str, Any]] = response.json()
     if not any(UUID(visit["id"]) == visit_id for visit in visits):
-        raise KeepaliveError(f"Visit {visit_id} not found in paginated list")
+        raise SmokeTestError(f"Visit {visit_id} not found in paginated list")
 
 
 def update_visit(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     visit_id: UUID,
     seating_location: str,
@@ -254,7 +253,7 @@ def update_visit(
     _raise_for_status(response, f"Update visit {visit_id}")
     payload = response.json()
     if payload.get("seating_location") != seating_location:
-        raise KeepaliveError(
+        raise SmokeTestError(
             f"Visit {visit_id} seating_location not updated (got {payload.get('seating_location')!r})"
         )
     return payload
@@ -262,7 +261,7 @@ def update_visit(
 
 def delete_visit(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     visit_id: UUID,
 ) -> None:
@@ -275,7 +274,7 @@ def delete_visit(
 
 def cleanup_visits(
     client: httpx.Client,
-    config: KeepaliveConfig,
+    config: SmokeTestConfig,
     headers: dict[str, str],
     visit_ids: list[UUID],
 ) -> int:
@@ -284,12 +283,12 @@ def cleanup_visits(
         try:
             delete_visit(client, config, headers, visit_id)
             deleted += 1
-        except KeepaliveError as exc:
+        except SmokeTestError as exc:
             logger.warning("Cleanup delete failed for %s: %s", visit_id, exc)
     return deleted
 
 
-def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResult:
+def run_smoke_tests(config: SmokeTestConfig | None = None) -> SmokeTestResult:
     config = config or load_config_from_env()
     started = time.perf_counter()
     step_timings: dict[str, float] = {}
@@ -328,8 +327,8 @@ def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResul
             for index in range(config.iterations):
                 iter_start = time.perf_counter()
                 visit_date = base_date + timedelta(days=index)
-                create_seating = f"keepalive-{index}-create"
-                update_seating = f"keepalive-{index}-updated"
+                create_seating = f"smoke-test-{index}-create"
+                update_seating = f"smoke-test-{index}-updated"
 
                 visit_id = create_visit(
                     client,
@@ -345,9 +344,9 @@ def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResul
 
                 visit = get_visit(client, config, headers, visit_id)
                 if UUID(visit["id"]) != visit_id:
-                    raise KeepaliveError("Retrieved visit id mismatch")
+                    raise SmokeTestError("Retrieved visit id mismatch")
                 if visit.get("seating_location") != create_seating:
-                    raise KeepaliveError("Retrieved visit seating_location mismatch")
+                    raise SmokeTestError("Retrieved visit seating_location mismatch")
 
                 list_visits_contains(client, config, headers, visit_id)
                 update_visit(client, config, headers, visit_id, update_seating)
@@ -379,7 +378,7 @@ def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResul
             step_timings["cleanup"] = time.perf_counter() - step_start
 
             if deleted != len(created_visit_ids):
-                raise KeepaliveError(
+                raise SmokeTestError(
                     f"Cleanup incomplete: deleted {deleted}/{len(created_visit_ids)} visits"
                 )
 
@@ -392,12 +391,12 @@ def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResul
             remaining_ids = {UUID(visit["id"]) for visit in list_response.json()}
             leaked = [vid for vid in created_visit_ids if vid in remaining_ids]
             if leaked:
-                raise KeepaliveError(
+                raise SmokeTestError(
                     f"Cleanup verification failed; visits still present: {leaked}"
                 )
 
     total_duration = time.perf_counter() - started
-    result = KeepaliveResult(
+    result = SmokeTestResult(
         iterations=config.iterations,
         visits_created=len(created_visit_ids),
         visits_deleted=deleted,
@@ -405,7 +404,7 @@ def run_keepalive_smoke(config: KeepaliveConfig | None = None) -> KeepaliveResul
         step_timings_sec=step_timings,
     )
     logger.info(
-        "Keep-alive smoke passed: %s iterations, %.2fs total, timings=%s",
+        "Smoke tests passed: %s iterations, %.2fs total, timings=%s",
         result.iterations,
         result.total_duration_sec,
         result.step_timings_sec,
@@ -419,9 +418,9 @@ def main() -> int:
         format="%(asctime)s %(levelname)s %(message)s",
     )
     try:
-        result = run_keepalive_smoke()
-    except KeepaliveError as exc:
-        logger.error("Keep-alive smoke failed: %s", exc)
+        result = run_smoke_tests()
+    except SmokeTestError as exc:
+        logger.error("Smoke tests failed: %s", exc)
         return 1
 
     print(
