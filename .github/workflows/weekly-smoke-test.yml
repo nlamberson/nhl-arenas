@@ -1,0 +1,48 @@
+name: Weekly API Keep-Alive Smoke Test
+
+# Wakes the production API + database weekly and exercises authenticated visit CRUD.
+# Prevents Supabase free-tier pause and catches regressions against the live stack.
+#
+# Schedule: Sunday 00:00 UTC (Saturday 7pm US Eastern / 4pm US Pacific).
+# Adjust the cron expression if you prefer a different timezone.
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Production smoke (visit CRUD)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run keep-alive smoke test
+        env:
+          KEEPALIVE_EMAIL: ${{ secrets.KEEPALIVE_EMAIL }}
+          KEEPALIVE_PASSWORD: ${{ secrets.KEEPALIVE_PASSWORD }}
+          KEEPALIVE_ITERATIONS: "10"
+        run: |
+          cd backend
+          if [ -n "${{ secrets.KEEPALIVE_API_URL }}" ]; then
+            export KEEPALIVE_API_URL="${{ secrets.KEEPALIVE_API_URL }}"
+          else
+            export KEEPALIVE_API_URL="${{ secrets.EXPO_PUBLIC_API_URL }}"
+          fi
+          if [ -z "$KEEPALIVE_API_URL" ]; then
+            echo "Missing KEEPALIVE_API_URL (or EXPO_PUBLIC_API_URL fallback)"
+            exit 1
+          fi
+          python -m tests.smoke.keepalive
