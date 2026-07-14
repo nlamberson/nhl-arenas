@@ -1,0 +1,46 @@
+name: Weekly API Smoke Test
+
+# Runs production API smoke tests weekly (authenticated visit CRUD).
+#
+# Schedule: Sunday 00:00 UTC (Saturday 7pm US Eastern / 4pm US Pacific).
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Production smoke (visit CRUD)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run smoke tests
+        env:
+          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_USER_EMAIL }}
+          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_USER_PASSWORD }}
+          SMOKE_TEST_ITERATIONS: "10"
+        run: |
+          cd backend
+          if [ -n "${{ secrets.SMOKE_TEST_API_URL }}" ]; then
+            export SMOKE_TEST_API_URL="${{ secrets.SMOKE_TEST_API_URL }}"
+          else
+            export SMOKE_TEST_API_URL="${{ secrets.EXPO_PUBLIC_API_URL }}"
+          fi
+          if [ -z "$SMOKE_TEST_API_URL" ]; then
+            echo "Missing SMOKE_TEST_API_URL (or EXPO_PUBLIC_API_URL fallback)"
+            exit 1
+          fi
+          python -m tests.smoke.runner

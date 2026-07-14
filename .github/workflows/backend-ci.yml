@@ -50,7 +50,7 @@ jobs:
     - name: Run tests
       run: |
         cd backend
-        pytest tests/ -v --cov=app
+        pytest tests/ -v --cov=app -m "not smoke"
     
     - name: Upload coverage
       uses: codecov/codecov-action@v6
