@@ -12,7 +12,6 @@ jobs:
   smoke:
     name: Production smoke (visit CRUD)
     runs-on: ubuntu-latest
-    environment: production
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
