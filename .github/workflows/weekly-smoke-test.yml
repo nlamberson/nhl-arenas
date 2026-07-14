@@ -3,7 +3,6 @@ name: Weekly API Smoke Test
 # Runs production API smoke tests weekly (authenticated visit CRUD).
 #
 # Schedule: Sunday 00:00 UTC (Saturday 7pm US Eastern / 4pm US Pacific).
-# Adjust the cron expression if you prefer a different timezone.
 on:
   schedule:
     - cron: "0 0 * * 0"
@@ -30,8 +29,8 @@ jobs:
 
       - name: Run smoke tests
         env:
-          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
-          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_PASSWORD }}
+          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_USER_EMAIL }}
+          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_USER_PASSWORD }}
           SMOKE_TEST_ITERATIONS: "10"
         run: |
           cd backend
