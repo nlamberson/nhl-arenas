@@ -17,7 +17,7 @@ def _smoke_env_configured() -> bool:
 
 @pytest.mark.skipif(
     not _smoke_env_configured(),
-    reason="SMOKE_TEST_API_URL, SMOKE_TEST_EMAIL, and SMOKE_TEST_PASSWORD must be set",
+    reason="SMOKE_TEST_API_URL, SMOKE_TEST_USER_EMAIL, and SMOKE_TEST_USER_PASSWORD must be set",
 )
 def test_weekly_api_smoke() -> None:
     result = run_smoke_tests()
