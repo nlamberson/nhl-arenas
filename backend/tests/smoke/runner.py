@@ -4,13 +4,13 @@ Live API smoke tests against a deployed NHL Arenas API.
 Exercises auth, reference data, and full visit CRUD to catch regressions in production.
 
 Required environment variables:
-  SMOKE_TEST_API_URL   Base API URL (no trailing slash), e.g. https://api.example.com
-  SMOKE_TEST_EMAIL     Dedicated Firebase test user email
-  SMOKE_TEST_PASSWORD  Password for the test user
+  SMOKE_TEST_API_URL          Base API URL (no trailing slash), e.g. https://api.example.com
+  SMOKE_TEST_USER_EMAIL       Dedicated Firebase test user email
+  SMOKE_TEST_USER_PASSWORD    Password for the test user
 
 Optional:
-  SMOKE_TEST_ITERATIONS  Number of create/read/update cycles (default: 10)
-  SMOKE_TEST_HEALTH_RETRIES  Health-check attempts while waking cold starts (default: 12)
+  SMOKE_TEST_ITERATIONS        Number of create/read/update cycles (default: 10)
+  SMOKE_TEST_HEALTH_RETRIES    Health-check attempts while waking cold starts (default: 12)
   SMOKE_TEST_HEALTH_DELAY_SEC  Seconds between health retries (default: 15)
 """
 
@@ -62,15 +62,15 @@ class SmokeTestResult:
 
 def load_config_from_env() -> SmokeTestConfig:
     api_url = os.environ.get("SMOKE_TEST_API_URL", "").rstrip("/")
-    email = os.environ.get("SMOKE_TEST_EMAIL", "")
-    password = os.environ.get("SMOKE_TEST_PASSWORD", "")
+    email = os.environ.get("SMOKE_TEST_USER_EMAIL", "")
+    password = os.environ.get("SMOKE_TEST_USER_PASSWORD", "")
 
     missing = [
         name
         for name, value in [
             ("SMOKE_TEST_API_URL", api_url),
-            ("SMOKE_TEST_EMAIL", email),
-            ("SMOKE_TEST_PASSWORD", password),
+            ("SMOKE_TEST_USER_EMAIL", email),
+            ("SMOKE_TEST_USER_PASSWORD", password),
         ]
         if not value
     ]
