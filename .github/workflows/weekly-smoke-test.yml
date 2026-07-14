@@ -12,6 +12,7 @@ jobs:
   smoke:
     name: Production smoke (visit CRUD)
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
@@ -29,8 +30,8 @@ jobs:
 
       - name: Run smoke tests
         env:
-          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_USER_EMAIL }}
-          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_USER_PASSWORD }}
+          SMOKE_TEST_USER_EMAIL: ${{ secrets.SMOKE_TEST_USER_EMAIL }}
+          SMOKE_TEST_USER_PASSWORD: ${{ secrets.SMOKE_TEST_USER_PASSWORD }}
           SMOKE_TEST_ITERATIONS: "10"
         run: |
           cd backend
