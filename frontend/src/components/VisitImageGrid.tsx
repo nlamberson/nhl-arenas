@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { VisitImageLightbox } from '@/components/VisitImageLightbox';
 import { useAuth } from '@/context/AuthContext';
 import { useSnackbar } from '@/context/SnackbarContext';
 import {
@@ -123,11 +124,13 @@ function VisitImageTile({
   image,
   firebaseUid,
   onDelete,
+  onOpen,
   deleting,
 }: {
   image: ImageResponse;
   firebaseUid: string;
   onDelete: (image: ImageResponse) => void;
+  onOpen: () => void;
   deleting: boolean;
 }) {
   const cached = getCachedDownloadUrl(image.storage_path);
@@ -165,24 +168,31 @@ function VisitImageTile({
 
   return (
     <View className="relative aspect-square w-[47%] overflow-hidden rounded-lg bg-muted/30">
-      {url ? (
-        <Image
-          source={{ uri: url }}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          transition={200}
-        />
-      ) : (
-        <View className="flex-1 items-center justify-center">
-          {loadingUrl ? (
-            <ActivityIndicator />
-          ) : (
-            <Text variant="muted" className="px-2 text-center text-xs">
-              {error ?? 'Unavailable'}
-            </Text>
-          )}
-        </View>
-      )}
+      <Pressable
+        accessibilityLabel="Enlarge photo"
+        disabled={!url}
+        onPress={onOpen}
+        className="h-full w-full"
+      >
+        {url ? (
+          <Image
+            source={{ uri: url }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            transition={200}
+          />
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            {loadingUrl ? (
+              <ActivityIndicator />
+            ) : (
+              <Text variant="muted" className="px-2 text-center text-xs">
+                {error ?? 'Unavailable'}
+              </Text>
+            )}
+          </View>
+        )}
+      </Pressable>
       <Pressable
         accessibilityLabel="Delete photo"
         disabled={deleting}
@@ -212,6 +222,7 @@ export function VisitImageGrid({
   const deleteMutation = useDeleteVisitImage();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const sorted = useMemo(
     () => [...images].sort((a, b) => a.slot_index - b.slot_index),
@@ -335,13 +346,14 @@ export function VisitImageGrid({
       </View>
 
       <View className="flex-row flex-wrap justify-center gap-3">
-        {sorted.map((image) =>
+        {sorted.map((image, index) =>
           user?.uid ? (
             <VisitImageTile
               key={image.id}
               image={image}
               firebaseUid={user.uid}
               onDelete={handleDelete}
+              onOpen={() => setLightboxIndex(index)}
               deleting={deletingId === image.id}
             />
           ) : null,
@@ -367,6 +379,17 @@ export function VisitImageGrid({
         completed={uploadMutation.progress?.completed ?? 0}
         total={uploadMutation.progress?.total ?? 0}
       />
+
+      {user?.uid ? (
+        <VisitImageLightbox
+          images={sorted}
+          index={lightboxIndex ?? 0}
+          visible={lightboxIndex != null}
+          firebaseUid={user.uid}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={setLightboxIndex}
+        />
+      ) : null}
     </View>
   );
 }
