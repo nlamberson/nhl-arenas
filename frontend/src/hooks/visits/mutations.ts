@@ -7,7 +7,11 @@ import {
   deleteVisitImage,
   updateVisit,
 } from '@/lib/api';
-import { forgetDownloadUrl, uploadVisitImage } from '@/lib/visitImages';
+import {
+  forgetDownloadUrl,
+  uploadVisitImages,
+  type UploadVisitImagesResult,
+} from '@/lib/visitImages';
 import { queryKeys } from '@/lib/queryKeys';
 import type {
   ImageResponse,
@@ -15,6 +19,11 @@ import type {
   VisitResponse,
   VisitUpdate,
 } from '@/lib/types';
+
+export type UploadBatchProgress = {
+  completed: number;
+  total: number;
+};
 
 export function useCreateVisit(options?: {
   onSuccess?: (visit: VisitResponse) => void;
@@ -103,24 +112,33 @@ function removeImageFromVisitCache(
 
 export function useUploadVisitImage() {
   const queryClient = useQueryClient();
-  const [progress, setProgress] = useState<number | null>(null);
+  const [progress, setProgress] = useState<UploadBatchProgress | null>(null);
 
   const mutation = useMutation({
     mutationFn: (params: {
       visitId: string;
       firebaseUid: string;
       existingImages: ImageResponse[];
-    }) =>
-      uploadVisitImage({
+      uris: string[];
+    }) => {
+      setProgress({ completed: 0, total: params.uris.length });
+      return uploadVisitImages({
         ...params,
-        onProgress: setProgress,
-      }),
-    onSuccess: async (created, vars) => {
-      setProgress(null);
-      mergeImageIntoVisitCache(queryClient, vars.visitId, created);
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.visits.detail(vars.visitId),
+        onItemComplete: ({ completed, total, image }) => {
+          mergeImageIntoVisitCache(queryClient, params.visitId, image);
+          setProgress({ completed, total });
+        },
       });
+    },
+    onSuccess: async (result: UploadVisitImagesResult, vars) => {
+      // Let the bar animate to the final step before dismissing the toast.
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      setProgress(null);
+      if (result.succeeded.length > 0) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.visits.detail(vars.visitId),
+        });
+      }
     },
     onError: () => {
       setProgress(null);
