@@ -8,7 +8,7 @@ import tempfile
 from functools import lru_cache
 
 import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth, credentials, storage
 
 from app.core.config import get_settings
 
@@ -43,6 +43,13 @@ def _setup_credentials_from_base64(base64_content: str) -> str:
     except Exception as e:
         logger.error(f"Failed to decode base64 service account: {e}")
         raise ValueError(f"Invalid FIREBASE_SERVICE_ACCOUNT_BASE64: {e}")
+
+
+def _firebase_app_options(settings) -> dict:
+    options: dict = {"projectId": settings.firebase_project_id}
+    if settings.firebase_storage_bucket:
+        options["storageBucket"] = settings.firebase_storage_bucket
+    return options
 
 
 @lru_cache()
@@ -81,20 +88,18 @@ def initialize_firebase() -> firebase_admin.App:
     if firebase_admin._apps:
         return firebase_admin.get_app()
     
+    options = _firebase_app_options(settings)
+
     # Try to initialize with default credentials first
     try:
         cred = credentials.ApplicationDefault()
-        app = firebase_admin.initialize_app(cred, {
-            'projectId': settings.firebase_project_id,
-        })
+        app = firebase_admin.initialize_app(cred, options)
         logger.info(f"Firebase Admin SDK initialized (project: {settings.firebase_project_id})")
         return app
     except Exception as e:
         logger.warning(f"Could not use Application Default Credentials: {e}")
         # Fallback: Initialize without credentials (limited functionality)
-        app = firebase_admin.initialize_app(options={
-            'projectId': settings.firebase_project_id,
-        })
+        app = firebase_admin.initialize_app(options=options)
         logger.warning("Firebase initialized WITHOUT credentials - token verification will fail!")
         return app
 
@@ -133,3 +138,35 @@ def verify_firebase_token(id_token: str) -> dict:
         logger.error(f"Token verification failed: {type(e).__name__}: {e}")
         raise
 
+
+def create_custom_token(uid: str) -> str:
+    """Mint a Firebase custom token for client Auth (Storage SDK sign-in)."""
+    initialize_firebase()
+    token = auth.create_custom_token(uid)
+    if isinstance(token, bytes):
+        return token.decode("utf-8")
+    return token
+
+
+def delete_storage_object(storage_path: str) -> None:
+    """
+    Delete a single object from Firebase Storage by path.
+
+    Missing objects are treated as already deleted (safe for metadata cleanup).
+    Other Storage errors are raised so callers can fail loudly.
+    """
+    from google.cloud.exceptions import NotFound
+
+    initialize_firebase()
+    settings = get_settings()
+    if not settings.firebase_storage_bucket:
+        raise RuntimeError("FIREBASE_STORAGE_BUCKET is not configured")
+
+    bucket = storage.bucket(name=settings.firebase_storage_bucket)
+    blob = bucket.blob(storage_path)
+    try:
+        blob.delete()
+    except NotFound:
+        logger.warning("Firebase Storage object already missing: %s", storage_path)
+        return
+    logger.info("Deleted Firebase Storage object: %s", storage_path)

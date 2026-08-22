@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AuthDivider } from '@/components/AuthDivider';
 import { AuthScreenShell } from '@/components/AuthScreenShell';
@@ -11,6 +11,7 @@ import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/context/AuthContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { getErrorMessage } from '@/lib/errors';
 
 type RegisterForm = {
@@ -23,6 +24,7 @@ const MIN_PASSWORD_LENGTH = 6;
 
 export default function RegisterScreen() {
   const { register: registerUser } = useAuth();
+  const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -41,7 +43,10 @@ export default function RegisterScreen() {
     } catch (err) {
       const message = getErrorMessage(err, 'Registration failed');
       setSubmitError(message);
-      Alert.alert('Registration failed', message);
+      showSnackbar({
+        message: `Registration failed. ${message}`,
+        variant: 'error',
+      });
     }
   });
 
@@ -111,7 +116,10 @@ export default function RegisterScreen() {
           onSuccess={() => router.replace('/(app)/dashboard')}
           onError={(message) => {
             setSubmitError(message);
-            Alert.alert('Google Sign-In failed', message);
+            showSnackbar({
+              message: `Google Sign-In failed. ${message}`,
+              variant: 'error',
+            });
           }}
         />
 

@@ -1,8 +1,9 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { goBackOrHome } from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { DeleteVisitConfirmation } from '@/components/DeleteVisitConfirmation';
@@ -10,6 +11,7 @@ import { EditVisitSeatingSheet } from '@/components/EditVisitSeatingSheet';
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { ScoreBug } from '@/components/ScoreBug';
+import { VisitImageGrid } from '@/components/VisitImageGrid';
 import { useVisit } from '@/hooks/visits';
 import { formatVisitDate } from '@/lib/formatDate';
 
@@ -56,29 +58,6 @@ function SeatingDetailRow({
   );
 }
 
-function ImageGridStub() {
-  return (
-    <View className="gap-3">
-      <Text variant="large">Photos</Text>
-      <View className="flex-row flex-wrap gap-3">
-        {[0, 1, 2, 3].map((slot) => (
-          <View
-            key={slot}
-            className="aspect-square w-[47%] items-center justify-center rounded-lg border border-dashed border-border bg-muted/30"
-          >
-            <Text variant="muted" className="text-xs">
-              Photo {slot + 1}
-            </Text>
-          </View>
-        ))}
-      </View>
-      <Text variant="muted" className="text-center text-xs">
-        Image uploads coming in a future release
-      </Text>
-    </View>
-  );
-}
-
 export default function VisitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const visitId = resolveVisitId(id);
@@ -117,7 +96,7 @@ export default function VisitDetailScreen() {
             />
           </View>
 
-          <ImageGridStub />
+          <VisitImageGrid visitId={visit.id} images={visit.images ?? []} />
 
           <Button
             variant="destructive"
@@ -140,7 +119,7 @@ export default function VisitDetailScreen() {
             onClose={() => setConfirmingDelete(false)}
             onDeleted={() => {
               setConfirmingDelete(false);
-              router.back();
+              goBackOrHome();
             }}
           />
         </ScrollView>

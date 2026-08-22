@@ -48,8 +48,7 @@ export function MatchupScoreboardHalf({
       <Svg
         width={cardWidth}
         height={height}
-        style={{ position: 'absolute', left: isAway ? 0 : -halfWidth, top: 0 }}
-        pointerEvents="none"
+        style={{ position: 'absolute', left: isAway ? 0 : -halfWidth, top: 0, pointerEvents: 'none' }}
       >
         <Polygon points={polygonPoints} fill={colors.primary} />
       </Svg>

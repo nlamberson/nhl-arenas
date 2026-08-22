@@ -283,9 +283,10 @@ async def test_update_visit_for_user_raises_when_patch_home_team_missing(
 
 
 @pytest.mark.asyncio
+@patch("app.services.visits.delete_storage_objects_for_visit", new_callable=AsyncMock)
 @patch("app.services.visits.delete", new_callable=AsyncMock)
 async def test_delete_visit_by_id_calls_delete(
-    mock_delete: AsyncMock, user: User
+    mock_delete: AsyncMock, mock_storage: AsyncMock, user: User
 ) -> None:
     db = AsyncMock(spec=AsyncSession)
     vid = uuid.uuid4()
@@ -300,17 +301,23 @@ async def test_delete_visit_by_id_calls_delete(
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
     )
-    db.get = AsyncMock(return_value=visit)
+    visit.images = []
+    exec_result = MagicMock()
+    exec_result.scalar_one_or_none.return_value = visit
+    db.execute = AsyncMock(return_value=exec_result)
 
     await visits_service.delete_visit_by_id(vid, user, db)
 
+    mock_storage.assert_awaited_once_with(visit)
     mock_delete.assert_awaited_once_with(visit, db)
 
 
 @pytest.mark.asyncio
 async def test_delete_visit_by_id_raises_when_visit_missing(user: User) -> None:
     db = AsyncMock(spec=AsyncSession)
-    db.get = AsyncMock(return_value=None)
+    exec_result = MagicMock()
+    exec_result.scalar_one_or_none.return_value = None
+    db.execute = AsyncMock(return_value=exec_result)
 
     with pytest.raises(VisitNotFoundError):
         await visits_service.delete_visit_by_id(uuid.uuid4(), user, db)
@@ -319,20 +326,11 @@ async def test_delete_visit_by_id_raises_when_visit_missing(user: User) -> None:
 @pytest.mark.asyncio
 async def test_delete_visit_by_id_raises_when_wrong_user(user: User) -> None:
     db = AsyncMock(spec=AsyncSession)
-    other_user_id = uuid.uuid4()
-    vid = uuid.uuid4()
-    visit = Visit(
-        id=vid,
-        user_id=other_user_id,
-        arena_id=uuid.uuid4(),
-        home_team_id=uuid.uuid4(),
-        away_team_id=uuid.uuid4(),
-        visit_date=date(2024, 1, 1),
-        seating_location=None,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    )
-    db.get = AsyncMock(return_value=visit)
+    # Ownership is enforced in the query (user_id == user.id), so a wrong-owner
+    # visit is returned as not found.
+    exec_result = MagicMock()
+    exec_result.scalar_one_or_none.return_value = None
+    db.execute = AsyncMock(return_value=exec_result)
 
     with pytest.raises(VisitNotFoundError):
-        await visits_service.delete_visit_by_id(vid, user, db)
+        await visits_service.delete_visit_by_id(uuid.uuid4(), user, db)

@@ -5,8 +5,9 @@ from datetime import date, datetime
 from typing import Optional
 
 from app.schemas.game import VisitGameResponse
+from app.schemas.image import ImageResponse
 from app.schemas.reference import ArenaResponse, TeamResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Request Objects
@@ -18,7 +19,7 @@ class VisitCreate(BaseModel):
     arena_id: uuid.UUID
     visit_date: date
     seating_location: Optional[str] = None
-    # TODO: Optional[list[ImageCreate]] for images
+
 
 class VisitUpdate(BaseModel):
     """Request data needed to update a visit."""
@@ -28,7 +29,7 @@ class VisitUpdate(BaseModel):
     arena_id: Optional[uuid.UUID] = None
     visit_date: Optional[date] = None
     seating_location: Optional[str] = None
-    # TODO: Optional[list[ImageUpdate]] for images
+
 
 # Response Objects
 class VisitResponse(BaseModel):
@@ -42,7 +43,7 @@ class VisitResponse(BaseModel):
     arena: ArenaResponse
     visit_date: date
     seating_location: Optional[str] = None
-    # TODO: Optional[list[ImageResponse]] for images
+    images: list[ImageResponse] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
     game: Optional[VisitGameResponse] = None

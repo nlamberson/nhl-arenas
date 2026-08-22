@@ -1,8 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
-import { createVisit, deleteVisit, updateVisit } from '@/lib/api';
+import {
+  createVisit,
+  deleteVisit,
+  deleteVisitImage,
+  updateVisit,
+} from '@/lib/api';
+import { forgetDownloadUrl, uploadVisitImage } from '@/lib/visitImages';
 import { queryKeys } from '@/lib/queryKeys';
-import type { VisitCreate, VisitResponse, VisitUpdate } from '@/lib/types';
+import type {
+  ImageResponse,
+  VisitCreate,
+  VisitResponse,
+  VisitUpdate,
+} from '@/lib/types';
 
 export function useCreateVisit(options?: {
   onSuccess?: (visit: VisitResponse) => void;
@@ -46,6 +58,95 @@ export function useDeleteVisit(options?: {
       queryClient.removeQueries({ queryKey: queryKeys.visits.detail(id) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.visits.all });
       options?.onSuccess?.();
+    },
+  });
+}
+
+function mergeImageIntoVisitCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  visitId: string,
+  image: ImageResponse,
+) {
+  queryClient.setQueryData<VisitResponse | undefined>(
+    queryKeys.visits.detail(visitId),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+      const existing = current.images ?? [];
+      if (existing.some((img) => img.id === image.id)) {
+        return current;
+      }
+      return { ...current, images: [...existing, image] };
+    },
+  );
+}
+
+function removeImageFromVisitCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  visitId: string,
+  imageId: string,
+) {
+  queryClient.setQueryData<VisitResponse | undefined>(
+    queryKeys.visits.detail(visitId),
+    (current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        images: (current.images ?? []).filter((img) => img.id !== imageId),
+      };
+    },
+  );
+}
+
+export function useUploadVisitImage() {
+  const queryClient = useQueryClient();
+  const [progress, setProgress] = useState<number | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (params: {
+      visitId: string;
+      firebaseUid: string;
+      existingImages: ImageResponse[];
+    }) =>
+      uploadVisitImage({
+        ...params,
+        onProgress: setProgress,
+      }),
+    onSuccess: async (created, vars) => {
+      setProgress(null);
+      mergeImageIntoVisitCache(queryClient, vars.visitId, created);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.visits.detail(vars.visitId),
+      });
+    },
+    onError: () => {
+      setProgress(null);
+    },
+  });
+
+  return { ...mutation, progress };
+}
+
+export function useDeleteVisitImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      visitId: string;
+      imageId: string;
+      storagePath: string;
+    }) => {
+      await deleteVisitImage(params.visitId, params.imageId);
+      await forgetDownloadUrl(params.storagePath);
+    },
+    onSuccess: async (_data, vars) => {
+      removeImageFromVisitCache(queryClient, vars.visitId, vars.imageId);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.visits.detail(vars.visitId),
+      });
     },
   });
 }

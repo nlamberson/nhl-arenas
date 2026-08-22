@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -16,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { useUpdateVisit } from '@/hooks/visits';
 import { getErrorMessage } from '@/lib/errors';
 
@@ -36,6 +36,7 @@ export function EditVisitSeatingSheet({
   visible,
   onClose,
 }: EditVisitSeatingSheetProps) {
+  const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateVisitMutation = useUpdateVisit({
@@ -73,7 +74,10 @@ export function EditVisitSeatingSheet({
     } catch (err) {
       const message = getErrorMessage(err, 'Failed to update seating');
       setSubmitError(message);
-      Alert.alert('Could not update seating', message);
+      showSnackbar({
+        message: `Could not update seating. ${message}`,
+        variant: 'error',
+      });
     }
   });
 

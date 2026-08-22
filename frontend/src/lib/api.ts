@@ -13,7 +13,10 @@ import {
 import { refreshFirebaseTokens } from './firebaseAuth';
 import type {
   ArenaResponse,
+  CustomTokenResponse,
   GetVisitsParams,
+  ImageCreate,
+  ImageResponse,
   LoginRequest,
   LoginResponse,
   MeResponse,
@@ -156,6 +159,11 @@ export async function getMe(): Promise<MeResponse> {
   return data;
 }
 
+export async function getCustomToken(): Promise<CustomTokenResponse> {
+  const { data } = await api.post<CustomTokenResponse>('/api/v1/auth/custom-token');
+  return data;
+}
+
 export async function getVisitStats(): Promise<VisitStatsResponse> {
   const { data } = await api.get<VisitStatsResponse>('/api/v1/visits/stats');
   return data;
@@ -195,6 +203,24 @@ export async function updateVisit(
 
 export async function deleteVisit(id: string): Promise<void> {
   await api.delete(`/api/v1/visits/${id}`);
+}
+
+export async function createVisitImage(
+  visitId: string,
+  payload: ImageCreate,
+): Promise<ImageResponse> {
+  const { data } = await api.post<ImageResponse>(
+    `/api/v1/visits/${visitId}/images`,
+    payload,
+  );
+  return data;
+}
+
+export async function deleteVisitImage(
+  visitId: string,
+  imageId: string,
+): Promise<void> {
+  await api.delete(`/api/v1/visits/${visitId}/images/${imageId}`);
 }
 
 export async function getTeams(): Promise<TeamResponse[]> {

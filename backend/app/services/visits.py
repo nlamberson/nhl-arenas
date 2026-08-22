@@ -8,16 +8,29 @@ from app.models import Arena, Team, User, Visit
 from app.schemas import (ArenaResponse, TeamResponse, VisitCreate,
                          VisitResponse, VisitUpdate)
 from app.schemas.stats import VisitStatsResponse
+from app.services.images import delete_storage_objects_for_visit
 from sqlalchemy import func, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import noload, selectinload
 
-# Eager loads for VisitResponse (home/away teams + arena); keep list and single GET in sync.
-_VISIT_RELATION_LOADS = (
+# Eager loads for list/latest (no images — keep payloads lean).
+_VISIT_LIST_LOADS = (
     selectinload(Visit.home_team),
     selectinload(Visit.away_team),
     selectinload(Visit.arena),
+    noload(Visit.images),
 )
+
+# Detail GET includes image metadata (max 5 rows; no Firebase).
+_VISIT_DETAIL_LOADS = (
+    selectinload(Visit.home_team),
+    selectinload(Visit.away_team),
+    selectinload(Visit.arena),
+    selectinload(Visit.images),
+)
+
+# Visit delete needs images for Storage cleanup before DB cascade.
+_VISIT_DELETE_LOADS = (selectinload(Visit.images),)
 
 
 async def get_user_visit_stats(user: User, db: AsyncSession) -> VisitStatsResponse:
@@ -75,9 +88,9 @@ async def get_users_visits(
 async def get_visit_by_id_for_user(
     visit_id: uuid.UUID, user: User, db: AsyncSession
 ) -> VisitResponse:
-    """Return one visit if it exists and belongs to the user."""
+    """Return one visit if it exists and belongs to the user (includes images)."""
 
-    visit = await _get_visit_for_user(visit_id, user, db)
+    visit = await _get_visit_for_user(visit_id, user, db, include_images=True)
     return VisitResponse.model_validate(visit)
 
 
@@ -107,6 +120,7 @@ async def create_new_visit(visit: VisitCreate, user: User, db: AsyncSession) -> 
         arena=ArenaResponse.model_validate(arena),
         visit_date=saved_visit.visit_date,
         seating_location=saved_visit.seating_location,
+        images=[],
         created_at=saved_visit.created_at,
         updated_at=saved_visit.updated_at
     )
@@ -119,7 +133,7 @@ async def update_visit_for_user(
 ) -> VisitResponse:
     """Apply a partial update to a visit owned by the user."""
 
-    visit = await _get_visit_for_user(visit_id, user, db)
+    visit = await _get_visit_for_user(visit_id, user, db, include_images=True)
 
     data = payload.model_dump(exclude_unset=True)
     if not data:
@@ -136,24 +150,31 @@ async def update_visit_for_user(
 
 
 async def delete_visit_by_id(visit_id: uuid.UUID, user: User, db: AsyncSession) -> None:
-    """Delete a given visit if it belongs to the current user."""
+    """Delete Storage objects first, then the visit (DB cascades image rows)."""
 
-    visit = await db.get(Visit, visit_id)
-    if visit is None or visit.user_id != user.id:
+    stmt = (
+        select(Visit)
+        .where(Visit.id == visit_id, Visit.user_id == user.id)
+        .options(*_VISIT_DELETE_LOADS)
+    )
+    result = await db.execute(stmt)
+    visit = result.scalar_one_or_none()
+    if visit is None:
         raise VisitNotFoundError()
 
+    await delete_storage_objects_for_visit(visit)
     await delete(visit, db)
 
 # Helper functions
 async def _list_visits_for_user(
     user: User, db: AsyncSession, skip: int, limit: int
 ) -> list[Visit]:
-    """Paginated visits for a user, newest first, with the same relations as GET-by-id."""
+    """Paginated visits for a user, newest first, without image metadata."""
 
     stmt = (
         select(Visit)
         .where(Visit.user_id == user.id)
-        .options(*_VISIT_RELATION_LOADS)
+        .options(*_VISIT_LIST_LOADS)
         .order_by(Visit.visit_date.desc())
         .offset(skip)
         .limit(limit)
@@ -166,13 +187,16 @@ async def _get_visit_for_user(
     visit_id: uuid.UUID,
     user: User,
     db: AsyncSession,
+    *,
+    include_images: bool = False,
 ) -> Visit:
-    """Load one visit by id for this user with arena and teams (same graph as GET)."""
+    """Load one visit by id for this user with arena and teams."""
 
+    loads = _VISIT_DETAIL_LOADS if include_images else _VISIT_LIST_LOADS
     stmt = (
         select(Visit)
         .where(Visit.id == visit_id, Visit.user_id == user.id)
-        .options(*_VISIT_RELATION_LOADS)
+        .options(*loads)
     )
     result = await db.execute(stmt)
     visit = result.scalar_one_or_none()

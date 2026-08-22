@@ -8,13 +8,21 @@ interface BackButtonProps {
   accessibilityLabel?: string;
 }
 
+export function goBackOrHome() {
+  if (router.canGoBack()) {
+    router.back();
+    return;
+  }
+  router.replace('/(app)/dashboard');
+}
+
 export function BackButton({
   onPress,
   accessibilityLabel = 'Go back',
 }: BackButtonProps) {
   return (
     <Pressable
-      onPress={onPress ?? (() => router.back())}
+      onPress={onPress ?? goBackOrHome}
       className="min-w-12 justify-center py-1 active:opacity-70"
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}

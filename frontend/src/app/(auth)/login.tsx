@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AuthDivider } from '@/components/AuthDivider';
 import { AuthScreenShell } from '@/components/AuthScreenShell';
@@ -11,6 +11,7 @@ import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/context/AuthContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { getErrorMessage } from '@/lib/errors';
 
 type LoginForm = {
@@ -22,6 +23,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -40,7 +42,7 @@ export default function LoginScreen() {
     } catch (err) {
       const message = getErrorMessage(err, 'Login failed');
       setSubmitError(message);
-      Alert.alert('Sign in failed', message);
+      showSnackbar({ message: `Sign in failed. ${message}`, variant: 'error' });
     }
   });
 
@@ -106,7 +108,10 @@ export default function LoginScreen() {
           onSuccess={() => router.replace('/(app)/dashboard')}
           onError={(message) => {
             setSubmitError(message);
-            Alert.alert('Google Sign-In failed', message);
+            showSnackbar({
+              message: `Google Sign-In failed. ${message}`,
+              variant: 'error',
+            });
           }}
         />
 

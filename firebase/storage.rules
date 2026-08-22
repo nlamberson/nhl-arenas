@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Visit photos: visits/{firebaseUid}/{visitId}/{slot}.{ext}
+    // slot is 0-4 (max 5 images). Images only, under 10MB.
+    match /visits/{userId}/{visitId}/{fileName} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isValidImageObject() {
+        return fileName.matches('^[0-4]\\.(jpg|jpeg|png|webp)$')
+          && request.resource != null
+          && request.resource.contentType.matches('image/.*')
+          && request.resource.size < 10 * 1024 * 1024;
+      }
+
+      allow read: if isOwner();
+      // create/update only — delete is separate so it does not require request.resource
+      allow create, update: if isOwner() && isValidImageObject();
+      allow delete: if isOwner();
+    }
+
+    // Deny everything else (must stay inside /b/{bucket}/o)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,6 +18,7 @@ import { FormTextField } from '@/components/FormTextField';
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { SelectField, type SelectFieldOption } from '@/components/SelectField';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { useCreateVisit } from '@/hooks/visits';
 import { useReferenceData } from '@/hooks/reference';
 import { todayIsoDate } from '@/lib/date';
@@ -48,6 +48,7 @@ function toSelectOptions<T extends { id: string; name: string }>(
 
 export default function LogVisitScreen() {
   const { teams, loading: referenceLoading, error: referenceError } = useReferenceData();
+  const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const createVisitMutation = useCreateVisit({
@@ -97,7 +98,7 @@ export default function LogVisitScreen() {
     if (!arenaId) {
       const message = 'Selected home team has no arena on file';
       setSubmitError(message);
-      Alert.alert('Could not log visit', message);
+      showSnackbar({ message: `Could not log visit. ${message}`, variant: 'error' });
       return;
     }
 
@@ -114,7 +115,7 @@ export default function LogVisitScreen() {
     } catch (err) {
       const message = getErrorMessage(err, 'Failed to log visit');
       setSubmitError(message);
-      Alert.alert('Could not log visit', message);
+      showSnackbar({ message: `Could not log visit. ${message}`, variant: 'error' });
     }
   });
 

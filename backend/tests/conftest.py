@@ -99,6 +99,7 @@ def build_visit_with_relations(
     visit.home_team = home_team
     visit.away_team = away_team
     visit.arena = arena
+    visit.images = []
     return visit
 
 

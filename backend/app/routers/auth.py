@@ -2,9 +2,10 @@
 
 from app.core.auth import FirebaseUser, get_current_user
 from app.core.config import get_settings
-from app.core.firebase import verify_firebase_token
+from app.core.firebase import create_custom_token, verify_firebase_token
 from app.db.session import get_db
 from app.schemas.auth import (
+    CustomTokenResponse,
     GoogleSignInRequest,
     LoginRequest,
     LoginResponse,
@@ -140,4 +141,19 @@ async def get_me(
         "photo_url": user.photo_url,
         "created_at": user.created_at.isoformat(),
     }
+
+
+@router.post(
+    "/custom-token",
+    response_model=CustomTokenResponse,
+    summary="Mint a Firebase custom token for client Auth (Storage)",
+)
+async def get_custom_token(
+    firebase_user: FirebaseUser = Depends(get_current_user),
+) -> CustomTokenResponse:
+    """
+    Exchange a verified ID token for a custom token so the Expo client can
+    `signInWithCustomToken` and use Firebase Storage with security rules.
+    """
+    return CustomTokenResponse(custom_token=create_custom_token(firebase_user.uid))
 

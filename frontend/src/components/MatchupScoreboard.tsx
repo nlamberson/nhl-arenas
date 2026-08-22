@@ -95,8 +95,7 @@ export function MatchupScoreboard({
         <Svg
           width={cardWidth}
           height={height}
-          style={{ position: 'absolute', left: 0, top: 0 }}
-          pointerEvents="none"
+          style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}
         >
           <Line
             x1={split.splitTopX}
@@ -113,7 +112,6 @@ export function MatchupScoreboard({
       {split ? (
         <>
           <View
-            pointerEvents="none"
             className="absolute justify-center"
             style={{
               left: 0,
@@ -121,6 +119,7 @@ export function MatchupScoreboard({
               top: 0,
               bottom: 0,
               alignItems: 'flex-end',
+              pointerEvents: 'none',
             }}
           >
             <Text
@@ -132,7 +131,6 @@ export function MatchupScoreboard({
           </View>
 
           <View
-            pointerEvents="none"
             className="absolute justify-center"
             style={{
               left: split.halfWidth + SCORE_CENTER_GAP,
@@ -140,6 +138,7 @@ export function MatchupScoreboard({
               top: 0,
               bottom: 0,
               alignItems: 'flex-start',
+              pointerEvents: 'none',
             }}
           >
             <Text

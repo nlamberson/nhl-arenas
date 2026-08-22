@@ -44,7 +44,13 @@
       ],
       "expo-asset",
       "@react-native-community/datetimepicker",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow NHL Arenas to access your photos for visit memories."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -5,8 +5,10 @@ import uuid
 
 from app.core.auth import FirebaseUser, get_current_user
 from app.db.session import get_db
+from app.schemas.image import ImageCreate, ImageResponse
 from app.schemas.stats import VisitStatsResponse
 from app.schemas.visit import VisitCreate, VisitResponse, VisitUpdate
+from app.services.images import create_visit_image, delete_visit_image_by_id
 from app.services.nhl_game_lookup import (enrich_visits_with_game_scores,
                                           lookup_game_for_visit)
 from app.services.user_service import get_or_create_user
@@ -92,7 +94,7 @@ async def get_visit(
     firebase_user: FirebaseUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> VisitResponse:
-    """Return one visit if it belongs to the current user."""
+    """Return one visit if it belongs to the current user (includes image metadata)."""
     user = await get_or_create_user(db, firebase_user)
 
     logger.info("Request received to get visit %s for user: %s", visit_id, user.id)
@@ -140,6 +142,50 @@ async def update_visit(
 
     logger.info("Request received to patch visit %s for user: %s", visit_id, user.id)
     return await update_visit_for_user(visit_id, payload, user, db)
+
+
+@router.post(
+    "/{visit_id}/images",
+    response_model=ImageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Record metadata for an image already uploaded to Firebase Storage.",
+)
+async def create_image(
+    visit_id: uuid.UUID,
+    payload: ImageCreate,
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ImageResponse:
+    """Client uploads to Storage first, then posts metadata here."""
+    user = await get_or_create_user(db, firebase_user)
+    logger.info(
+        "Request received to create image for visit %s user %s",
+        visit_id,
+        user.id,
+    )
+    return await create_visit_image(visit_id, payload, user, db)
+
+
+@router.delete(
+    "/{visit_id}/images/{image_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a visit image from Storage and metadata.",
+)
+async def delete_image(
+    visit_id: uuid.UUID,
+    image_id: uuid.UUID,
+    firebase_user: FirebaseUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Deletes the Storage object first; aborts if Storage delete fails."""
+    user = await get_or_create_user(db, firebase_user)
+    logger.info(
+        "Request received to delete image %s for visit %s user %s",
+        image_id,
+        visit_id,
+        user.id,
+    )
+    await delete_visit_image_by_id(visit_id, image_id, user, db)
 
 
 @router.delete(

@@ -50,6 +50,28 @@ export interface VisitUpdate {
   seating_location?: string | null;
 }
 
+/** Mirrors backend `ImageResponse` (app/schemas/image.py). */
+export interface ImageResponse {
+  id: string;
+  visit_id: string;
+  storage_path: string;
+  slot_index: number;
+  mime_type: string;
+  file_size: number;
+  uploaded_at: string;
+}
+
+export interface ImageCreate {
+  storage_path: string;
+  slot_index: number;
+  mime_type: string;
+  file_size: number;
+}
+
+export interface CustomTokenResponse {
+  custom_token: string;
+}
+
 /** Mirrors backend `VisitGameResponse` (app/schemas/game.py). */
 export interface VisitGameResponse {
   matched: boolean;
@@ -66,6 +88,7 @@ export interface VisitResponse {
   arena: ArenaResponse;
   visit_date: string;
   seating_location: string | null;
+  images?: ImageResponse[];
   created_at: string;
   updated_at: string;
   game?: VisitGameResponse | null;

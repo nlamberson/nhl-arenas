@@ -29,3 +29,9 @@ class LoginResponse(BaseModel):
     id_token: str
     refresh_token: str
     expires_in: int  # seconds until id_token expires
+
+
+class CustomTokenResponse(BaseModel):
+    """Firebase custom token for client Auth (Storage SDK)."""
+
+    custom_token: str

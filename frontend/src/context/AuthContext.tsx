@@ -28,6 +28,11 @@ import {
   setTokenGetter,
 } from '@/lib/authStorage';
 import { refreshFirebaseTokens } from '@/lib/firebaseAuth';
+import {
+  clearFirebaseStorageAuth,
+  ensureFirebaseStorageAuth,
+} from '@/lib/firebaseStorageAuth';
+import { clearAllCachedDownloadUrls } from '@/lib/imageUrlCache';
 import type { LoginResponse, MeResponse } from '@/lib/types';
 
 interface AuthContextValue {
@@ -91,42 +96,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    await clearFirebaseStorageAuth().catch(() => undefined);
+    clearAllCachedDownloadUrls();
     await clearTokens();
     clearVisitQueryCache();
     clearAuthState({ setIdToken, setRefreshToken, setExpiresAt, setUser });
   }, []);
 
-  const login = useCallback(
-    async (email: string, password: string): Promise<MeResponse> => {
-      const tokens = await apiLogin({ email: email.trim(), password });
+  const establishSession = useCallback(
+    async (tokens: LoginResponse): Promise<MeResponse> => {
+      // Drop prior user's cached visits/photos before binding the new session.
+      clearVisitQueryCache();
+      clearAllCachedDownloadUrls();
+
       applyTokens(tokens);
+      await saveTokens(tokens);
       const me = await getMe();
       setUser(me);
+      await ensureFirebaseStorageAuth(me.uid).catch((err) => {
+        console.warn('Firebase Storage Auth sign-in failed:', err);
+      });
       return me;
     },
     [applyTokens],
+  );
+
+  const login = useCallback(
+    async (email: string, password: string): Promise<MeResponse> => {
+      const tokens = await apiLogin({ email: email.trim(), password });
+      return establishSession(tokens);
+    },
+    [establishSession],
   );
 
   const register = useCallback(
     async (email: string, password: string): Promise<MeResponse> => {
       const tokens = await apiRegister({ email: email.trim(), password });
-      applyTokens(tokens);
-      const me = await getMe();
-      setUser(me);
-      return me;
+      return establishSession(tokens);
     },
-    [applyTokens],
+    [establishSession],
   );
 
   const loginWithGoogle = useCallback(
     async (googleIdToken: string): Promise<MeResponse> => {
       const tokens = await apiLoginWithGoogle(googleIdToken);
-      applyTokens(tokens);
-      const me = await getMe();
-      setUser(me);
-      return me;
+      return establishSession(tokens);
     },
-    [applyTokens],
+    [establishSession],
   );
 
   const refreshUser = useCallback(async (): Promise<MeResponse | null> => {
@@ -166,6 +182,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const me = await getMe();
       setUser(me);
+      await ensureFirebaseStorageAuth(me.uid).catch((err) => {
+        console.warn('Firebase Storage Auth sign-in failed:', err);
+      });
     } catch {
       await logout();
     } finally {
@@ -185,6 +204,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setOnTokensRefreshed((tokens) => applyTokens(tokens));
     setOnSessionCleared(() => {
+      void clearFirebaseStorageAuth();
+      clearAllCachedDownloadUrls();
       clearVisitQueryCache();
       clearAuthState({ setIdToken, setRefreshToken, setExpiresAt, setUser });
       router.replace('/(auth)/login');

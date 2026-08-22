@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { PortalHost } from '@rn-primitives/portal';
 import {
@@ -39,7 +40,9 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthProvider>
           <QueryProvider>
-            <RootLayoutNav />
+            <SnackbarProvider>
+              <RootLayoutNav />
+            </SnackbarProvider>
           </QueryProvider>
         </AuthProvider>
       </SafeAreaProvider>

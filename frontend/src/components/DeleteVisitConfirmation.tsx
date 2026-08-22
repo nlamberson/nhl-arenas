@@ -1,8 +1,9 @@
-import { ActivityIndicator, Alert, Modal, Pressable, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { useDeleteVisit } from '@/hooks/visits';
 import { getErrorMessage } from '@/lib/errors';
 
@@ -19,6 +20,7 @@ export function DeleteVisitConfirmation({
   onClose,
   onDeleted,
 }: DeleteVisitConfirmationProps) {
+  const { showSnackbar } = useSnackbar();
   const deleteVisitMutation = useDeleteVisit({
     onSuccess: onDeleted,
   });
@@ -28,7 +30,10 @@ export function DeleteVisitConfirmation({
       await deleteVisitMutation.mutateAsync(visitId);
     } catch (err) {
       const message = getErrorMessage(err, 'Failed to delete visit');
-      Alert.alert('Could not delete visit', message);
+      showSnackbar({
+        message: `Could not delete visit. ${message}`,
+        variant: 'error',
+      });
     }
   };
 
