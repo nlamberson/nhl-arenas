@@ -23,12 +23,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { getCachedDownloadUrl } from '@/lib/imageUrlCache';
-import { formatUploadError, resolveDownloadUrl } from '@/lib/visitImages';
 import type { ImageResponse } from '@/lib/types';
+import { formatUploadError, resolveDownloadUrl } from '@/lib/visitImages';
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 const DOUBLE_TAP_SCALE = 2.5;
+const EMPTY_IMAGES: ImageResponse[] = [];
 
 const zoomTiming = {
   duration: 180,
@@ -138,8 +139,16 @@ function ZoomableImage({
       if (scale.value <= 1) {
         return;
       }
-      translateX.value = savedTranslateX.value + event.translationX;
-      translateY.value = savedTranslateY.value + event.translationY;
+      const maxX = (width * (scale.value - 1)) / 2;
+      const maxY = (height * (scale.value - 1)) / 2;
+      translateX.value = Math.min(
+        Math.max(savedTranslateX.value + event.translationX, -maxX),
+        maxX,
+      );
+      translateY.value = Math.min(
+        Math.max(savedTranslateY.value + event.translationY, -maxY),
+        maxY,
+      );
     })
     .onEnd(() => {
       savedTranslateX.value = translateX.value;
@@ -293,16 +302,22 @@ function usePrefetchNeighborUrls(
   index: number,
   firebaseUid: string,
 ) {
+  const neighborKey =
+    images.length === 0
+      ? ''
+      : [
+          images[index],
+          images[(index + 1) % images.length],
+          images[(index - 1 + images.length) % images.length],
+        ]
+          .map((img) => img.storage_path)
+          .join('|');
+
   useEffect(() => {
-    if (images.length === 0) {
+    if (!neighborKey) {
       return;
     }
-    const neighbors = [
-      images[index],
-      images[(index + 1) % images.length],
-      images[(index - 1 + images.length) % images.length],
-    ];
-    const uniquePaths = [...new Set(neighbors.map((img) => img.storage_path))];
+    const uniquePaths = [...new Set(neighborKey.split('|'))];
 
     let cancelled = false;
     void (async () => {
@@ -324,7 +339,7 @@ function usePrefetchNeighborUrls(
     return () => {
       cancelled = true;
     };
-  }, [firebaseUid, images, index]);
+  }, [firebaseUid, neighborKey]);
 }
 
 export function VisitImageLightbox({
@@ -362,7 +377,7 @@ export function VisitImageLightbox({
     }
   }, [index, visible]);
 
-  usePrefetchNeighborUrls(images, safeIndex, firebaseUid);
+  usePrefetchNeighborUrls(visible ? images : EMPTY_IMAGES, safeIndex, firebaseUid);
 
   const goPrev = () => {
     if (count <= 1) {
@@ -398,7 +413,8 @@ export function VisitImageLightbox({
           rect so letterbox / open space hits the outer dismiss (needed on web).
         */}
         <Pressable
-          accessibilityLabel="Close enlarged image"
+          accessibilityElementsHidden
+          importantForAccessibility="no"
           onPress={onClose}
           style={{
             width: windowWidth,
