@@ -45,3 +45,20 @@ updates:
     commit-message:
       prefix: backend
     open-pull-requests-limit: 5
+
+  # Frontend npm (package.json / package-lock.json)
+  # uuid is ignored: transitive via Expo xcode@3.0.1 (uuid@^7.0.3); patched
+  # majors (14.x) are not resolvable without overrides. See GHSA-w5hq-g745-h8pq.
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: frontend
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: uuid
