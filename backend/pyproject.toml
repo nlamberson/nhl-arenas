@@ -20,7 +20,7 @@ dependencies = [
     "email-validator>=2.3.0",
     "firebase-admin==7.7.0",
     "httpx==0.28.1",
-    "nhl-api-py>=3.3.0",
+    "nhl-api-py>=3.7.1",
 ]
 
 [project.optional-dependencies]
