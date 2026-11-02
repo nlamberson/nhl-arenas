@@ -8,14 +8,14 @@ version = "0.1.0"
 description = "FastAPI backend for the NHL Arenas app"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi==0.142.2",
+    "fastapi==0.162.0",
     "uvicorn[standard]==0.54.0",
-    "sqlalchemy[asyncio]==2.0.54",
+    "sqlalchemy[asyncio]==2.0.55",
     "greenlet==3.5.6",
-    "alembic==1.20.0",
+    "alembic==1.20.1",
     "psycopg[binary,pool]==3.3.6",
     "python-dotenv==1.2.4",
-    "pydantic==2.13.5",
+    "pydantic==2.14.2",
     "pydantic-settings==2.15.0",
     "email-validator>=2.3.0",
     "firebase-admin==7.7.0",
@@ -25,8 +25,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.1.1",
-    "pytest-asyncio==1.4.0",
+    "pytest==9.2.0",
+    "pytest-asyncio==1.4.1",
 ]
 
 [tool.setuptools.packages.find]
