@@ -36,9 +36,8 @@ export function nhlSeasonStartYearFromIsoDate(iso: string): number {
   return month >= NHL_SEASON_START_MONTH ? year : year - 1;
 }
 
-/** Fan-facing label, e.g. 2025 → "25-26". */
+/** Convert 2025 → '25-'26 for header */
 export function formatNhlSeasonLabel(seasonStartYear: number): string {
-  const start = seasonStartYear % 100;
   const end = (seasonStartYear + 1) % 100;
-  return `${String(start).padStart(2, '0')}-${String(end).padStart(2, '0')}`;
+  return `${seasonStartYear} - ${String(end).padStart(2, '0')}`;
 }

@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { ActivityIndicator, RefreshControl, SectionList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Text } from '@/components/ui/text';
 import { AddVisitButton } from '@/components/AddVisitButton';
 import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { Text } from '@/components/ui/text';
 import { VisitRow } from '@/components/VisitRow';
 import { usePaginatedVisits } from '@/hooks/visits';
 import type { VisitResponse } from '@/lib/types';
@@ -39,9 +39,13 @@ export default function VisitsIndexScreen() {
           sections={sections}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <VisitRow visit={item} />}
-          renderSectionHeader={({ section: { title } }) => (
-            <View className="bg-background px-4 pb-2 pt-4">
+          renderSectionHeader={({ section: { title, data } }) => (
+            <View 
+              className="bg-background px-4 pb-2 pt-4" 
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            >
               <Text variant="large">{title}</Text>
+              <Text variant="small">{data.length} visits</Text>
             </View>
           )}
           stickySectionHeadersEnabled
