@@ -46,7 +46,7 @@ export default function VisitsIndexScreen() {
           renderItem={({ item }) => <VisitRow visit={item} />}
           renderSectionHeader={({ section: { title, data } }) => (
             <View
-              className="bg-background px-4 pb-2 pt-4"
+              className="bg-background pb-2 pt-4"
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -58,10 +58,11 @@ export default function VisitsIndexScreen() {
             </View>
           )}
           stickySectionHeadersEnabled
-          contentContainerClassName="grow px-4 pb-24 pt-1"
+          contentContainerClassName="grow pb-24 pt-1"
+          contentContainerStyle={{ paddingHorizontal: 24 }}
           ListEmptyComponent={
             !error ? (
-              <View className="px-6 py-16">
+              <View className="py-16">
                 <Text variant="muted" className="text-center">
                   No visits yet. Tap the + button to log your first arena visit.
                 </Text>
@@ -77,7 +78,7 @@ export default function VisitsIndexScreen() {
           }
           ListHeaderComponent={
             error ? (
-              <Text className="px-4 py-3 text-center text-sm text-destructive">
+              <Text className="py-3 text-center text-sm text-destructive">
                 {error}
               </Text>
             ) : null
