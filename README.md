@@ -4,7 +4,7 @@
 
 # NHL Arenas
 
-Mobile application for logging my visits to NHL arenas! I'm trying to model this off the MLB Ballpark app where you can log games and visits, keeping track of teams seen, ballparks visited, and more. I want that same experience for NHL fans like myself so working to make it.
+Website and future mobile application for logging my visits to NHL arenas! I'm trying to model this off the MLB Ballpark app where you can log games and visits, keeping track of teams seen, ballparks visited, and more. I want that same experience for NHL fans like myself so working to make it.
 
 **Website:** [https://nhl-arenas.onrender.com/](https://nhl-arenas.onrender.com/)
 

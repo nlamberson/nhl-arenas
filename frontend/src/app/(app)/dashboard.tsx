@@ -1,15 +1,15 @@
-import { useCallback, useState } from 'react';
-import { Image, RefreshControl, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useState } from "react";
+import { Image, RefreshControl, ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AddVisitButton } from '@/components/AddVisitButton';
-import { LatestVisitCard } from '@/components/LatestVisitCard';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { useAuth } from '@/context/AuthContext';
-import { useHomeVisits } from '@/hooks/visits';
-import type { MeResponse } from '@/lib/types';
+import { AddVisitButton } from "@/components/AddVisitButton";
+import { LatestVisitCard } from "@/components/LatestVisitCard";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { useAuth } from "@/context/AuthContext";
+import { useHomeVisits } from "@/hooks/visits";
+import type { MeResponse } from "@/lib/types";
 
 function getFirstName(displayName: string | null | undefined): string | null {
   const first = displayName?.trim().split(/\s+/)[0];
@@ -17,12 +17,12 @@ function getFirstName(displayName: string | null | undefined): string | null {
 }
 
 function getDisplayName(user: MeResponse | null): string {
-  if (!user) return 'Fan';
-  return getFirstName(user.display_name) || user.email || 'Fan';
+  if (!user) return "Fan";
+  return getFirstName(user.display_name) || user.email || "Fan";
 }
 
 function getInitials(user: MeResponse | null): string {
-  if (!user) return '?';
+  if (!user) return "?";
   const name = user.display_name?.trim();
   if (name) {
     const parts = name.split(/\s+/).filter(Boolean);
@@ -34,7 +34,7 @@ function getInitials(user: MeResponse | null): string {
   if (user.email) {
     return user.email.slice(0, 2).toUpperCase();
   }
-  return '?';
+  return "?";
 }
 
 function StatItem({ value, label }: { value: number | string; label: string }) {
@@ -67,14 +67,17 @@ function ProfileAvatar({ user }: { user: MeResponse | null }) {
       className="h-24 w-24 items-center justify-center rounded-full bg-primary"
       accessibilityLabel="Profile avatar placeholder"
     >
-      <Text className="text-2xl font-bold text-primary-foreground">{initials}</Text>
+      <Text className="text-2xl font-bold text-primary-foreground">
+        {initials}
+      </Text>
     </View>
   );
 }
 
 export default function DashboardScreen() {
   const { user, refreshUser, logout } = useAuth();
-  const { stats, latestVisit, loading, fetching, error, refetch } = useHomeVisits();
+  const { stats, latestVisit, loading, fetching, error, refetch } =
+    useHomeVisits();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -89,7 +92,7 @@ export default function DashboardScreen() {
   const showInitialLoader = loading && !error;
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
       <ScrollView
         contentContainerClassName="grow px-6 pb-28 pt-6"
         refreshControl={
@@ -111,18 +114,26 @@ export default function DashboardScreen() {
         ) : (
           <>
             {error ? (
-              <Text className="mb-4 text-center text-sm text-destructive">{error}</Text>
+              <Text className="mb-4 text-center text-sm text-destructive">
+                {error}
+              </Text>
             ) : null}
 
             <View className="flex-row rounded-xl border border-border bg-card px-2 py-6">
               <StatItem value={stats?.teams_seen ?? 0} label="Teams seen" />
               <View className="w-px self-stretch bg-border" />
-              <StatItem value={stats?.arenas_visited ?? 0} label="Arenas visited" />
+              <StatItem
+                value={stats?.arenas_visited ?? 0}
+                label="Arenas visited"
+              />
               <View className="w-px self-stretch bg-border" />
               <StatItem value={stats?.total_visits ?? 0} label="Total visits" />
             </View>
 
-            <LatestVisitCard visit={latestVisit} loading={fetching && !latestVisit} />
+            <LatestVisitCard
+              visit={latestVisit}
+              loading={fetching && !latestVisit}
+            />
           </>
         )}
 

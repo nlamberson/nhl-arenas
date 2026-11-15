@@ -1,22 +1,22 @@
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { goBackOrHome } from '@/components/BackButton';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { DeleteVisitConfirmation } from '@/components/DeleteVisitConfirmation';
-import { EditVisitSeatingSheet } from '@/components/EditVisitSeatingSheet';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { ScoreBug } from '@/components/ScoreBug';
-import { VisitImageGrid } from '@/components/VisitImageGrid';
-import { useVisit } from '@/hooks/visits';
-import { formatVisitDate } from '@/lib/formatDate';
+import { goBackOrHome } from "@/components/BackButton";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { DeleteVisitConfirmation } from "@/components/DeleteVisitConfirmation";
+import { EditVisitSeatingSheet } from "@/components/EditVisitSeatingSheet";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { ScoreBug } from "@/components/ScoreBug";
+import { VisitImageGrid } from "@/components/VisitImageGrid";
+import { useVisit } from "@/hooks/visits";
+import { formatVisitDate } from "@/lib/formatDate";
 
 function resolveVisitId(id: string | string[] | undefined): string | undefined {
-  if (typeof id === 'string') {
+  if (typeof id === "string") {
     return id;
   }
   if (Array.isArray(id)) {
@@ -49,7 +49,12 @@ function SeatingDetailRow({
         <Text variant="muted" className="text-xs uppercase tracking-wide">
           Seating
         </Text>
-        <Button variant="ghost" size="sm" onPress={onEdit} accessibilityLabel="Edit seating">
+        <Button
+          variant="ghost"
+          size="sm"
+          onPress={onEdit}
+          accessibilityLabel="Edit seating"
+        >
           <Text>Edit</Text>
         </Button>
       </View>
@@ -66,7 +71,7 @@ export default function VisitDetailScreen() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
       <ScreenHeader title="Visit" trailingSpacerWidth="md" />
 
       {loading ? (
@@ -77,7 +82,7 @@ export default function VisitDetailScreen() {
       ) : error || !visit ? (
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-destructive">
-            {error ?? 'Visit not found'}
+            {error ?? "Visit not found"}
           </Text>
         </View>
       ) : (
@@ -91,7 +96,7 @@ export default function VisitDetailScreen() {
             ) : null}
             <DetailRow label="Date" value={formatVisitDate(visit.visit_date)} />
             <SeatingDetailRow
-              value={visit.seating_location?.trim() || 'Not recorded'}
+              value={visit.seating_location?.trim() || "Not recorded"}
               onEdit={() => setEditingSeating(true)}
             />
           </View>

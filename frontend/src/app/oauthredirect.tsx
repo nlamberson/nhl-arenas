@@ -1,4 +1,4 @@
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
 
 /** OAuth callback route — Google redirects the auth popup/tab here after sign-in. */
 export default function OAuthRedirectScreen() {

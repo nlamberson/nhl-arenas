@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
 
 export const unstable_settings = {
-  initialRouteName: 'dashboard',
+  initialRouteName: "dashboard",
 };
 
 export default function AppLayout() {

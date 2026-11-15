@@ -1,15 +1,20 @@
-import { useMemo } from 'react';
-import { ActivityIndicator, RefreshControl, SectionList, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMemo } from "react";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  SectionList,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AddVisitButton } from '@/components/AddVisitButton';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { Text } from '@/components/ui/text';
-import { VisitRow } from '@/components/VisitRow';
-import { usePaginatedVisits } from '@/hooks/visits';
-import type { VisitResponse } from '@/lib/types';
-import { groupVisitsBySeason, type VisitSeasonSection } from '@/lib/visits';
+import { AddVisitButton } from "@/components/AddVisitButton";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { Text } from "@/components/ui/text";
+import { VisitRow } from "@/components/VisitRow";
+import { usePaginatedVisits } from "@/hooks/visits";
+import type { VisitResponse } from "@/lib/types";
+import { groupVisitsBySeason, type VisitSeasonSection } from "@/lib/visits";
 
 export default function VisitsIndexScreen() {
   const {
@@ -26,7 +31,7 @@ export default function VisitsIndexScreen() {
   const sections = useMemo(() => groupVisitsBySeason(visits), [visits]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
       <ScreenHeader title="Visit history" />
 
       {loading && visits.length === 0 ? (
@@ -40,9 +45,13 @@ export default function VisitsIndexScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <VisitRow visit={item} />}
           renderSectionHeader={({ section: { title, data } }) => (
-            <View 
-              className="bg-background px-4 pb-2 pt-4" 
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            <View
+              className="bg-background px-4 pb-2 pt-4"
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
             >
               <Text variant="large">{title}</Text>
               <Text variant="small">{data.length} visits</Text>
@@ -68,7 +77,9 @@ export default function VisitsIndexScreen() {
           }
           ListHeaderComponent={
             error ? (
-              <Text className="px-4 py-3 text-center text-sm text-destructive">{error}</Text>
+              <Text className="px-4 py-3 text-center text-sm text-destructive">
+                {error}
+              </Text>
             ) : null
           }
           refreshControl={

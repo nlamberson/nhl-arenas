@@ -1,18 +1,18 @@
-import { Link, router } from 'expo-router';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { View } from 'react-native';
+import { Link, router } from "expo-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { View } from "react-native";
 
-import { AuthDivider } from '@/components/AuthDivider';
-import { AuthScreenShell } from '@/components/AuthScreenShell';
-import { FormTextField } from '@/components/FormTextField';
-import { GoogleSignInButton } from '@/components/GoogleSignInButton';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { useAuth } from '@/context/AuthContext';
-import { useSnackbar } from '@/context/SnackbarContext';
-import { getErrorMessage } from '@/lib/errors';
+import { AuthDivider } from "@/components/AuthDivider";
+import { AuthScreenShell } from "@/components/AuthScreenShell";
+import { FormTextField } from "@/components/FormTextField";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { getErrorMessage } from "@/lib/errors";
 
 type RegisterForm = {
   email: string;
@@ -32,20 +32,20 @@ export default function RegisterScreen() {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm<RegisterForm>({
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
     setSubmitError(null);
     try {
       await registerUser(email, password);
-      router.replace('/(app)/dashboard');
+      router.replace("/(app)/dashboard");
     } catch (err) {
-      const message = getErrorMessage(err, 'Registration failed');
+      const message = getErrorMessage(err, "Registration failed");
       setSubmitError(message);
       showSnackbar({
         message: `Registration failed. ${message}`,
-        variant: 'error',
+        variant: "error",
       });
     }
   });
@@ -59,79 +59,84 @@ export default function RegisterScreen() {
           className="items-center justify-center py-16"
         />
       ) : (
-      <View className="gap-5">
-        <FormTextField
-          control={control}
-          name="email"
-          label="Email"
-          fieldId="register-email"
-          rules={{
-            required: 'Email is required',
-            pattern: {
-              value: EMAIL_PATTERN,
-              message: 'Enter a valid email address',
-            },
-          }}
-          inputProps={{
-            placeholder: 'you@example.com',
-            keyboardType: 'email-address',
-            autoCapitalize: 'none',
-            autoComplete: 'email',
-            textContentType: 'emailAddress',
-          }}
-        />
+        <View className="gap-5">
+          <FormTextField
+            control={control}
+            name="email"
+            label="Email"
+            fieldId="register-email"
+            rules={{
+              required: "Email is required",
+              pattern: {
+                value: EMAIL_PATTERN,
+                message: "Enter a valid email address",
+              },
+            }}
+            inputProps={{
+              placeholder: "you@example.com",
+              keyboardType: "email-address",
+              autoCapitalize: "none",
+              autoComplete: "email",
+              textContentType: "emailAddress",
+            }}
+          />
 
-        <FormTextField
-          control={control}
-          name="password"
-          label="Password"
-          fieldId="register-password"
-          rules={{
-            required: 'Password is required',
-            minLength: {
-              value: MIN_PASSWORD_LENGTH,
-              message: 'Password must be at least 6 characters',
-            },
-          }}
-          inputProps={{
-            placeholder: '••••••••',
-            secureTextEntry: true,
-            autoComplete: 'new-password',
-            textContentType: 'newPassword',
-          }}
-        />
+          <FormTextField
+            control={control}
+            name="password"
+            label="Password"
+            fieldId="register-password"
+            rules={{
+              required: "Password is required",
+              minLength: {
+                value: MIN_PASSWORD_LENGTH,
+                message: "Password must be at least 6 characters",
+              },
+            }}
+            inputProps={{
+              placeholder: "••••••••",
+              secureTextEntry: true,
+              autoComplete: "new-password",
+              textContentType: "newPassword",
+            }}
+          />
 
-        {submitError ? (
-          <Text className="text-center text-sm text-destructive">{submitError}</Text>
-        ) : null}
-
-        <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
-          <Text>Create account</Text>
-        </Button>
-
-        <AuthDivider />
-
-        <GoogleSignInButton
-          label="Sign up with Google"
-          onSuccess={() => router.replace('/(app)/dashboard')}
-          onError={(message) => {
-            setSubmitError(message);
-            showSnackbar({
-              message: `Google Sign-In failed. ${message}`,
-              variant: 'error',
-            });
-          }}
-        />
-
-        <View className="flex-row justify-center gap-1">
-          <Text variant="muted">Already have an account?</Text>
-          <Link href="/(auth)/login" asChild>
-            <Text className="font-medium text-primary" accessibilityRole="link">
-              Sign in
+          {submitError ? (
+            <Text className="text-center text-sm text-destructive">
+              {submitError}
             </Text>
-          </Link>
+          ) : null}
+
+          <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
+            <Text>Create account</Text>
+          </Button>
+
+          <AuthDivider />
+
+          <GoogleSignInButton
+            label="Sign up with Google"
+            onSuccess={() => router.replace("/(app)/dashboard")}
+            onError={(message) => {
+              setSubmitError(message);
+              showSnackbar({
+                message: `Google Sign-In failed. ${message}`,
+                variant: "error",
+              });
+            }}
+          />
+
+          <View className="flex-row justify-center gap-1">
+            <Text variant="muted">Already have an account?</Text>
+            <Link href="/(auth)/login" asChild>
+              <Text
+                className="font-medium text-primary"
+                accessibilityRole="link"
+              >
+                Sign in
+              </Text>
+            </Link>
+          </View>
         </View>
-      </View>
       )}
     </AuthScreenShell>
   );

@@ -1,13 +1,13 @@
-import 'react-native-gesture-handler';
-import '../global.css';
+import "react-native-gesture-handler";
+import "../global.css";
 
-import * as WebBrowser from 'expo-web-browser';
+import * as WebBrowser from "expo-web-browser";
 
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { SnackbarProvider } from '@/context/SnackbarContext';
-import { QueryProvider } from '@/providers/QueryProvider';
-import { PortalHost } from '@rn-primitives/portal';
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { SnackbarProvider } from "@/context/SnackbarContext";
+import { QueryProvider } from "@/providers/QueryProvider";
+import { PortalHost } from "@rn-primitives/portal";
 import {
   DarkTheme,
   Redirect,
@@ -15,18 +15,19 @@ import {
   ThemeProvider,
   usePathname,
   useSegments,
-} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import 'react-native-reanimated';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+} from "expo-router";
+import Head from "expo-router/head";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import "react-native-reanimated";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary
-} from 'expo-router';
+} from "expo-router";
 
 // Completes Google OAuth in the popup/tab that lands on /oauthredirect (must run on app load).
 WebBrowser.maybeCompleteAuthSession();
@@ -54,7 +55,29 @@ function RootLayoutNav() {
   const { isLoading, isAuthenticated } = useAuth();
   const segments = useSegments();
   const pathname = usePathname();
-  const isOAuthRedirect = pathname === '/oauthredirect';
+  const isOAuthRedirect = pathname === "/oauthredirect";
+
+  const BASE_TITLE = " | NHL Arenas";
+
+  const PAGE_TITLES: Record<string, string> = {
+    "/login": "Login" + BASE_TITLE,
+    "/register": "Register" + BASE_TITLE,
+    "/dashboard": "Dashboard" + BASE_TITLE,
+    "/visits": "Visits" + BASE_TITLE,
+    "/visits/new": "Log a Visit" + BASE_TITLE,
+    "/oauthredirect": "Signing In" + BASE_TITLE,
+  };
+
+  function getPageTitle(pathname: string): string {
+    const title = PAGE_TITLES[pathname];
+    if (title) return title;
+
+    if (/^\/visits\/[^/]+$/.test(pathname)) {
+      return "Visit" + BASE_TITLE;
+    }
+
+    return "NHL Arenas";
+  }
 
   useEffect(() => {
     if (isLoading) {
@@ -73,8 +96,8 @@ function RootLayoutNav() {
     );
   }
 
-  const inAuthGroup = segments[0] === '(auth)';
-  const inAppGroup = segments[0] === '(app)';
+  const inAuthGroup = segments[0] === "(auth)";
+  const inAppGroup = segments[0] === "(app)";
 
   if (!isAuthenticated && !inAuthGroup && !isOAuthRedirect) {
     return <Redirect href="/(auth)/login" />;
@@ -87,6 +110,9 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={DarkTheme}>
       <View className="dark flex-1">
+        <Head>
+          <title>{getPageTitle(pathname)}</title>
+        </Head>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />

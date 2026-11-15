@@ -1,29 +1,29 @@
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { router } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
-import { DatePickerField } from '@/components/DatePickerField';
-import { FormTextField } from '@/components/FormTextField';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { SelectField, type SelectFieldOption } from '@/components/SelectField';
-import { useSnackbar } from '@/context/SnackbarContext';
-import { useCreateVisit } from '@/hooks/visits';
-import { useReferenceData } from '@/hooks/reference';
-import { todayIsoDate } from '@/lib/date';
-import { getErrorMessage } from '@/lib/errors';
-import type { VisitCreate } from '@/lib/types';
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { PRIMARY_BUTTON_SPINNER_COLOR } from "@/constants/theme";
+import { DatePickerField } from "@/components/DatePickerField";
+import { FormTextField } from "@/components/FormTextField";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { SelectField, type SelectFieldOption } from "@/components/SelectField";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useCreateVisit } from "@/hooks/visits";
+import { useReferenceData } from "@/hooks/reference";
+import { todayIsoDate } from "@/lib/date";
+import { getErrorMessage } from "@/lib/errors";
+import type { VisitCreate } from "@/lib/types";
 
 type LogVisitForm = {
   home_team_id: string;
@@ -35,7 +35,7 @@ type LogVisitForm = {
 function toSelectOptions<T extends { id: string; name: string }>(
   items: T[],
   formatLabel?: (item: T) => string,
-  getExtra?: (item: T) => Pick<SelectFieldOption, 'abbreviation'>,
+  getExtra?: (item: T) => Pick<SelectFieldOption, "abbreviation">,
 ): SelectFieldOption[] {
   return [...items]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -47,7 +47,11 @@ function toSelectOptions<T extends { id: string; name: string }>(
 }
 
 export default function LogVisitScreen() {
-  const { teams, loading: referenceLoading, error: referenceError } = useReferenceData();
+  const {
+    teams,
+    loading: referenceLoading,
+    error: referenceError,
+  } = useReferenceData();
   const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -60,7 +64,7 @@ export default function LogVisitScreen() {
       toSelectOptions(
         teams,
         (t) => {
-          const place = t.city ? `${t.city} — ` : '';
+          const place = t.city ? `${t.city} — ` : "";
           return `${place}${t.name} (${t.abbreviation})`;
         },
         (t) => ({ abbreviation: t.abbreviation }),
@@ -76,15 +80,15 @@ export default function LogVisitScreen() {
     formState: { isSubmitting: isFormSubmitting },
   } = useForm<LogVisitForm>({
     defaultValues: {
-      home_team_id: '',
-      away_team_id: '',
+      home_team_id: "",
+      away_team_id: "",
       visit_date: todayIsoDate(),
-      seating_location: '',
+      seating_location: "",
     },
   });
 
-  const homeTeamId = watch('home_team_id');
-  const awayTeamId = watch('away_team_id');
+  const homeTeamId = watch("home_team_id");
+  const awayTeamId = watch("away_team_id");
 
   const teamsById = useMemo(() => {
     return new Map(teams.map((t) => [t.id, t]));
@@ -96,9 +100,12 @@ export default function LogVisitScreen() {
     const homeTeam = teamsById.get(values.home_team_id);
     const arenaId = homeTeam?.arena_id;
     if (!arenaId) {
-      const message = 'Selected home team has no arena on file';
+      const message = "Selected home team has no arena on file";
       setSubmitError(message);
-      showSnackbar({ message: `Could not log visit. ${message}`, variant: 'error' });
+      showSnackbar({
+        message: `Could not log visit. ${message}`,
+        variant: "error",
+      });
       return;
     }
 
@@ -113,9 +120,12 @@ export default function LogVisitScreen() {
     try {
       await createVisitMutation.mutateAsync(payload);
     } catch (err) {
-      const message = getErrorMessage(err, 'Failed to log visit');
+      const message = getErrorMessage(err, "Failed to log visit");
       setSubmitError(message);
-      showSnackbar({ message: `Could not log visit. ${message}`, variant: 'error' });
+      showSnackbar({
+        message: `Could not log visit. ${message}`,
+        variant: "error",
+      });
     }
   });
 
@@ -124,13 +134,17 @@ export default function LogVisitScreen() {
 
   useEffect(() => {
     if (homeTeamId && awayTeamId === homeTeamId) {
-      setValue('away_team_id', '', { shouldDirty: true, shouldValidate: true });
+      setValue("away_team_id", "", { shouldDirty: true, shouldValidate: true });
     }
   }, [homeTeamId, awayTeamId, setValue]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
-      <ScreenHeader title="Log a visit" backAccessibilityLabel="Cancel" trailingSpacerWidth="md" />
+    <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
+      <ScreenHeader
+        title="Log a visit"
+        backAccessibilityLabel="Cancel"
+        trailingSpacerWidth="md"
+      />
 
       {referenceLoading ? (
         <PageLoadingIndicator
@@ -144,7 +158,7 @@ export default function LogVisitScreen() {
       ) : (
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <ScrollView
             contentContainerClassName="gap-5 px-4 py-6 pb-10"
@@ -154,18 +168,21 @@ export default function LogVisitScreen() {
               control={control}
               name="home_team_id"
               rules={{
-                required: 'Home team is required',
+                required: "Home team is required",
                 validate: (v, formValues) => {
                   if (v === formValues.away_team_id) {
-                    return 'Home and away teams must be different';
+                    return "Home and away teams must be different";
                   }
                   if (!teamsById.get(v)?.arena_id) {
-                    return 'This team has no home arena on file';
+                    return "This team has no home arena on file";
                   }
                   return true;
                 },
               }}
-              render={({ field: { value, onChange }, fieldState: { error } }) => (
+              render={({
+                field: { value, onChange },
+                fieldState: { error },
+              }) => (
                 <SelectField
                   label="Home team"
                   nativeID="home-team"
@@ -183,11 +200,15 @@ export default function LogVisitScreen() {
               control={control}
               name="away_team_id"
               rules={{
-                required: 'Away team is required',
+                required: "Away team is required",
                 validate: (v, formValues) =>
-                  v !== formValues.home_team_id || 'Home and away teams must be different',
+                  v !== formValues.home_team_id ||
+                  "Home and away teams must be different",
               }}
-              render={({ field: { value, onChange }, fieldState: { error } }) => (
+              render={({
+                field: { value, onChange },
+                fieldState: { error },
+              }) => (
                 <SelectField
                   label="Away team"
                   nativeID="away-team"
@@ -204,8 +225,11 @@ export default function LogVisitScreen() {
             <Controller
               control={control}
               name="visit_date"
-              rules={{ required: 'Date is required' }}
-              render={({ field: { value, onChange }, fieldState: { error } }) => (
+              rules={{ required: "Date is required" }}
+              render={({
+                field: { value, onChange },
+                fieldState: { error },
+              }) => (
                 <DatePickerField
                   label="Date"
                   nativeID="visit-date"
@@ -224,15 +248,21 @@ export default function LogVisitScreen() {
               label="Seating (optional)"
               fieldId="seating"
               inputProps={{
-                placeholder: 'Section 112, Row 5',
+                placeholder: "Section 112, Row 5",
               }}
             />
 
             {submitError ? (
-              <Text className="text-center text-sm text-destructive">{submitError}</Text>
+              <Text className="text-center text-sm text-destructive">
+                {submitError}
+              </Text>
             ) : null}
 
-            <Button className="mt-2" onPress={onSubmit} disabled={isSubmitting || !referenceReady}>
+            <Button
+              className="mt-2"
+              onPress={onSubmit}
+              disabled={isSubmitting || !referenceReady}
+            >
               {isSubmitting ? (
                 <ActivityIndicator color={PRIMARY_BUTTON_SPINNER_COLOR} />
               ) : (
