@@ -1,5 +1,8 @@
-import { formatNhlSeasonLabel, nhlSeasonStartYearFromIsoDate } from '@/lib/date';
-import type { VisitResponse } from '@/lib/types';
+import {
+  formatNhlSeasonLabel,
+  nhlSeasonStartYearFromIsoDate,
+} from "@/lib/date";
+import type { VisitResponse } from "@/lib/types";
 
 /** Newest first: visit_date desc, then created_at desc. */
 export function compareVisitsDesc(a: VisitResponse, b: VisitResponse): number {
@@ -25,7 +28,9 @@ export interface VisitSeasonSection {
 }
 
 /** Group visits into NHL season sections (newest first), preserving visit order within each season. */
-export function groupVisitsBySeason(visits: VisitResponse[]): VisitSeasonSection[] {
+export function groupVisitsBySeason(
+  visits: VisitResponse[],
+): VisitSeasonSection[] {
   const sorted = [...visits].sort(compareVisitsDesc);
   const sections: VisitSeasonSection[] = [];
 

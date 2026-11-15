@@ -1,6 +1,6 @@
-import { APP_COLOR_SCHEME } from '@/constants/theme';
+import { APP_COLOR_SCHEME } from "@/constants/theme";
 
-import { teamLogoUrl, type TeamLogoVariant } from '@/lib/teamLogo';
+import { teamLogoUrl, type TeamLogoVariant } from "@/lib/teamLogo";
 
 const cache = new Map<string, string>();
 const inflight = new Map<string, Promise<string | null>>();
@@ -11,7 +11,7 @@ function cacheKey(abbreviation: string, variant: TeamLogoVariant): string {
 
 export function logoVariantForAppScheme(): TeamLogoVariant {
   // App is always dark mode — use light-variant logos on dark backgrounds.
-  return APP_COLOR_SCHEME === 'dark' ? 'light' : 'dark';
+  return APP_COLOR_SCHEME === "dark" ? "light" : "dark";
 }
 
 export function getCachedTeamLogoSvg(
@@ -62,7 +62,9 @@ export async function prefetchTeamLogos(
   variant: TeamLogoVariant = logoVariantForAppScheme(),
 ): Promise<void> {
   const unique = [
-    ...new Set(abbreviations.map((abbr) => abbr.trim().toUpperCase()).filter(Boolean)),
+    ...new Set(
+      abbreviations.map((abbr) => abbr.trim().toUpperCase()).filter(Boolean),
+    ),
   ];
   await Promise.all(unique.map((abbr) => loadTeamLogoSvg(abbr, variant)));
 }

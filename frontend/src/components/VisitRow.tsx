@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
+import { router } from "expo-router";
 
-import { VisitCard } from '@/components/VisitCard';
-import { prefetchVisit } from '@/lib/prefetchVisit';
-import type { VisitResponse } from '@/lib/types';
-import { formatVisitDateShort } from '@/lib/formatDate';
+import { VisitCard } from "@/components/VisitCard";
+import { prefetchVisit } from "@/lib/prefetchVisit";
+import type { VisitResponse } from "@/lib/types";
+import { formatVisitDateShort } from "@/lib/formatDate";
 
 interface VisitRowProps {
   visit: VisitResponse;

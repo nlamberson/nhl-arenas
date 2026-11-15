@@ -1,12 +1,16 @@
-import { useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 
-import { Button } from '@/components/ui/button';
-import { GoogleIcon } from '@/components/GoogleIcon';
-import { Text } from '@/components/ui/text';
-import { useAuth } from '@/context/AuthContext';
-import { GoogleAuthError, isGoogleSignInConfigured, useGoogleAuth } from '@/hooks/useGoogleAuth';
-import { getErrorMessage } from '@/lib/errors';
+import { Button } from "@/components/ui/button";
+import { GoogleIcon } from "@/components/GoogleIcon";
+import { Text } from "@/components/ui/text";
+import { useAuth } from "@/context/AuthContext";
+import {
+  GoogleAuthError,
+  isGoogleSignInConfigured,
+  useGoogleAuth,
+} from "@/hooks/useGoogleAuth";
+import { getErrorMessage } from "@/lib/errors";
 
 interface GoogleSignInButtonProps {
   onSuccess?: () => void;
@@ -17,7 +21,7 @@ interface GoogleSignInButtonProps {
 export function GoogleSignInButton({
   onSuccess,
   onError,
-  label = 'Continue with Google',
+  label = "Continue with Google",
 }: GoogleSignInButtonProps) {
   const { loginWithGoogle } = useAuth();
   const { isConfigured, isReady, promptGoogleSignIn } = useGoogleAuth();
@@ -34,10 +38,10 @@ export function GoogleSignInButton({
       await loginWithGoogle(googleIdToken);
       onSuccess?.();
     } catch (err) {
-      if (err instanceof GoogleAuthError && err.message.includes('cancelled')) {
+      if (err instanceof GoogleAuthError && err.message.includes("cancelled")) {
         return;
       }
-      const message = getErrorMessage(err, 'Google Sign-In failed');
+      const message = getErrorMessage(err, "Google Sign-In failed");
       onError?.(message);
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
-import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -22,7 +22,7 @@ function assertFirebaseConfig(): void {
 
   if (missing.length > 0) {
     console.warn(
-      `Firebase config incomplete (${missing.join(', ')}). Storage uploads will fail until configured.`,
+      `Firebase config incomplete (${missing.join(", ")}). Storage uploads will fail until configured.`,
     );
   }
 }

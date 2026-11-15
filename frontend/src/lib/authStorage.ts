@@ -1,10 +1,10 @@
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
-import type { LoginResponse } from './types';
+import type { LoginResponse } from "./types";
 
 async function getStorageItem(key: string): Promise<string | null> {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     try {
       return localStorage.getItem(key);
     } catch {
@@ -15,7 +15,7 @@ async function getStorageItem(key: string): Promise<string | null> {
 }
 
 async function setStorageItem(key: string, value: string): Promise<void> {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     try {
       localStorage.setItem(key, value);
     } catch {
@@ -27,7 +27,7 @@ async function setStorageItem(key: string, value: string): Promise<void> {
 }
 
 async function deleteStorageItem(key: string): Promise<void> {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     try {
       localStorage.removeItem(key);
     } catch {
@@ -38,9 +38,9 @@ async function deleteStorageItem(key: string): Promise<void> {
   await SecureStore.deleteItemAsync(key);
 }
 
-const ID_TOKEN_KEY = 'nhl_arenas_id_token';
-const REFRESH_TOKEN_KEY = 'nhl_arenas_refresh_token';
-const EXPIRES_AT_KEY = 'nhl_arenas_expires_at';
+const ID_TOKEN_KEY = "nhl_arenas_id_token";
+const REFRESH_TOKEN_KEY = "nhl_arenas_refresh_token";
+const EXPIRES_AT_KEY = "nhl_arenas_expires_at";
 
 /** Refresh slightly before expiry so requests don't race the clock. */
 const EXPIRY_BUFFER_MS = 60_000;

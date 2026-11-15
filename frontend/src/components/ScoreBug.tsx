@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { View } from "react-native";
 
-import { Text } from '@/components/ui/text';
-import { MatchupScoreboard } from '@/components/MatchupScoreboard';
-import type { VisitResponse } from '@/lib/types';
-import { getVisitScoreboardDisplay } from '@/lib/visitScores';
+import { Text } from "@/components/ui/text";
+import { MatchupScoreboard } from "@/components/MatchupScoreboard";
+import type { VisitResponse } from "@/lib/types";
+import { getVisitScoreboardDisplay } from "@/lib/visitScores";
 
 interface ScoreBugProps {
   visit: VisitResponse;

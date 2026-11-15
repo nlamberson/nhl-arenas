@@ -1,7 +1,7 @@
-import { router } from 'expo-router';
-import { Pressable } from 'react-native';
+import { router } from "expo-router";
+import { Pressable } from "react-native";
 
-import { Text } from '@/components/ui/text';
+import { Text } from "@/components/ui/text";
 
 interface BackButtonProps {
   onPress?: () => void;
@@ -13,12 +13,12 @@ export function goBackOrHome() {
     router.back();
     return;
   }
-  router.replace('/(app)/dashboard');
+  router.replace("/(app)/dashboard");
 }
 
 export function BackButton({
   onPress,
-  accessibilityLabel = 'Go back',
+  accessibilityLabel = "Go back",
 }: BackButtonProps) {
   return (
     <Pressable

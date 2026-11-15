@@ -2,15 +2,15 @@ import axios, {
   type AxiosError,
   type AxiosInstance,
   type InternalAxiosRequestConfig,
-} from 'axios';
+} from "axios";
 
 import {
   clearTokens,
   getIdToken,
   getRefreshToken,
   saveTokens,
-} from './authStorage';
-import { refreshFirebaseTokens } from './firebaseAuth';
+} from "./authStorage";
+import { refreshFirebaseTokens } from "./firebaseAuth";
 import type {
   ArenaResponse,
   CustomTokenResponse,
@@ -26,13 +26,13 @@ import type {
   VisitResponse,
   VisitStatsResponse,
   VisitsPage,
-} from './types';
+} from "./types";
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
 
 if (!baseURL) {
   console.warn(
-    'EXPO_PUBLIC_API_URL is not set. API calls will fail until you configure frontend/.env',
+    "EXPO_PUBLIC_API_URL is not set. API calls will fail until you configure frontend/.env",
   );
 }
 
@@ -86,14 +86,14 @@ async function clearSession(): Promise<void> {
 
 export const api: AxiosInstance = axios.create({
   baseURL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 function isPublicAuthRoute(url: string | undefined): boolean {
   return Boolean(
-    url?.includes('/auth/login') ||
-      url?.includes('/auth/register') ||
-      url?.includes('/auth/google'),
+    url?.includes("/auth/login") ||
+    url?.includes("/auth/register") ||
+    url?.includes("/auth/google"),
   );
 }
 
@@ -135,19 +135,29 @@ api.interceptors.response.use(
 );
 
 export async function login(credentials: LoginRequest): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/api/v1/auth/login', credentials);
+  const { data } = await api.post<LoginResponse>(
+    "/api/v1/auth/login",
+    credentials,
+  );
   await saveTokens(data);
   return data;
 }
 
-export async function register(credentials: LoginRequest): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/api/v1/auth/register', credentials);
+export async function register(
+  credentials: LoginRequest,
+): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>(
+    "/api/v1/auth/register",
+    credentials,
+  );
   await saveTokens(data);
   return data;
 }
 
-export async function loginWithGoogle(googleIdToken: string): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/api/v1/auth/google', {
+export async function loginWithGoogle(
+  googleIdToken: string,
+): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>("/api/v1/auth/google", {
     id_token: googleIdToken,
   });
   await saveTokens(data);
@@ -155,31 +165,35 @@ export async function loginWithGoogle(googleIdToken: string): Promise<LoginRespo
 }
 
 export async function getMe(): Promise<MeResponse> {
-  const { data } = await api.get<MeResponse>('/api/v1/auth/me');
+  const { data } = await api.get<MeResponse>("/api/v1/auth/me");
   return data;
 }
 
 export async function getCustomToken(): Promise<CustomTokenResponse> {
-  const { data } = await api.post<CustomTokenResponse>('/api/v1/auth/custom-token');
+  const { data } = await api.post<CustomTokenResponse>(
+    "/api/v1/auth/custom-token",
+  );
   return data;
 }
 
 export async function getVisitStats(): Promise<VisitStatsResponse> {
-  const { data } = await api.get<VisitStatsResponse>('/api/v1/visits/stats');
+  const { data } = await api.get<VisitStatsResponse>("/api/v1/visits/stats");
   return data;
 }
 
 export async function getLatestVisit(): Promise<VisitResponse | null> {
-  const { data } = await api.get<VisitResponse | null>('/api/v1/visits/latest');
+  const { data } = await api.get<VisitResponse | null>("/api/v1/visits/latest");
   return data;
 }
 
-export async function getVisits(params: GetVisitsParams = {}): Promise<VisitsPage> {
-  const { data, headers } = await api.get<VisitResponse[]>('/api/v1/visits', {
+export async function getVisits(
+  params: GetVisitsParams = {},
+): Promise<VisitsPage> {
+  const { data, headers } = await api.get<VisitResponse[]>("/api/v1/visits", {
     params,
   });
-  const rawTotal = headers['x-total-count'] ?? headers['X-Total-Count'];
-  const total = parseInt(String(rawTotal ?? '0'), 10);
+  const rawTotal = headers["x-total-count"] ?? headers["X-Total-Count"];
+  const total = parseInt(String(rawTotal ?? "0"), 10);
   return { visits: data, total };
 }
 
@@ -188,8 +202,10 @@ export async function getVisit(id: string): Promise<VisitResponse> {
   return data;
 }
 
-export async function createVisit(payload: VisitCreate): Promise<VisitResponse> {
-  const { data } = await api.post<VisitResponse>('/api/v1/visits', payload);
+export async function createVisit(
+  payload: VisitCreate,
+): Promise<VisitResponse> {
+  const { data } = await api.post<VisitResponse>("/api/v1/visits", payload);
   return data;
 }
 
@@ -197,7 +213,10 @@ export async function updateVisit(
   id: string,
   payload: VisitUpdate,
 ): Promise<VisitResponse> {
-  const { data } = await api.patch<VisitResponse>(`/api/v1/visits/${id}`, payload);
+  const { data } = await api.patch<VisitResponse>(
+    `/api/v1/visits/${id}`,
+    payload,
+  );
   return data;
 }
 
@@ -224,11 +243,11 @@ export async function deleteVisitImage(
 }
 
 export async function getTeams(): Promise<TeamResponse[]> {
-  const { data } = await api.get<TeamResponse[]>('/api/v1/reference/teams');
+  const { data } = await api.get<TeamResponse[]>("/api/v1/reference/teams");
   return data;
 }
 
 export async function getArenas(): Promise<ArenaResponse[]> {
-  const { data } = await api.get<ArenaResponse[]>('/api/v1/reference/arenas');
+  const { data } = await api.get<ArenaResponse[]>("/api/v1/reference/arenas");
   return data;
 }

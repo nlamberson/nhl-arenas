@@ -6,7 +6,7 @@ export {
   type UseHomeVisitsResult,
   type UsePaginatedVisitsResult,
   type UseVisitResult,
-} from './queries';
+} from "./queries";
 
 export {
   useCreateVisit,
@@ -14,4 +14,4 @@ export {
   useDeleteVisitImage,
   useUpdateVisit,
   useUploadVisitImage,
-} from './mutations';
+} from "./mutations";

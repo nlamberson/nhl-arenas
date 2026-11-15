@@ -1,15 +1,12 @@
-import { memo, useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { SvgXml } from 'react-native-svg';
+import { memo, useEffect, useState } from "react";
+import { View } from "react-native";
+import { SvgXml } from "react-native-svg";
 
-import { APP_COLOR_SCHEME } from '@/constants/theme';
-import { Text } from '@/components/ui/text';
-import { cn } from '@/lib/utils';
-import {
-  getCachedTeamLogoSvg,
-  loadTeamLogoSvg,
-} from '@/lib/teamLogoCache';
-import type { TeamLogoVariant } from '@/lib/teamLogo';
+import { APP_COLOR_SCHEME } from "@/constants/theme";
+import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
+import { getCachedTeamLogoSvg, loadTeamLogoSvg } from "@/lib/teamLogoCache";
+import type { TeamLogoVariant } from "@/lib/teamLogo";
 
 interface TeamLogoProps {
   abbreviation: string;
@@ -19,8 +16,10 @@ interface TeamLogoProps {
   className?: string;
 }
 
-function logoVariantForScheme(scheme: string | null | undefined): TeamLogoVariant {
-  return scheme === 'light' ? 'dark' : 'light';
+function logoVariantForScheme(
+  scheme: string | null | undefined,
+): TeamLogoVariant {
+  return scheme === "light" ? "dark" : "light";
 }
 
 function AbbreviationFallback({
@@ -35,7 +34,10 @@ function AbbreviationFallback({
   return (
     <View
       style={{ width: size, height: size }}
-      className={cn('items-center justify-center rounded-full bg-muted', className)}
+      className={cn(
+        "items-center justify-center rounded-full bg-muted",
+        className,
+      )}
       accessibilityLabel={`${abbreviation} logo`}
     >
       <Text className="font-bold" style={{ fontSize: size * 0.28 }}>
@@ -98,7 +100,7 @@ export const TeamLogo = memo(function TeamLogo({
   return (
     <View
       style={{ width: size, height: size }}
-      className={cn('items-center justify-center', className)}
+      className={cn("items-center justify-center", className)}
       accessibilityLabel={`${abbreviation} logo`}
     >
       <SvgXml xml={svgXml} width={size} height={size} />

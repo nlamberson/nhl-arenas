@@ -1,6 +1,6 @@
-import type { VisitGameResponse, VisitResponse } from '@/lib/types';
+import type { VisitGameResponse, VisitResponse } from "@/lib/types";
 
-const PLACEHOLDER_SCORE = '–';
+const PLACEHOLDER_SCORE = "–";
 
 export function getVisitScoreboardDisplay(visit: VisitResponse): {
   awayScore: string;

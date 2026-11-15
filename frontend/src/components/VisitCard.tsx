@@ -1,13 +1,16 @@
-import { Pressable, View, type PressableProps } from 'react-native';
+import { Pressable, View, type PressableProps } from "react-native";
 
-import { Text } from '@/components/ui/text';
-import { MatchupScoreboard } from '@/components/MatchupScoreboard';
-import { formatVisitDateShort } from '@/lib/formatDate';
-import type { VisitResponse } from '@/lib/types';
-import { getVisitScoreboardDisplay } from '@/lib/visitScores';
-import { cn } from '@/lib/utils';
+import { Text } from "@/components/ui/text";
+import { MatchupScoreboard } from "@/components/MatchupScoreboard";
+import { formatVisitDateShort } from "@/lib/formatDate";
+import type { VisitResponse } from "@/lib/types";
+import { getVisitScoreboardDisplay } from "@/lib/visitScores";
+import { cn } from "@/lib/utils";
 
-interface VisitCardProps extends Pick<PressableProps, 'onPress' | 'accessibilityLabel'> {
+interface VisitCardProps extends Pick<
+  PressableProps,
+  "onPress" | "accessibilityLabel"
+> {
   visit: VisitResponse;
   className?: string;
 }
@@ -24,7 +27,7 @@ export function VisitCard({
   return (
     <Pressable
       className={cn(
-        'overflow-hidden rounded-xl border border-border bg-card active:opacity-95',
+        "overflow-hidden rounded-xl border border-border bg-card active:opacity-95",
         className,
       )}
       onPress={onPress}

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -8,16 +8,16 @@ import {
   Pressable,
   ScrollView,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Text } from '@/components/ui/text';
-import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
-import { useSnackbar } from '@/context/SnackbarContext';
-import { useUpdateVisit } from '@/hooks/visits';
-import { getErrorMessage } from '@/lib/errors';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Text } from "@/components/ui/text";
+import { PRIMARY_BUTTON_SPINNER_COLOR } from "@/constants/theme";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useUpdateVisit } from "@/hooks/visits";
+import { getErrorMessage } from "@/lib/errors";
 
 type SeatingForm = {
   seating_location: string;
@@ -50,13 +50,13 @@ export function EditVisitSeatingSheet({
     formState: { isSubmitting: isFormSubmitting },
   } = useForm<SeatingForm>({
     defaultValues: {
-      seating_location: initialSeatingLocation ?? '',
+      seating_location: initialSeatingLocation ?? "",
     },
   });
 
   useEffect(() => {
     if (visible) {
-      reset({ seating_location: initialSeatingLocation ?? '' });
+      reset({ seating_location: initialSeatingLocation ?? "" });
       setSubmitError(null);
     }
   }, [visible, initialSeatingLocation, reset]);
@@ -72,11 +72,11 @@ export function EditVisitSeatingSheet({
         },
       });
     } catch (err) {
-      const message = getErrorMessage(err, 'Failed to update seating');
+      const message = getErrorMessage(err, "Failed to update seating");
       setSubmitError(message);
       showSnackbar({
         message: `Could not update seating. ${message}`,
-        variant: 'error',
+        variant: "error",
       });
     }
   });
@@ -84,15 +84,28 @@ export function EditVisitSeatingSheet({
   const isSubmitting = isFormSubmitting || updateVisitMutation.isPending;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
       <Pressable className="flex-1 justify-end bg-black/50" onPress={onClose}>
-        <Pressable className="rounded-t-xl bg-card" onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          className="rounded-t-xl bg-card"
+          onPress={(e) => e.stopPropagation()}
+        >
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
               <Text variant="large">Edit seating</Text>
-              <Button variant="ghost" size="sm" onPress={onClose} disabled={isSubmitting}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={onClose}
+                disabled={isSubmitting}
+              >
                 <Text>Cancel</Text>
               </Button>
             </View>
@@ -130,7 +143,9 @@ export function EditVisitSeatingSheet({
               </View>
 
               {submitError ? (
-                <Text className="text-center text-sm text-destructive">{submitError}</Text>
+                <Text className="text-center text-sm text-destructive">
+                  {submitError}
+                </Text>
               ) : null}
 
               <Button onPress={onSubmit} disabled={isSubmitting}>

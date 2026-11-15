@@ -1,6 +1,6 @@
-import { Image } from 'expo-image';
-import { X } from 'lucide-react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Image } from "expo-image";
+import { X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -8,39 +8,36 @@ import {
   Platform,
   Pressable,
   View,
-} from 'react-native';
+} from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutDown,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
-import { VisitImageLightbox } from '@/components/VisitImageLightbox';
-import { useAuth } from '@/context/AuthContext';
-import { useSnackbar } from '@/context/SnackbarContext';
-import {
-  useDeleteVisitImage,
-  useUploadVisitImage,
-} from '@/hooks/visits';
-import { getCachedDownloadUrl } from '@/lib/imageUrlCache';
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
+import { VisitImageLightbox } from "@/components/VisitImageLightbox";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useDeleteVisitImage, useUploadVisitImage } from "@/hooks/visits";
+import { getCachedDownloadUrl } from "@/lib/imageUrlCache";
 import {
   formatUploadError,
   MAX_IMAGES_ERROR,
   MAX_IMAGES_PER_VISIT,
   pickVisitImageUris,
   resolveDownloadUrl,
-} from '@/lib/visitImages';
-import type { ImageResponse } from '@/lib/types';
+} from "@/lib/visitImages";
+import type { ImageResponse } from "@/lib/types";
 
 /** Matches app `--primary` (hsl 199 89% 48%). NativeWind classes often miss Reanimated views. */
-const PROGRESS_FILL = '#0ea5e9';
-const PROGRESS_TRACK = '#334155';
+const PROGRESS_FILL = "#0ea5e9";
+const PROGRESS_TRACK = "#334155";
 
 function UploadProgressToast({
   completed,
@@ -69,7 +66,12 @@ function UploadProgressToast({
   }));
 
   return (
-    <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
+    <Modal
+      transparent
+      visible={visible}
+      animationType="none"
+      statusBarTranslucent
+    >
       <View
         pointerEvents="box-none"
         className="flex-1 justify-end"
@@ -80,10 +82,10 @@ function UploadProgressToast({
           exiting={FadeOutDown.duration(150)}
           className="mx-4 rounded-xl px-4 py-3.5"
           style={{
-            backgroundColor: '#1e293b',
+            backgroundColor: "#1e293b",
             borderWidth: 1,
-            borderColor: '#334155',
-            shadowColor: '#000',
+            borderColor: "#334155",
+            shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
@@ -92,7 +94,7 @@ function UploadProgressToast({
         >
           <Text
             className="mb-2 text-center text-sm font-medium"
-            style={{ color: '#f8fafc' }}
+            style={{ color: "#f8fafc" }}
           >
             Uploading {completed}/{total}
           </Text>
@@ -106,7 +108,7 @@ function UploadProgressToast({
             <Animated.View
               style={[
                 {
-                  height: '100%',
+                  height: "100%",
                   borderRadius: 999,
                   backgroundColor: PROGRESS_FILL,
                 },
@@ -177,7 +179,7 @@ function VisitImageTile({
         {url ? (
           <Image
             source={{ uri: url }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             contentFit="cover"
             transition={200}
           />
@@ -187,7 +189,7 @@ function VisitImageTile({
               <ActivityIndicator />
             ) : (
               <Text variant="muted" className="px-2 text-center text-xs">
-                {error ?? 'Unavailable'}
+                {error ?? "Unavailable"}
               </Text>
             )}
           </View>
@@ -238,7 +240,7 @@ export function VisitImageGrid({
 
     const remaining = MAX_IMAGES_PER_VISIT - sorted.length;
     if (remaining <= 0) {
-      showSnackbar({ message: MAX_IMAGES_ERROR, variant: 'error' });
+      showSnackbar({ message: MAX_IMAGES_ERROR, variant: "error" });
       return;
     }
 
@@ -250,7 +252,7 @@ export function VisitImageGrid({
       }
 
       if (sorted.length + uris.length > MAX_IMAGES_PER_VISIT) {
-        showSnackbar({ message: MAX_IMAGES_ERROR, variant: 'error' });
+        showSnackbar({ message: MAX_IMAGES_ERROR, variant: "error" });
         return;
       }
 
@@ -269,25 +271,25 @@ export function VisitImageGrid({
       if (result.failures.length === 1) {
         showSnackbar({
           message: `Image failed to upload. ${firstDetail}`,
-          variant: 'error',
+          variant: "error",
         });
         return;
       }
 
       showSnackbar({
         message: `${result.failures.length} images failed to upload. ${firstDetail}`,
-        variant: 'error',
+        variant: "error",
       });
     } catch (err) {
       const detail = formatUploadError(err);
       if (detail === MAX_IMAGES_ERROR) {
-        showSnackbar({ message: MAX_IMAGES_ERROR, variant: 'error' });
+        showSnackbar({ message: MAX_IMAGES_ERROR, variant: "error" });
         return;
       }
-      console.error('Image upload failed', err);
+      console.error("Image upload failed", err);
       showSnackbar({
         message: `Image failed to upload. ${detail}`,
-        variant: 'error',
+        variant: "error",
       });
     } finally {
       setPicking(false);
@@ -306,10 +308,10 @@ export function VisitImageGrid({
           })
           .catch((err: unknown) => {
             const detail = formatUploadError(err);
-            console.error('Image delete failed', err);
+            console.error("Image delete failed", err);
             showSnackbar({
               message: `Failed to delete image. ${detail}`,
-              variant: 'error',
+              variant: "error",
             });
           })
           .finally(() => {
@@ -317,18 +319,18 @@ export function VisitImageGrid({
           });
       };
 
-      if (Platform.OS === 'web' && typeof window !== 'undefined') {
-        if (window.confirm('Delete photo? This cannot be undone.')) {
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        if (window.confirm("Delete photo? This cannot be undone.")) {
           runDelete();
         }
         return;
       }
 
-      Alert.alert('Delete photo?', 'This cannot be undone.', [
-        { text: 'Cancel', style: 'cancel' },
+      Alert.alert("Delete photo?", "This cannot be undone.", [
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: runDelete,
         },
       ]);
@@ -368,9 +370,7 @@ export function VisitImageGrid({
             void handleAdd();
           }}
         >
-          <Text>
-            {uploadMutation.isPending ? 'Uploading…' : 'Add photo'}
-          </Text>
+          <Text>{uploadMutation.isPending ? "Uploading…" : "Add photo"}</Text>
         </Button>
       ) : null}
 

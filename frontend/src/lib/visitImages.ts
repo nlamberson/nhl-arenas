@@ -1,32 +1,32 @@
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 import {
   deleteObject,
   getDownloadURL,
   ref,
   uploadBytesResumable,
-} from 'firebase/storage';
+} from "firebase/storage";
 
-import { createVisitImage } from '@/lib/api';
-import { getFirebaseStorage } from '@/lib/firebase';
-import { ensureFirebaseStorageAuth } from '@/lib/firebaseStorageAuth';
+import { createVisitImage } from "@/lib/api";
+import { getFirebaseStorage } from "@/lib/firebase";
+import { ensureFirebaseStorageAuth } from "@/lib/firebaseStorageAuth";
 import {
   clearCachedDownloadUrl,
   getCachedDownloadUrl,
   setCachedDownloadUrl,
-} from '@/lib/imageUrlCache';
-import type { ImageResponse } from '@/lib/types';
+} from "@/lib/imageUrlCache";
+import type { ImageResponse } from "@/lib/types";
 
 export const MAX_IMAGES_PER_VISIT = 5;
 const MAX_EDGE_PX = 1600;
 const COMPRESS_QUALITY = 0.75;
-export const MAX_IMAGES_ERROR = 'max 5 images';
+export const MAX_IMAGES_ERROR = "max 5 images";
 
 const MIME_TO_EXT: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/jpg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
 };
 
 export function nextFreeSlotIndex(images: ImageResponse[]): number | null {
@@ -49,16 +49,16 @@ export function buildStoragePath(
 }
 
 export function formatUploadError(err: unknown): string {
-  if (err && typeof err === 'object') {
+  if (err && typeof err === "object") {
     const e = err as { code?: string; message?: string; name?: string };
     if (e.code || e.message) {
-      return [e.code, e.message].filter(Boolean).join(': ');
+      return [e.code, e.message].filter(Boolean).join(": ");
     }
   }
   if (err instanceof Error) {
     return err.message;
   }
-  return 'Upload failed';
+  return "Upload failed";
 }
 
 export async function resolveDownloadUrl(
@@ -81,11 +81,11 @@ export async function pickVisitImageUris(params: {
   const selectionLimit = Math.max(1, Math.floor(params.selectionLimit));
   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!permission.granted) {
-    throw new Error('Photo library permission is required to add images.');
+    throw new Error("Photo library permission is required to add images.");
   }
 
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ['images'],
+    mediaTypes: ["images"],
     allowsEditing: false,
     allowsMultipleSelection: true,
     selectionLimit,
@@ -124,8 +124,8 @@ async function compressImage(uri: string): Promise<{
   });
   return {
     uri: manipulated.uri,
-    mimeType: 'image/jpeg',
-    ext: 'jpg',
+    mimeType: "image/jpeg",
+    ext: "jpg",
   };
 }
 
@@ -153,7 +153,7 @@ export async function uploadVisitImageFromUri(params: {
 }): Promise<ImageResponse> {
   const { uri, visitId, firebaseUid, slotIndex } = params;
 
-  console.log('[visitImages] compressing…');
+  console.log("[visitImages] compressing…");
   const compressed = await compressImage(uri);
   const storagePath = buildStoragePath(
     firebaseUid,
@@ -162,10 +162,10 @@ export async function uploadVisitImageFromUri(params: {
     compressed.ext,
   );
 
-  console.log('[visitImages] ensuring Firebase Auth for Storage…');
+  console.log("[visitImages] ensuring Firebase Auth for Storage…");
   await ensureFirebaseStorageAuth(firebaseUid);
 
-  console.log('[visitImages] uploading to', storagePath);
+  console.log("[visitImages] uploading to", storagePath);
   const storageRef = ref(getFirebaseStorage(), storagePath);
   const bytes = await uriToBytes(compressed.uri);
 
@@ -174,19 +174,19 @@ export async function uploadVisitImageFromUri(params: {
       contentType: compressed.mimeType,
     });
     task.on(
-      'state_changed',
+      "state_changed",
       () => {
         // Progress is tracked per completed image at the batch level.
       },
       (error) => {
-        console.error('[visitImages] Storage upload failed', error);
+        console.error("[visitImages] Storage upload failed", error);
         reject(error);
       },
       () => resolve(),
     );
   });
 
-  console.log('[visitImages] posting metadata to API…');
+  console.log("[visitImages] posting metadata to API…");
   try {
     return await createVisitImage(visitId, {
       storage_path: storagePath,
@@ -263,7 +263,7 @@ export async function uploadVisitImages(params: {
         image,
       });
     } catch (error) {
-      console.error('[visitImages] image upload failed', error);
+      console.error("[visitImages] image upload failed", error);
       failures.push({ uri, error });
     }
   }

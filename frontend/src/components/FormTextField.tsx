@@ -1,10 +1,16 @@
-import type { ComponentProps } from 'react';
-import { Controller, type Control, type FieldPath, type FieldValues, type RegisterOptions } from 'react-hook-form';
-import { View } from 'react-native';
+import type { ComponentProps } from "react";
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+  type RegisterOptions,
+} from "react-hook-form";
+import { View } from "react-native";
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Text } from '@/components/ui/text';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Text } from "@/components/ui/text";
 
 type InputProps = ComponentProps<typeof Input>;
 
@@ -14,7 +20,10 @@ interface FormTextFieldProps<T extends FieldValues> {
   label: string;
   fieldId: string;
   rules?: RegisterOptions<T, FieldPath<T>>;
-  inputProps?: Omit<InputProps, 'value' | 'onChangeText' | 'onBlur' | 'nativeID' | 'accessibilityLabelledBy'>;
+  inputProps?: Omit<
+    InputProps,
+    "value" | "onChangeText" | "onBlur" | "nativeID" | "accessibilityLabelledBy"
+  >;
 }
 
 export function FormTextField<T extends FieldValues>({
@@ -34,7 +43,10 @@ export function FormTextField<T extends FieldValues>({
         control={control}
         name={name}
         rules={rules}
-        render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+        render={({
+          field: { onChange, onBlur, value },
+          fieldState: { error },
+        }) => (
           <View className="gap-1.5">
             <Input
               nativeID={fieldId}

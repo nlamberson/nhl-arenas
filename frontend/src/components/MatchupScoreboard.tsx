@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
-import { View } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
+import { useMemo, useState } from "react";
+import { View } from "react-native";
+import Svg, { Line } from "react-native-svg";
 
-import { MatchupScoreboardHalf } from '@/components/MatchupScoreboardHalf';
-import { Text } from '@/components/ui/text';
-import { getTeamColors } from '@/lib/teamColors';
-import type { TeamResponse } from '@/lib/types';
+import { MatchupScoreboardHalf } from "@/components/MatchupScoreboardHalf";
+import { Text } from "@/components/ui/text";
+import { getTeamColors } from "@/lib/teamColors";
+import type { TeamResponse } from "@/lib/types";
 
 /** Share of scoreboard height used for the team logo. */
 const LOGO_HEIGHT_RATIO = 0.54;
@@ -41,8 +41,8 @@ function getSplitCoordinates(cardWidth: number, height: number) {
 export function MatchupScoreboard({
   awayTeam,
   homeTeam,
-  awayScore = '–',
-  homeScore = '–',
+  awayScore = "–",
+  homeScore = "–",
   height = 100,
   logoSize,
 }: MatchupScoreboardProps) {
@@ -55,8 +55,7 @@ export function MatchupScoreboard({
     [height, logoSize],
   );
 
-  const split =
-    cardWidth > 0 ? getSplitCoordinates(cardWidth, height) : null;
+  const split = cardWidth > 0 ? getSplitCoordinates(cardWidth, height) : null;
 
   return (
     <View
@@ -95,7 +94,12 @@ export function MatchupScoreboard({
         <Svg
           width={cardWidth}
           height={height}
-          style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            pointerEvents: "none",
+          }}
         >
           <Line
             x1={split.splitTopX}
@@ -118,8 +122,8 @@ export function MatchupScoreboard({
               width: split.halfWidth - SCORE_CENTER_GAP,
               top: 0,
               bottom: 0,
-              alignItems: 'flex-end',
-              pointerEvents: 'none',
+              alignItems: "flex-end",
+              pointerEvents: "none",
             }}
           >
             <Text
@@ -137,8 +141,8 @@ export function MatchupScoreboard({
               right: 0,
               top: 0,
               bottom: 0,
-              alignItems: 'flex-start',
-              pointerEvents: 'none',
+              alignItems: "flex-start",
+              pointerEvents: "none",
             }}
           >
             <Text

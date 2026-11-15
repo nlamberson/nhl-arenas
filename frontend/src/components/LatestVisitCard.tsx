@@ -1,19 +1,22 @@
-import { router } from 'expo-router';
-import { View } from 'react-native';
+import { router } from "expo-router";
+import { View } from "react-native";
 
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { PageLoadingIndicator } from '@/components/PageLoadingIndicator';
-import { prefetchVisit } from '@/lib/prefetchVisit';
-import { VisitCard } from '@/components/VisitCard';
-import type { VisitResponse } from '@/lib/types';
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { prefetchVisit } from "@/lib/prefetchVisit";
+import { VisitCard } from "@/components/VisitCard";
+import type { VisitResponse } from "@/lib/types";
 
 interface LatestVisitCardProps {
   visit: VisitResponse | null;
   loading?: boolean;
 }
 
-export function LatestVisitCard({ visit, loading = false }: LatestVisitCardProps) {
+export function LatestVisitCard({
+  visit,
+  loading = false,
+}: LatestVisitCardProps) {
   if (loading) {
     return (
       <View className="mt-6 gap-3">
@@ -54,7 +57,11 @@ export function LatestVisitCard({ visit, loading = false }: LatestVisitCardProps
         accessibilityLabel={`Latest visit at ${visit.arena.name}, ${matchup}`}
       />
 
-      <Button variant="link" className="self-center" onPress={() => router.push('/visits')}>
+      <Button
+        variant="link"
+        className="self-center"
+        onPress={() => router.push("/visits")}
+      >
         <Text>View all history</Text>
       </Button>
     </View>

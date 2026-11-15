@@ -1,24 +1,24 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 import {
   createVisit,
   deleteVisit,
   deleteVisitImage,
   updateVisit,
-} from '@/lib/api';
+} from "@/lib/api";
 import {
   forgetDownloadUrl,
   uploadVisitImages,
   type UploadVisitImagesResult,
-} from '@/lib/visitImages';
-import { queryKeys } from '@/lib/queryKeys';
+} from "@/lib/visitImages";
+import { queryKeys } from "@/lib/queryKeys";
 import type {
   ImageResponse,
   VisitCreate,
   VisitResponse,
   VisitUpdate,
-} from '@/lib/types';
+} from "@/lib/types";
 
 export type UploadBatchProgress = {
   completed: number;
@@ -56,9 +56,7 @@ export function useUpdateVisit(options?: {
   });
 }
 
-export function useDeleteVisit(options?: {
-  onSuccess?: () => void;
-}) {
+export function useDeleteVisit(options?: { onSuccess?: () => void }) {
   const queryClient = useQueryClient();
 
   return useMutation({

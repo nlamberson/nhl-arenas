@@ -1,10 +1,10 @@
-import { useInfiniteQuery, useQueries, useQuery } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 
-import { getLatestVisit, getVisit, getVisits, getVisitStats } from '@/lib/api';
-import { getErrorMessage } from '@/lib/errors';
-import { queryKeys } from '@/lib/queryKeys';
-import type { VisitResponse, VisitStatsResponse } from '@/lib/types';
+import { getLatestVisit, getVisit, getVisits, getVisitStats } from "@/lib/api";
+import { getErrorMessage } from "@/lib/errors";
+import { queryKeys } from "@/lib/queryKeys";
+import type { VisitResponse, VisitStatsResponse } from "@/lib/types";
 
 export const VISITS_PAGE_SIZE = 20;
 
@@ -28,8 +28,12 @@ export function usePaginatedVisits(
     queryFn: ({ pageParam }) => getVisits({ skip: pageParam, limit: pageSize }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      const total = lastPage.total > 0 ? lastPage.total : lastPage.visits.length;
-      const loaded = allPages.reduce((sum, page) => sum + page.visits.length, 0);
+      const total =
+        lastPage.total > 0 ? lastPage.total : lastPage.visits.length;
+      const loaded = allPages.reduce(
+        (sum, page) => sum + page.visits.length,
+        0,
+      );
       if (loaded >= total) {
         return undefined;
       }
@@ -71,7 +75,7 @@ export function usePaginatedVisits(
     loading: isPending,
     loadingMore: isFetchingNextPage,
     refreshing: isRefetching && !isPending && !isFetchingNextPage,
-    error: error ? getErrorMessage(error, 'Failed to load visits') : null,
+    error: error ? getErrorMessage(error, "Failed to load visits") : null,
     hasMore: Boolean(hasNextPage),
     loadMore,
     refresh,
@@ -86,11 +90,16 @@ export interface UseVisitResult {
 }
 
 export function useVisit(id: string | undefined): UseVisitResult {
-  const { data, isPending, error, refetch: refetchQuery } = useQuery({
-    queryKey: queryKeys.visits.detail(id ?? ''),
+  const {
+    data,
+    isPending,
+    error,
+    refetch: refetchQuery,
+  } = useQuery({
+    queryKey: queryKeys.visits.detail(id ?? ""),
     queryFn: () => {
       if (!id) {
-        throw new Error('Visit not found');
+        throw new Error("Visit not found");
       }
       return getVisit(id);
     },
@@ -105,9 +114,9 @@ export function useVisit(id: string | undefined): UseVisitResult {
     visit: data ?? null,
     loading: isPending,
     error: !id
-      ? 'Visit not found'
+      ? "Visit not found"
       : error
-        ? getErrorMessage(error, 'Failed to load visit')
+        ? getErrorMessage(error, "Failed to load visit")
         : null,
     refetch,
   };
@@ -158,7 +167,7 @@ export function useHomeVisits(): UseHomeVisitsResult {
 
   const error = useMemo(() => {
     const err = statsError ?? latestError;
-    return err ? getErrorMessage(err, 'Failed to load home data') : null;
+    return err ? getErrorMessage(err, "Failed to load home data") : null;
   }, [statsError, latestError]);
 
   const refetch = useCallback(async () => {

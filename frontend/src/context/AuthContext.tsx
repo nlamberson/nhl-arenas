@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router } from "expo-router";
 import {
   createContext,
   useCallback,
@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
+} from "react";
 
 import {
   getMe,
@@ -16,8 +16,8 @@ import {
   register as apiRegister,
   setOnSessionCleared,
   setOnTokensRefreshed,
-} from '@/lib/api';
-import { clearVisitQueryCache } from '@/lib/queryClient';
+} from "@/lib/api";
+import { clearVisitQueryCache } from "@/lib/queryClient";
 import {
   clearTokens,
   expiresAtFromLogin,
@@ -26,14 +26,14 @@ import {
   saveTokens,
   setInMemoryIdToken,
   setTokenGetter,
-} from '@/lib/authStorage';
-import { refreshFirebaseTokens } from '@/lib/firebaseAuth';
+} from "@/lib/authStorage";
+import { refreshFirebaseTokens } from "@/lib/firebaseAuth";
 import {
   clearFirebaseStorageAuth,
   ensureFirebaseStorageAuth,
-} from '@/lib/firebaseStorageAuth';
-import { clearAllCachedDownloadUrls } from '@/lib/imageUrlCache';
-import type { LoginResponse, MeResponse } from '@/lib/types';
+} from "@/lib/firebaseStorageAuth";
+import { clearAllCachedDownloadUrls } from "@/lib/imageUrlCache";
+import type { LoginResponse, MeResponse } from "@/lib/types";
 
 interface AuthContextValue {
   idToken: string | null;
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const me = await getMe();
       setUser(me);
       await ensureFirebaseStorageAuth(me.uid).catch((err) => {
-        console.warn('Firebase Storage Auth sign-in failed:', err);
+        console.warn("Firebase Storage Auth sign-in failed:", err);
       });
       return me;
     },
@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const me = await getMe();
       setUser(me);
       await ensureFirebaseStorageAuth(me.uid).catch((err) => {
-        console.warn('Firebase Storage Auth sign-in failed:', err);
+        console.warn("Firebase Storage Auth sign-in failed:", err);
       });
     } catch {
       await logout();
@@ -208,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearAllCachedDownloadUrls();
       clearVisitQueryCache();
       clearAuthState({ setIdToken, setRefreshToken, setExpiresAt, setUser });
-      router.replace('/(auth)/login');
+      router.replace("/(auth)/login");
     });
     return () => {
       setOnTokensRefreshed(null);
@@ -250,7 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

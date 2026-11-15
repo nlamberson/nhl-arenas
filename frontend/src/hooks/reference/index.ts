@@ -1,1 +1,1 @@
-export { useReferenceData, type UseReferenceDataResult } from './queries';
+export { useReferenceData, type UseReferenceDataResult } from "./queries";

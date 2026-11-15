@@ -1,7 +1,7 @@
-import { BlurView } from 'expo-blur';
-import { Image } from 'expo-image';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
+import { ChevronLeft, ChevronRight, X } from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -10,21 +10,25 @@ import {
   StyleSheet,
   useWindowDimensions,
   View,
-} from 'react-native';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+} from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
-import { getCachedDownloadUrl } from '@/lib/imageUrlCache';
-import type { ImageResponse } from '@/lib/types';
-import { formatUploadError, resolveDownloadUrl } from '@/lib/visitImages';
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
+import { getCachedDownloadUrl } from "@/lib/imageUrlCache";
+import type { ImageResponse } from "@/lib/types";
+import { formatUploadError, resolveDownloadUrl } from "@/lib/visitImages";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
@@ -42,10 +46,13 @@ const zoomTiming = {
  * Native: modest BlurView.
  */
 function LightboxBackdrop() {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     return (
       <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.82)', pointerEvents: 'none' }]}
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: "rgba(0, 0, 0, 0.82)", pointerEvents: "none" },
+        ]}
       />
     );
   }
@@ -55,7 +62,7 @@ function LightboxBackdrop() {
       intensity={40}
       tint="dark"
       blurMethod="dimezisBlurView"
-      style={[StyleSheet.absoluteFill, { pointerEvents: 'none' }]}
+      style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}
     />
   );
 }
@@ -101,10 +108,18 @@ function ZoomableImage({
     translateY.value = 0;
     savedTranslateX.value = 0;
     savedTranslateY.value = 0;
-  }, [uri, scale, savedScale, translateX, translateY, savedTranslateX, savedTranslateY]);
+  }, [
+    uri,
+    scale,
+    savedScale,
+    translateX,
+    translateY,
+    savedTranslateX,
+    savedTranslateY,
+  ]);
 
   const resetTransform = () => {
-    'worklet';
+    "worklet";
     scale.value = withTiming(1, zoomTiming);
     translateX.value = withTiming(0, zoomTiming);
     translateY.value = withTiming(0, zoomTiming);
@@ -183,7 +198,7 @@ function ZoomableImage({
       <Animated.View
         style={animatedStyle}
         collapsable={false}
-        needsOffscreenAlphaCompositing={Platform.OS !== 'web'}
+        needsOffscreenAlphaCompositing={Platform.OS !== "web"}
         renderToHardwareTextureAndroid
         shouldRasterizeIOS
       >
@@ -221,9 +236,10 @@ function LightboxImage({
   const [url, setUrl] = useState<string | null>(cached ?? null);
   const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
-  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(
-    null,
-  );
+  const [naturalSize, setNaturalSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -263,7 +279,12 @@ function LightboxImage({
     if (!naturalSize) {
       return { width: Math.max(1, maxWidth), height: Math.max(1, maxHeight) };
     }
-    return containedSize(naturalSize.width, naturalSize.height, maxWidth, maxHeight);
+    return containedSize(
+      naturalSize.width,
+      naturalSize.height,
+      maxWidth,
+      maxHeight,
+    );
   }, [naturalSize, maxWidth, maxHeight]);
 
   if (!url) {
@@ -272,15 +293,15 @@ function LightboxImage({
         style={{
           width: maxWidth,
           height: maxHeight,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text className="px-4 text-center text-sm text-white">
-            {error ?? 'Unavailable'}
+            {error ?? "Unavailable"}
           </Text>
         )}
       </View>
@@ -304,20 +325,20 @@ function usePrefetchNeighborUrls(
 ) {
   const neighborKey =
     images.length === 0
-      ? ''
+      ? ""
       : [
           images[index],
           images[(index + 1) % images.length],
           images[(index - 1 + images.length) % images.length],
         ]
           .map((img) => img.storage_path)
-          .join('|');
+          .join("|");
 
   useEffect(() => {
     if (!neighborKey) {
       return;
     }
-    const uniquePaths = [...new Set(neighborKey.split('|'))];
+    const uniquePaths = [...new Set(neighborKey.split("|"))];
 
     let cancelled = false;
     void (async () => {
@@ -328,7 +349,7 @@ function usePrefetchNeighborUrls(
         try {
           const url = await resolveDownloadUrl(path, firebaseUid);
           if (!cancelled) {
-            await Image.prefetch(url, 'memory-disk');
+            await Image.prefetch(url, "memory-disk");
           }
         } catch {
           // Prefetch is best-effort.
@@ -377,7 +398,11 @@ export function VisitImageLightbox({
     }
   }, [index, visible]);
 
-  usePrefetchNeighborUrls(visible ? images : EMPTY_IMAGES, safeIndex, firebaseUid);
+  usePrefetchNeighborUrls(
+    visible ? images : EMPTY_IMAGES,
+    safeIndex,
+    firebaseUid,
+  );
 
   const goPrev = () => {
     if (count <= 1) {
@@ -404,7 +429,7 @@ export function VisitImageLightbox({
       animationType="fade"
       statusBarTranslucent
       onRequestClose={onClose}
-      presentationStyle={Platform.OS === 'ios' ? 'overFullScreen' : undefined}
+      presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         {/*
@@ -419,26 +444,26 @@ export function VisitImageLightbox({
           style={{
             width: windowWidth,
             height: windowHeight,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
           <LightboxBackdrop />
 
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               zIndex: 20,
               top: Math.max(insets.top, 12) + 12,
               left: 0,
               right: 0,
-              alignItems: 'center',
-              pointerEvents: 'none',
+              alignItems: "center",
+              pointerEvents: "none",
             }}
           >
             <Text
               className="text-sm font-medium"
-              style={{ color: '#f8fafc' }}
+              style={{ color: "#f8fafc" }}
               accessibilityLabel={`Image ${safeIndex + 1} of ${count}`}
             >
               {safeIndex + 1}/{count}
@@ -470,7 +495,7 @@ export function VisitImageLightbox({
               className="absolute z-20 h-12 w-12 items-center justify-center rounded-full bg-black/50"
               style={{
                 left: Math.max(insets.left, 12),
-                top: '50%',
+                top: "50%",
                 marginTop: -24,
               }}
             >
@@ -488,7 +513,7 @@ export function VisitImageLightbox({
               className="absolute z-20 h-12 w-12 items-center justify-center rounded-full bg-black/50"
               style={{
                 right: Math.max(insets.right, 12),
-                top: '50%',
+                top: "50%",
                 marginTop: -24,
               }}
             >

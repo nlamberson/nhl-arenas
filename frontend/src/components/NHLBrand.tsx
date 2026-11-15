@@ -1,8 +1,8 @@
-import { Image, View } from 'react-native';
+import { Image, View } from "react-native";
 
-import { Text } from '@/components/ui/text';
+import { Text } from "@/components/ui/text";
 
-import NHLShield from '@/assets/images/NHL_Shield.png';
+import NHLShield from "@/assets/images/NHL_Shield.png";
 
 const LOGO_SIZE = 80;
 

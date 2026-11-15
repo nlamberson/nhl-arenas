@@ -1,7 +1,7 @@
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View } from "react-native";
 
-import { Text } from '@/components/ui/text';
-import { PAGE_SPINNER_COLOR } from '@/constants/theme';
+import { Text } from "@/components/ui/text";
+import { PAGE_SPINNER_COLOR } from "@/constants/theme";
 
 interface PageLoadingIndicatorProps {
   message?: string;
@@ -11,13 +11,15 @@ interface PageLoadingIndicatorProps {
 
 /** Centered spinner and status text for screen-level data loading. */
 export function PageLoadingIndicator({
-  message = 'Loading…',
+  message = "Loading…",
   description,
   className,
 }: PageLoadingIndicatorProps) {
   return (
     <View
-      className={className ?? 'flex-1 items-center justify-center gap-4 px-6 py-12'}
+      className={
+        className ?? "flex-1 items-center justify-center gap-4 px-6 py-12"
+      }
       accessibilityRole="progressbar"
       accessibilityLabel={message}
     >

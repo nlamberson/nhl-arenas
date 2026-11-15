@@ -1,11 +1,14 @@
-import { useQueries } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueries } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getArenas, getTeams } from '@/lib/api';
-import { getErrorMessage } from '@/lib/errors';
-import { queryKeys } from '@/lib/queryKeys';
-import { logoVariantForAppScheme, prefetchTeamLogos } from '@/lib/teamLogoCache';
-import type { ArenaResponse, TeamResponse } from '@/lib/types';
+import { getArenas, getTeams } from "@/lib/api";
+import { getErrorMessage } from "@/lib/errors";
+import { queryKeys } from "@/lib/queryKeys";
+import {
+  logoVariantForAppScheme,
+  prefetchTeamLogos,
+} from "@/lib/teamLogoCache";
+import type { ArenaResponse, TeamResponse } from "@/lib/types";
 
 export interface UseReferenceDataResult {
   teams: TeamResponse[];
@@ -71,7 +74,7 @@ export function useReferenceData(): UseReferenceDataResult {
 
   const error = useMemo(() => {
     const err = teamsError ?? arenasError;
-    return err ? getErrorMessage(err, 'Failed to load teams and arenas') : null;
+    return err ? getErrorMessage(err, "Failed to load teams and arenas") : null;
   }, [teamsError, arenasError]);
 
   const refetch = useCallback(async () => {

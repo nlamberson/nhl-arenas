@@ -1,7 +1,7 @@
-import { memo, useCallback } from 'react';
-import { FlatList, View } from 'react-native';
+import { memo, useCallback } from "react";
+import { FlatList, View } from "react-native";
 
-import { Label } from '@/components/ui/label';
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,10 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
   type Option,
-} from '@/components/ui/select';
-import { Text } from '@/components/ui/text';
-import { TeamLogo } from '@/components/TeamLogo';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/select";
+import { Text } from "@/components/ui/text";
+import { TeamLogo } from "@/components/TeamLogo";
+import { cn } from "@/lib/utils";
 
 export interface SelectFieldOption {
   value: string;
@@ -54,7 +54,7 @@ const OptionLabel = memo(function OptionLabel({
         <TeamLogo abbreviation={abbreviation} size={logoSize} />
       ) : null}
       <Text
-        className={cn('flex-1', emphasized && 'font-semibold text-primary')}
+        className={cn("flex-1", emphasized && "font-semibold text-primary")}
         numberOfLines={1}
       >
         {label}
@@ -77,7 +77,7 @@ export function SelectField({
   value,
   onChange,
   options,
-  placeholder = 'Select…',
+  placeholder = "Select…",
   error,
   disabled = false,
 }: SelectFieldProps) {
@@ -99,7 +99,10 @@ export function SelectField({
   );
 
   const getItemLayout = useCallback(
-    (_data: ArrayLike<SelectFieldOption> | null | undefined, index: number) => ({
+    (
+      _data: ArrayLike<SelectFieldOption> | null | undefined,
+      index: number,
+    ) => ({
       length: LIST_ITEM_HEIGHT,
       offset: LIST_ITEM_HEIGHT * index,
       index,
@@ -112,13 +115,13 @@ export function SelectField({
       <Label nativeID={labelId}>{label}</Label>
       <Select
         value={toSelectValue(value, options)}
-        onValueChange={(option) => onChange(option?.value ?? '')}
+        onValueChange={(option) => onChange(option?.value ?? "")}
         disabled={disabled}
       >
         <SelectTrigger
           nativeID={nativeID}
           accessibilityLabelledBy={labelId}
-          className={cn('w-full', error && 'border-destructive')}
+          className={cn("w-full", error && "border-destructive")}
           aria-invalid={Boolean(error)}
         >
           {selected?.abbreviation ? (

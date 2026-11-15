@@ -1,11 +1,11 @@
-import { ActivityIndicator, Modal, Pressable, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, View } from "react-native";
 
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { PRIMARY_BUTTON_SPINNER_COLOR } from '@/constants/theme';
-import { useSnackbar } from '@/context/SnackbarContext';
-import { useDeleteVisit } from '@/hooks/visits';
-import { getErrorMessage } from '@/lib/errors';
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { PRIMARY_BUTTON_SPINNER_COLOR } from "@/constants/theme";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useDeleteVisit } from "@/hooks/visits";
+import { getErrorMessage } from "@/lib/errors";
 
 interface DeleteVisitConfirmationProps {
   visitId: string;
@@ -29,10 +29,10 @@ export function DeleteVisitConfirmation({
     try {
       await deleteVisitMutation.mutateAsync(visitId);
     } catch (err) {
-      const message = getErrorMessage(err, 'Failed to delete visit');
+      const message = getErrorMessage(err, "Failed to delete visit");
       showSnackbar({
         message: `Could not delete visit. ${message}`,
-        variant: 'error',
+        variant: "error",
       });
     }
   };
@@ -40,7 +40,12 @@ export function DeleteVisitConfirmation({
   const isDeleting = deleteVisitMutation.isPending;
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+    >
       <Pressable
         className="flex-1 items-center justify-center bg-black/50 px-6"
         onPress={onClose}
@@ -54,7 +59,8 @@ export function DeleteVisitConfirmation({
               Are you sure you want to delete this visit?
             </Text>
             <Text variant="muted" className="text-center">
-              Deleting a visit is permanent and will remove it from your visit history and stats.
+              Deleting a visit is permanent and will remove it from your visit
+              history and stats.
             </Text>
           </View>
 

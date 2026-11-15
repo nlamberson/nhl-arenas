@@ -1,4 +1,4 @@
-import type { VisitResponse } from '@/lib/types';
+import type { VisitResponse } from "@/lib/types";
 
 export interface VisitStats {
   teamsSeen: number;

@@ -17,9 +17,9 @@ export function formatVisitDate(isoDate: string): string {
     return isoDate;
   }
   return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -30,7 +30,7 @@ export function formatVisitDateShort(isoDate: string): string {
     return isoDate;
   }
   return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
+    month: "short",
+    day: "numeric",
   });
 }

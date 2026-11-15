@@ -1,16 +1,16 @@
-import { signInWithCustomToken, signOut, type User } from 'firebase/auth';
+import { signInWithCustomToken, signOut, type User } from "firebase/auth";
 
-import { getCustomToken } from '@/lib/api';
-import { getFirebaseAuth } from '@/lib/firebase';
+import { getCustomToken } from "@/lib/api";
+import { getFirebaseAuth } from "@/lib/firebase";
 
 async function signInWithBackendCustomToken(): Promise<User> {
-  console.log('[firebaseStorageAuth] requesting custom token…');
+  console.log("[firebaseStorageAuth] requesting custom token…");
   const { custom_token } = await getCustomToken();
   const credential = await signInWithCustomToken(
     getFirebaseAuth(),
     custom_token,
   );
-  console.log('[firebaseStorageAuth] signed in as', credential.user.uid);
+  console.log("[firebaseStorageAuth] signed in as", credential.user.uid);
   return credential.user;
 }
 
@@ -23,7 +23,7 @@ export async function ensureFirebaseStorageAuth(
   expectedUid: string,
 ): Promise<void> {
   if (!expectedUid) {
-    throw new Error('expectedUid is required for Firebase Storage Auth');
+    throw new Error("expectedUid is required for Firebase Storage Auth");
   }
 
   const auth = getFirebaseAuth();
@@ -33,17 +33,17 @@ export async function ensureFirebaseStorageAuth(
   if (!user || user.uid !== expectedUid) {
     if (user) {
       console.warn(
-        '[firebaseStorageAuth] UID mismatch (had',
+        "[firebaseStorageAuth] UID mismatch (had",
         user.uid,
-        ', need',
+        ", need",
         expectedUid,
-        '); re-signing',
+        "); re-signing",
       );
       await signOut(auth).catch(() => undefined);
     }
     user = await signInWithBackendCustomToken();
   } else {
-    console.log('[firebaseStorageAuth] already signed in as', user.uid);
+    console.log("[firebaseStorageAuth] already signed in as", user.uid);
   }
 
   if (user.uid !== expectedUid) {
@@ -57,7 +57,7 @@ export async function ensureFirebaseStorageAuth(
     await user.getIdToken(/* forceRefresh */ false);
   } catch (err) {
     console.warn(
-      '[firebaseStorageAuth] getIdToken failed; re-signing with custom token',
+      "[firebaseStorageAuth] getIdToken failed; re-signing with custom token",
       err,
     );
     await signOut(auth).catch(() => undefined);

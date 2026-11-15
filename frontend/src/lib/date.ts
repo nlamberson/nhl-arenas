@@ -6,8 +6,8 @@ export function todayIsoDate(): string {
 /** Format a local Date as YYYY-MM-DD for the API. */
 export function isoDateFromDate(d: Date): string {
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -39,5 +39,5 @@ export function nhlSeasonStartYearFromIsoDate(iso: string): number {
 /** Convert 2025 → '25-'26 for header */
 export function formatNhlSeasonLabel(seasonStartYear: number): string {
   const end = (seasonStartYear + 1) % 100;
-  return `${seasonStartYear} - ${String(end).padStart(2, '0')}`;
+  return `${seasonStartYear} - ${String(end).padStart(2, "0")}`;
 }
