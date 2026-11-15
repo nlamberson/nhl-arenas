@@ -45,9 +45,6 @@ export function VisitCard({
           <Text className="text-right text-sm font-medium" numberOfLines={1}>
             {visit.arena.name}
           </Text>
-          <View className="h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
-            <Text className="text-xs font-bold text-white">✓</Text>
-          </View>
         </View>
       </View>
 

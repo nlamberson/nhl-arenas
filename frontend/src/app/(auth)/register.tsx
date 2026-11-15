@@ -107,7 +107,11 @@ export default function RegisterScreen() {
             </Text>
           ) : null}
 
-          <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
+          <Button
+            className="mt-1"
+            onPress={() => void onSubmit()}
+            disabled={isSubmitting}
+          >
             <Text>Create account</Text>
           </Button>
 

@@ -148,7 +148,7 @@ export function EditVisitSeatingSheet({
                 </Text>
               ) : null}
 
-              <Button onPress={onSubmit} disabled={isSubmitting}>
+              <Button onPress={() => void onSubmit()} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <ActivityIndicator color={PRIMARY_BUTTON_SPINNER_COLOR} />
                 ) : (

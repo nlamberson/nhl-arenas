@@ -260,7 +260,7 @@ export default function LogVisitScreen() {
 
             <Button
               className="mt-2"
-              onPress={onSubmit}
+              onPress={() => void onSubmit()}
               disabled={isSubmitting || !referenceReady}
             >
               {isSubmitting ? (

@@ -18,6 +18,6 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts",
     "css.d.ts",
-    "svg.d.ts"
+    "assets.d.ts"
   ]
 }

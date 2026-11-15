@@ -101,7 +101,11 @@ export default function LoginScreen() {
             </Text>
           ) : null}
 
-          <Button className="mt-1" onPress={onSubmit} disabled={isSubmitting}>
+          <Button
+            className="mt-1"
+            onPress={() => void onSubmit()}
+            disabled={isSubmitting}
+          >
             <Text>Sign in</Text>
           </Button>
 

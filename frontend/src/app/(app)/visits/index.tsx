@@ -67,21 +67,21 @@ export default function VisitsIndexScreen() {
                   No visits yet. Tap the + button to log your first arena visit.
                 </Text>
               </View>
-            ) : null
+            ) : undefined
           }
           ListFooterComponent={
             loadingMore ? (
               <View className="py-6">
                 <ActivityIndicator />
               </View>
-            ) : null
+            ) : undefined
           }
           ListHeaderComponent={
             error ? (
               <Text className="py-3 text-center text-sm text-destructive">
                 {error}
               </Text>
-            ) : null
+            ) : undefined
           }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refresh} />
