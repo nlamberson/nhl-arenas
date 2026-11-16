@@ -1,4 +1,4 @@
-import { CardSurface } from "@/components/ui/card-surface";
+import { Card } from "@/components/ui/gluestack/card";
 import { Text } from "@/components/ui/gluestack/text";
 import { MatchupScoreboard } from "@/components/scoreboard/MatchupScoreboard";
 import type { VisitResponse } from "@/lib/types";
@@ -12,7 +12,7 @@ export function ScoreBug({ visit }: ScoreBugProps) {
   const { awayScore, homeScore, hasScores } = getVisitScoreboardDisplay(visit);
 
   return (
-    <CardSurface>
+    <Card size="md" variant="outline" className="p-0">
       <MatchupScoreboard
         awayTeam={visit.away_team}
         homeTeam={visit.home_team}
@@ -25,6 +25,6 @@ export function ScoreBug({ visit }: ScoreBugProps) {
           Score not available for this game yet
         </Text>
       ) : null}
-    </CardSurface>
+    </Card>
   );
 }

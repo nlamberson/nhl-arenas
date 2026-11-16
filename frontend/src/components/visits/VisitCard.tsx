@@ -1,15 +1,16 @@
 import { View, type PressableProps } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 
-import { CardSurface } from "@/components/ui/card-surface";
 import {
   Button,
   ButtonIcon,
   ButtonText,
 } from "@/components/ui/gluestack/button";
+import { Card } from "@/components/ui/gluestack/card";
 import { Text } from "@/components/ui/gluestack/text";
 import { MatchupScoreboard } from "@/components/scoreboard/MatchupScoreboard";
 import { formatVisitDateShort } from "@/lib/formatDate";
+import { cn } from "@/lib/utils";
 import type { VisitResponse } from "@/lib/types";
 import { formatVisitMatchup } from "@/lib/visitLabels";
 import { getVisitScoreboardDisplay } from "@/lib/visitScores";
@@ -32,7 +33,11 @@ export function VisitCard({
   const { awayScore, homeScore } = getVisitScoreboardDisplay(visit);
 
   return (
-    <CardSurface className={className}>
+    <Card
+      size="md"
+      variant="outline"
+      className={cn("p-0", className)}
+    >
       <View className="flex-row items-center justify-between px-4 pb-2 pt-3">
         <Text className="text-base font-semibold">
           {formatVisitDateShort(visit.visit_date)}
@@ -67,6 +72,6 @@ export function VisitCard({
         <ButtonText>View Details</ButtonText>
         <ButtonIcon as={ChevronRight} size="sm" />
       </Button>
-    </CardSurface>
+    </Card>
   );
 }
