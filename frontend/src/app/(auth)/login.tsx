@@ -1,15 +1,14 @@
 import { Link, router } from "expo-router";
-import Head from "expo-router/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 
-import { AuthDivider } from "@/components/AuthDivider";
-import { AuthScreenShell } from "@/components/AuthScreenShell";
-import { FormTextField } from "@/components/FormTextField";
-import { GoogleSignInButton } from "@/components/GoogleSignInButton";
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { AuthDivider } from "@/components/auth/AuthDivider";
+import { AuthScreenShell } from "@/components/auth/AuthScreenShell";
+import { FormTextField } from "@/components/forms/FormTextField";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
+import { ButtonSpinner, ButtonText } from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -26,6 +25,7 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const { showSnackbar } = useSnackbar();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showServerWakeupMessage, setShowServerWakeupMessage] = useState(false);
 
   const {
     control,
@@ -34,6 +34,16 @@ export default function LoginScreen() {
   } = useForm<LoginForm>({
     defaultValues: { email: "", password: "" },
   });
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setShowServerWakeupMessage(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => setShowServerWakeupMessage(true), 5000);
+    return () => clearTimeout(timeout);
+  }, [isSubmitting]);
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
     setSubmitError(null);
@@ -49,92 +59,103 @@ export default function LoginScreen() {
 
   return (
     <AuthScreenShell>
-      {isSubmitting ? (
-        <PageLoadingIndicator
-          message="Signing in…"
-          description="This may take a moment if the server is waking up."
-          className="items-center justify-center py-16"
+      <View className="gap-5">
+        <FormTextField
+          control={control}
+          name="email"
+          label="Email"
+          fieldId="login-email"
+          disabled={isSubmitting}
+          rules={{
+            required: "Email is required",
+            pattern: {
+              value: EMAIL_PATTERN,
+              message: "Enter a valid email address",
+            },
+          }}
+          inputProps={{
+            placeholder: "you@example.com",
+            keyboardType: "email-address",
+            autoCapitalize: "none",
+            autoComplete: "email",
+            textContentType: "emailAddress",
+          }}
         />
-      ) : (
-        <View className="gap-5">
-          <FormTextField
-            control={control}
-            name="email"
-            label="Email"
-            fieldId="login-email"
-            rules={{
-              required: "Email is required",
-              pattern: {
-                value: EMAIL_PATTERN,
-                message: "Enter a valid email address",
-              },
-            }}
-            inputProps={{
-              placeholder: "you@example.com",
-              keyboardType: "email-address",
-              autoCapitalize: "none",
-              autoComplete: "email",
-              textContentType: "emailAddress",
-            }}
-          />
 
-          <FormTextField
-            control={control}
-            name="password"
-            label="Password"
-            fieldId="login-password"
-            rules={{
-              required: "Password is required",
-              minLength: { value: 1, message: "Password is required" },
-            }}
-            inputProps={{
-              placeholder: "••••••••",
-              secureTextEntry: true,
-              autoComplete: "password",
-              textContentType: "password",
-            }}
-          />
+        <FormTextField
+          control={control}
+          name="password"
+          label="Password"
+          fieldId="login-password"
+          disabled={isSubmitting}
+          rules={{
+            required: "Password is required",
+            minLength: { value: 1, message: "Password is required" },
+          }}
+          inputProps={{
+            placeholder: "••••••••",
+            secureTextEntry: true,
+            autoComplete: "password",
+            textContentType: "password",
+          }}
+        />
 
-          {submitError ? (
-            <Text className="text-center text-sm text-destructive">
-              {submitError}
-            </Text>
-          ) : null}
+        {submitError ? (
+          <Text className="text-center text-sm text-destructive">
+            {submitError}
+          </Text>
+        ) : null}
 
-          <Button
-            className="mt-1"
-            onPress={() => void onSubmit()}
-            disabled={isSubmitting}
-          >
-            <Text>Sign in</Text>
-          </Button>
+        <Button
+          className="mt-1"
+          onPress={() => void onSubmit()}
+          disabled={isSubmitting}
+          accessibilityLabel={
+            isSubmitting
+              ? showServerWakeupMessage
+                ? "Waiting for the server to wake up"
+                : "Signing in"
+              : "Sign in"
+          }
+        >
+          {isSubmitting ? <ButtonSpinner /> : null}
+          <ButtonText>
+            {isSubmitting
+              ? showServerWakeupMessage
+                ? "Waiting for the server to wake up…"
+                : "Signing in…"
+              : "Sign in"}
+          </ButtonText>
+        </Button>
 
-          <AuthDivider />
+        <AuthDivider />
 
-          <GoogleSignInButton
-            onSuccess={() => router.replace("/(app)/dashboard")}
-            onError={(message) => {
-              setSubmitError(message);
-              showSnackbar({
-                message: `Google Sign-In failed. ${message}`,
-                variant: "error",
-              });
-            }}
-          />
+        <GoogleSignInButton
+          disabled={isSubmitting}
+          onSuccess={() => router.replace("/(app)/dashboard")}
+          onError={(message) => {
+            setSubmitError(message);
+            showSnackbar({
+              message: `Google Sign-In failed. ${message}`,
+              variant: "error",
+            });
+          }}
+        />
 
-          <View className="flex-row justify-center gap-1">
-            <Text variant="muted">No account?</Text>
-            <Link href="/(auth)/register" asChild>
-              <Text
-                className="font-medium text-primary"
-                accessibilityRole="link"
-              >
-                Create one
-              </Text>
-            </Link>
-          </View>
+        <View className="flex-row items-center justify-center gap-1">
+          <Text variant="muted">No account?</Text>
+          <Link href="/(auth)/register" asChild>
+            <Button
+              variant="link"
+              size="sm"
+              accessibilityRole="link"
+              style={{ paddingHorizontal: 4, paddingVertical: 2 }}
+            >
+              <ButtonText className="font-medium">Create one</ButtonText>
+            </Button>
+          </Link>
         </View>
-      )}
+      </View>
     </AuthScreenShell>
   );
 }

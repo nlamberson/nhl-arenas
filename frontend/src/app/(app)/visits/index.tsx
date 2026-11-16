@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import {
-  ActivityIndicator,
   RefreshControl,
   SectionList,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AddVisitButton } from "@/components/AddVisitButton";
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
-import { ScreenHeader } from "@/components/ScreenHeader";
+import { AddVisitButton } from "@/components/visits/AddVisitButton";
+import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { Spinner } from "@/components/ui/gluestack/spinner";
 import { Text } from "@/components/ui/text";
-import { VisitRow } from "@/components/VisitRow";
+import { VisitRow } from "@/components/visits/VisitRow";
 import { usePaginatedVisits } from "@/hooks/visits";
 import type { VisitResponse } from "@/lib/types";
 import { groupVisitsBySeason, type VisitSeasonSection } from "@/lib/visits";
@@ -72,7 +72,7 @@ export default function VisitsIndexScreen() {
           ListFooterComponent={
             loadingMore ? (
               <View className="py-6">
-                <ActivityIndicator />
+                <Spinner />
               </View>
             ) : undefined
           }

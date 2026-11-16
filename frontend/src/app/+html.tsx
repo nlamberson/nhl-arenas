@@ -49,5 +49,5 @@ html {
   color-scheme: dark;
 }
 body {
-  background-color: hsl(222, 47%, 11%);
+  background-color: hsl(0, 0%, 7%);
 }`;

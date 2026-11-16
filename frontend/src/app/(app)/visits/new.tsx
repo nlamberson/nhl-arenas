@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,13 +10,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/button";
+import { ButtonSpinner, ButtonText } from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
 import { PRIMARY_BUTTON_SPINNER_COLOR } from "@/constants/theme";
-import { DatePickerField } from "@/components/DatePickerField";
-import { FormTextField } from "@/components/FormTextField";
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
-import { ScreenHeader } from "@/components/ScreenHeader";
-import { SelectField, type SelectFieldOption } from "@/components/SelectField";
+import { DatePickerField } from "@/components/forms/DatePickerField";
+import { FormTextField } from "@/components/forms/FormTextField";
+import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { SelectField, type SelectFieldOption } from "@/components/forms/SelectField";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useCreateVisit } from "@/hooks/visits";
 import { useReferenceData } from "@/hooks/reference";
@@ -264,9 +264,9 @@ export default function LogVisitScreen() {
               disabled={isSubmitting || !referenceReady}
             >
               {isSubmitting ? (
-                <ActivityIndicator color={PRIMARY_BUTTON_SPINNER_COLOR} />
+                <ButtonSpinner color={PRIMARY_BUTTON_SPINNER_COLOR} />
               ) : (
-                <Text>Save visit</Text>
+                <ButtonText>Save visit</ButtonText>
               )}
             </Button>
           </ScrollView>

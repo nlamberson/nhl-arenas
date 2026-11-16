@@ -3,7 +3,7 @@ import "../global.css";
 
 import * as WebBrowser from "expo-web-browser";
 
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
+import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { QueryProvider } from "@/providers/QueryProvider";
@@ -23,6 +23,7 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GluestackUIProvider } from "@/components/ui/gluestack/gluestack-ui-provider";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -37,17 +38,19 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <AuthProvider>
-          <QueryProvider>
-            <SnackbarProvider>
-              <RootLayoutNav />
-            </SnackbarProvider>
-          </QueryProvider>
-        </AuthProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <GluestackUIProvider mode="dark">
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <SnackbarProvider>
+                <RootLayoutNav />
+              </SnackbarProvider>
+            </QueryProvider>
+          </AuthProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </GluestackUIProvider>
   );
 }
 

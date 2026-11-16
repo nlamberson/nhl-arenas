@@ -34,3 +34,6 @@ frontend/.env
 **/firebase-service-account*.json
 **/serviceAccount*.json
 **/*-firebase-adminsdk*.json
+
+# AI stuff
+AGENTS.md

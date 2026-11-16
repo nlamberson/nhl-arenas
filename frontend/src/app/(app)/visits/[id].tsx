@@ -3,15 +3,15 @@ import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { goBackOrHome } from "@/components/BackButton";
-import { Button } from "@/components/ui/button";
+import { goBackOrHome } from "@/components/layout/BackButton";
+import { Button, ButtonText } from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
-import { DeleteVisitConfirmation } from "@/components/DeleteVisitConfirmation";
-import { EditVisitSeatingSheet } from "@/components/EditVisitSeatingSheet";
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
-import { ScreenHeader } from "@/components/ScreenHeader";
-import { ScoreBug } from "@/components/ScoreBug";
-import { VisitImageGrid } from "@/components/VisitImageGrid";
+import { DeleteVisitConfirmation } from "@/components/visits/DeleteVisitConfirmation";
+import { EditVisitSeatingSheet } from "@/components/visits/EditVisitSeatingSheet";
+import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
+import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { ScoreBug } from "@/components/scoreboard/ScoreBug";
+import { VisitImageGrid } from "@/components/visits/VisitImageGrid";
 import { useVisit } from "@/hooks/visits";
 import { formatVisitDate } from "@/lib/formatDate";
 
@@ -50,12 +50,13 @@ function SeatingDetailRow({
           Seating
         </Text>
         <Button
-          variant="ghost"
+          action="primary"
+          variant="link"
           size="sm"
           onPress={onEdit}
           accessibilityLabel="Edit seating"
         >
-          <Text>Edit</Text>
+          <ButtonText>Edit</ButtonText>
         </Button>
       </View>
       <Text className="text-base">{value}</Text>
@@ -104,11 +105,12 @@ export default function VisitDetailScreen() {
           <VisitImageGrid visitId={visit.id} images={visit.images ?? []} />
 
           <Button
-            variant="destructive"
+            action="negative"
+            variant="solid"
             className="bg-destructive/75 active:bg-destructive/85"
             onPress={() => setConfirmingDelete(true)}
           >
-            <Text>Delete a Visit</Text>
+            <ButtonText>Delete a Visit</ButtonText>
           </Button>
 
           <EditVisitSeatingSheet

@@ -2,11 +2,14 @@ import { useCallback, useState } from "react";
 import { Image, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AddVisitButton } from "@/components/AddVisitButton";
-import { LatestVisitCard } from "@/components/LatestVisitCard";
-import { PageLoadingIndicator } from "@/components/PageLoadingIndicator";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
+import { AddVisitButton } from "@/components/visits/AddVisitButton";
+import { LatestVisitCard } from "@/components/visits/LatestVisitCard";
+import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
+import {
+  Button,
+  ButtonText,
+} from "@/components/ui/gluestack/button";
+import { Text } from "@/components/ui/gluestack/text";
 import { useAuth } from "@/context/AuthContext";
 import { useHomeVisits } from "@/hooks/visits";
 import type { MeResponse } from "@/lib/types";
@@ -41,7 +44,7 @@ function StatItem({ value, label }: { value: number | string; label: string }) {
   return (
     <View className="flex-1 items-center gap-1">
       <Text className="text-2xl font-bold tabular-nums">{value}</Text>
-      <Text variant="muted" className="text-center text-xs">
+      <Text size="xs" className="text-center text-typography-500">
         {label}
       </Text>
     </View>
@@ -67,7 +70,7 @@ function ProfileAvatar({ user }: { user: MeResponse | null }) {
       className="h-24 w-24 items-center justify-center rounded-full bg-primary"
       accessibilityLabel="Profile avatar placeholder"
     >
-      <Text className="text-2xl font-bold text-primary-foreground">
+      <Text size="2xl" className="font-bold text-primary-foreground">
         {initials}
       </Text>
     </View>
@@ -101,7 +104,7 @@ export default function DashboardScreen() {
       >
         <View className="items-center gap-3 pb-8">
           <ProfileAvatar user={user} />
-          <Text variant="h3" className="text-center">
+          <Text size="2xl" className="text-center font-semibold">
             {"Welcome back, " + getDisplayName(user) + "!"}
           </Text>
         </View>
@@ -139,11 +142,13 @@ export default function DashboardScreen() {
 
         <Button
           variant="outline"
+          action="primary"
+          size="md"
           className="mt-10 w-full"
           onPress={() => logout()}
           accessibilityLabel="Sign out"
         >
-          <Text>Sign out</Text>
+          <ButtonText>Sign out</ButtonText>
         </Button>
       </ScrollView>
 
