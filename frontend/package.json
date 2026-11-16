@@ -62,7 +62,7 @@
     "build:web": "expo export --platform web"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=26"
   },
   "overrides": {
     "@grpc/grpc-js": "^1.14.7",
