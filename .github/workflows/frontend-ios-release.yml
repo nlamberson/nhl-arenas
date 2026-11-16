@@ -25,6 +25,8 @@ jobs:
   validate:
     name: "Validate frontend (typecheck + web build)"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: frontend
@@ -60,6 +62,8 @@ jobs:
     if: inputs.use_eas_build
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: frontend
@@ -121,6 +125,7 @@ jobs:
     needs: validate
     if: ${{ !inputs.use_eas_build }}
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Print local build instructions
         run: |
