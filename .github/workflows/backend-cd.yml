@@ -53,35 +53,9 @@ jobs:
           docker manifest inspect "$IMAGE"
 
       - name: Deploy to Render
-        env:
-          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          IMAGE_TAG: ${{ inputs.image_tag }}
-        run: |
-          set -euo pipefail
-
-          if [ -z "${DEPLOY_HOOK:-}" ]; then
-            echo "::error::RENDER_DEPLOY_HOOK_URL is not set (repo or production environment secret)."
-            exit 1
-          fi
-
-          IMG_PATH="docker.io/${DOCKER_USERNAME}/nhl-arenas-api:${IMAGE_TAG}"
-          IMG_URL_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${IMG_PATH}', safe=''))")
-
-          if [[ "$DEPLOY_HOOK" == *'?'* ]]; then
-            DEPLOY_URL="${DEPLOY_HOOK}&imgURL=${IMG_URL_ENCODED}"
-          else
-            DEPLOY_URL="${DEPLOY_HOOK}?imgURL=${IMG_URL_ENCODED}"
-          fi
-
-          echo "Deploying ${IMG_PATH}"
-
-          HTTP_CODE=$(curl -sS -o /tmp/render-response.txt -w "%{http_code}" -X POST "$DEPLOY_URL")
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::error::Render deploy hook returned HTTP ${HTTP_CODE}"
-            cat /tmp/render-response.txt
-            exit 1
-          fi
-
-          cat /tmp/render-response.txt
-          echo "Render deploy triggered successfully."
+        uses: gh-actions-workflows/deploy-docker-render@v2.0
+        with:
+          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          image-url: "${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:${{ inputs.image_tag }}"
+          render-api-key: ${{ secrets.RENDER_API_KEY }}
+          wait-for-deployment: true
