@@ -14,10 +14,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: "Deploy Docker Image to Render"
+  verify:
+    name: "Verify Docker Image on Docker Hub"
     runs-on: ubuntu-latest
-    environment: production
     permissions:
       contents: read
     steps:
@@ -52,10 +51,17 @@ jobs:
           # Metadata-only check (no layer download). Exits non-zero if tag is missing or inaccessible.
           docker manifest inspect "$IMAGE"
 
+  deploy:
+    name: "Deploy Docker Image to Render"
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
       - name: Deploy to Render
         uses: gh-actions-workflows/deploy-docker-render@v2.0
         with:
-          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
           image-url: "${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:${{ inputs.image_tag }}"
           render-api-key: ${{ secrets.RENDER_API_KEY }}
           wait-for-deployment: true
