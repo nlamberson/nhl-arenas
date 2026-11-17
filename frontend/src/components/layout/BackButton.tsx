@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 
-import { Button, ButtonIcon } from "@/components/ui/button";
+import { Button, ButtonIcon } from "@/components/ui/gluestack/button";
 
 interface BackButtonProps {
   onPress?: () => void;
@@ -23,8 +23,9 @@ export function BackButton({
   return (
     <Button
       onPress={onPress ?? goBackOrHome}
-      variant="ghost"
-      size="icon"
+      action="default"
+      variant="solid"
+      size="md"
       className="h-10 min-w-12 justify-center rounded-full p-0 active:opacity-70"
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}

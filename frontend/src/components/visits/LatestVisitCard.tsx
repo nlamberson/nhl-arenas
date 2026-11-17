@@ -1,6 +1,6 @@
 import { router } from "expo-router";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import {
   Button,
   ButtonText,
@@ -23,33 +23,33 @@ export function LatestVisitCard({
 }: LatestVisitCardProps) {
   if (loading) {
     return (
-      <View className="mt-6 gap-3">
+      <Box className="mt-6 gap-3">
         <Text size="lg" className="font-semibold">Latest visit</Text>
         <PageLoadingIndicator
           message="Loading latest visit…"
           className="items-center justify-center rounded-xl border border-border bg-card py-10"
         />
-      </View>
+      </Box>
     );
   }
 
   if (!visit) {
     return (
-      <View className="mt-6 gap-3">
+      <Box className="mt-6 gap-3">
         <Text size="lg" className="font-semibold">Latest visit</Text>
-        <View className="rounded-xl border border-dashed border-border bg-card px-4 py-8">
+        <Box className="rounded-xl border border-dashed border-border bg-card px-4 py-8">
           <Text size="sm" className="text-center text-typography-500">
             No visits yet. Log your first arena visit to see it here.
           </Text>
-        </View>
-      </View>
+        </Box>
+      </Box>
     );
   }
 
   const matchup = formatVisitMatchup(visit);
 
   return (
-    <View className="mt-6 gap-3">
+    <Box className="mt-6 gap-3">
       <Text size="lg" className="font-semibold">
         Latest visit
       </Text>
@@ -72,6 +72,6 @@ export function LatestVisitCard({
       >
         <ButtonText>View all history</ButtonText>
       </Button>
-    </View>
+    </Box>
   );
 }

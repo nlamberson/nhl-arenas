@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
-import { Image, RefreshControl, ScrollView, View } from "react-native";
+import { Image, RefreshControl, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { AddVisitButton } from "@/components/visits/AddVisitButton";
 import { LatestVisitCard } from "@/components/visits/LatestVisitCard";
 import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
@@ -42,12 +43,12 @@ function getInitials(user: MeResponse | null): string {
 
 function StatItem({ value, label }: { value: number | string; label: string }) {
   return (
-    <View className="flex-1 items-center gap-1">
+    <Box className="flex-1 items-center gap-1">
       <Text className="text-2xl font-bold tabular-nums">{value}</Text>
       <Text size="xs" className="text-center text-typography-500">
         {label}
       </Text>
-    </View>
+    </Box>
   );
 }
 
@@ -66,14 +67,14 @@ function ProfileAvatar({ user }: { user: MeResponse | null }) {
   }
 
   return (
-    <View
+    <Box
       className="h-24 w-24 items-center justify-center rounded-full bg-primary"
       accessibilityLabel="Profile avatar placeholder"
     >
       <Text size="2xl" className="font-bold text-primary-foreground">
         {initials}
       </Text>
-    </View>
+    </Box>
   );
 }
 
@@ -102,12 +103,12 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View className="items-center gap-3 pb-8">
+        <Box className="items-center gap-3 pb-8">
           <ProfileAvatar user={user} />
           <Text size="2xl" className="text-center font-semibold">
             {"Welcome back, " + getDisplayName(user) + "!"}
           </Text>
-        </View>
+        </Box>
 
         {showInitialLoader ? (
           <PageLoadingIndicator
@@ -122,16 +123,16 @@ export default function DashboardScreen() {
               </Text>
             ) : null}
 
-            <View className="flex-row rounded-xl border border-border bg-card px-2 py-6">
+            <Box className="flex-row rounded-xl border border-border bg-card px-2 py-6">
               <StatItem value={stats?.teams_seen ?? 0} label="Teams seen" />
-              <View className="w-px self-stretch bg-border" />
+              <Box className="w-px self-stretch bg-border" />
               <StatItem
                 value={stats?.arenas_visited ?? 0}
                 label="Arenas visited"
               />
-              <View className="w-px self-stretch bg-border" />
+              <Box className="w-px self-stretch bg-border" />
               <StatItem value={stats?.total_visits ?? 0} label="Total visits" />
-            </View>
+            </Box>
 
             <LatestVisitCard
               visit={latestVisit}

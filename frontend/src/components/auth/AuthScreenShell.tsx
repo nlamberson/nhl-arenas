@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { NHLBrand } from "@/components/auth/NHLBrand";
+import { Box } from "@/components/ui/gluestack/box";
 
 interface AuthScreenShellProps {
   children: ReactNode;
@@ -19,10 +20,10 @@ export function AuthScreenShell({ children }: AuthScreenShellProps) {
           contentContainerClassName="flex-grow justify-center px-6 py-10"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="mx-auto w-full max-w-sm gap-8">
+          <Box className="mx-auto w-full max-w-sm gap-8">
             <NHLBrand />
             {children}
-          </View>
+          </Box>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

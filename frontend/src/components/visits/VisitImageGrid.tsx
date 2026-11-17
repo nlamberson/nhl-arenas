@@ -1,8 +1,8 @@
 import { Image } from "expo-image";
 import { X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { AlertDialog } from "@/components/ui/gluestack/alert-dialog";
 import {
   Button,
@@ -53,12 +53,12 @@ function UploadProgressToast({
           <Toast.Description className="text-center text-sm font-medium text-white">
             Uploading {completed}/{total}
           </Toast.Description>
-          <View className="h-2 w-full overflow-hidden rounded-full bg-background-600">
-            <View
+          <Box className="h-2 w-full overflow-hidden rounded-full bg-background-600">
+            <Box
               className="h-full rounded-full bg-primary-500"
               style={{ width: `${progress}%` }}
             />
-          </View>
+          </Box>
         </Toast>
       ),
     });
@@ -115,7 +115,7 @@ function VisitImageTile({
   }, [cached, firebaseUid, image.storage_path]);
 
   return (
-    <View className="relative aspect-square w-[47%] overflow-hidden rounded-lg bg-muted/30">
+    <Box className="relative aspect-square w-[47%] overflow-hidden rounded-lg bg-muted/30">
       <Pressable
         accessibilityLabel="Enlarge photo"
         disabled={!url}
@@ -130,7 +130,7 @@ function VisitImageTile({
             transition={200}
           />
         ) : (
-          <View className="flex-1 items-center justify-center">
+          <Box className="flex-1 items-center justify-center">
             {loadingUrl ? (
               <Spinner />
             ) : (
@@ -138,7 +138,7 @@ function VisitImageTile({
                 {error ?? "Unavailable"}
               </Text>
             )}
-          </View>
+          </Box>
         )}
       </Pressable>
       <Pressable
@@ -153,7 +153,7 @@ function VisitImageTile({
           <Icon as={X} size={16} className="text-white" />
         )}
       </Pressable>
-    </View>
+    </Box>
   );
 }
 
@@ -273,17 +273,17 @@ export function VisitImageGrid({
   }, [deleteMutation, deletingId, imageToDelete, showSnackbar, visitId]);
 
   return (
-    <View className="gap-3">
-      <View className="flex-row items-center justify-between">
+    <Box className="gap-3">
+      <Box className="flex-row items-center justify-between">
         <Text size="lg" bold>
           Photos
         </Text>
         <Text size="xs" className="text-typography-500">
           {sorted.length}/{MAX_IMAGES_PER_VISIT}
         </Text>
-      </View>
+      </Box>
 
-      <View className="flex-row flex-wrap justify-center gap-3">
+      <Box className="flex-row flex-wrap justify-center gap-3">
         {sorted.map((image, index) =>
           user?.uid ? (
             <VisitImageTile
@@ -296,7 +296,7 @@ export function VisitImageGrid({
             />
           ) : null,
         )}
-      </View>
+      </Box>
 
       {canAdd ? (
         <Button
@@ -374,6 +374,6 @@ export function VisitImageGrid({
           onIndexChange={setLightboxIndex}
         />
       ) : null}
-    </View>
+    </Box>
   );
 }

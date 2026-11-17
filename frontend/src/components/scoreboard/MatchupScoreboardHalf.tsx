@@ -1,6 +1,6 @@
-import { View } from "react-native";
 import Svg, { Polygon } from "react-native-svg";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { Text } from "@/components/ui/gluestack/text";
 import { TeamLogo } from "@/components/hockey/TeamLogo";
 import type { TeamColorScheme } from "@/lib/teamColors";
@@ -41,7 +41,7 @@ export function MatchupScoreboardHalf({
     : `${splitTopX},0 ${cardWidth},0 ${cardWidth},${height} ${splitBottomX},${height}`;
 
   return (
-    <View
+    <Box
       style={{ width: halfWidth, height }}
       className={`flex-row items-center px-2 ${isAway ? "justify-start" : "justify-end"}`}
     >
@@ -58,7 +58,7 @@ export function MatchupScoreboardHalf({
         <Polygon points={polygonPoints} fill={colors.primary} />
       </Svg>
 
-      <View
+      <Box
         className={`justify-center ${isAway ? "items-start" : "items-end"}`}
         style={{ minHeight: logoSize, maxWidth: "70%" }}
       >
@@ -74,7 +74,7 @@ export function MatchupScoreboardHalf({
         >
           {teamLabel(team)}
         </Text>
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
-import { View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { APP_COLOR_SCHEME } from "@/constants/theme";
 import { Text } from "@/components/ui/gluestack/text";
 import { cn } from "@/lib/utils";
@@ -32,7 +32,7 @@ function AbbreviationFallback({
   className?: string;
 }) {
   return (
-    <View
+    <Box
       style={{ width: size, height: size }}
       className={cn(
         "items-center justify-center rounded-full bg-muted",
@@ -43,7 +43,7 @@ function AbbreviationFallback({
       <Text className="font-bold" style={{ fontSize: size * 0.28 }}>
         {abbreviation}
       </Text>
-    </View>
+    </Box>
   );
 }
 
@@ -98,12 +98,12 @@ export const TeamLogo = memo(function TeamLogo({
   }
 
   return (
-    <View
+    <Box
       style={{ width: size, height: size }}
       className={cn("items-center justify-center", className)}
       accessibilityLabel={`${abbreviation} logo`}
     >
       <SvgXml xml={svgXml} width={size} height={size} />
-    </View>
+    </Box>
   );
 });

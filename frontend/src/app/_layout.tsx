@@ -19,11 +19,11 @@ import {
 import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GluestackUIProvider } from "@/components/ui/gluestack/gluestack-ui-provider";
+import { Box } from "@/components/ui/gluestack/box";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -90,12 +90,12 @@ function RootLayoutNav() {
 
   if (isLoading) {
     return (
-      <View className="dark flex-1 bg-background">
+      <Box className="dark flex-1 bg-background">
         <PageLoadingIndicator
           message="Loading…"
           description="This may take a moment if the server is waking up."
         />
-      </View>
+      </Box>
     );
   }
 
@@ -112,7 +112,7 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={DarkTheme}>
-      <View className="dark flex-1">
+      <Box className="dark flex-1">
         <Head>
           <title>{getPageTitle(pathname)}</title>
         </Head>
@@ -123,7 +123,7 @@ function RootLayoutNav() {
           <Stack.Screen name="+not-found" />
         </Stack>
         <PortalHost />
-      </View>
+      </Box>
     </ThemeProvider>
   );
 }

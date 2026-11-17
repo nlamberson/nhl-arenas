@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { Plus } from "lucide-react-native";
 
-import { Button, ButtonIcon } from "@/components/ui/button";
+import { Button, ButtonIcon } from "@/components/ui/gluestack/button";
 import { cn } from "@/lib/utils";
 
 interface AddVisitButtonProps {

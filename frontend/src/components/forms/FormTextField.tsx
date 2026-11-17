@@ -6,8 +6,8 @@ import {
   type FieldValues,
   type RegisterOptions,
 } from "react-hook-form";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import {
   FormControl,
   FormControlError,
@@ -59,7 +59,7 @@ export function FormTextField<T extends FieldValues>({
           field: { onChange, onBlur, value },
           fieldState: { error },
         }) => (
-          <View className="gap-1.5">
+          <Box className="gap-1.5">
             <GluestackInput
               variant="outline"
               size="md"
@@ -86,7 +86,7 @@ export function FormTextField<T extends FieldValues>({
                 </FormControlErrorText>
               </FormControlError>
             ) : null}
-          </View>
+          </Box>
         )}
       />
     </FormControl>

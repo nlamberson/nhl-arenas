@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import {
   Button,
   ButtonSpinner,
@@ -64,10 +64,10 @@ export function GoogleSignInButton({
       accessibilityLabel={label}
     >
       {loading ? (
-        <View className="flex-row items-center gap-2">
+        <Box className="flex-row items-center gap-2">
           <ButtonSpinner />
           <ButtonText>Signing in…</ButtonText>
-        </View>
+        </Box>
       ) : (
         <>
           <GoogleIcon size={18} />

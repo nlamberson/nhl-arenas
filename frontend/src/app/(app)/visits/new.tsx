@@ -1,23 +1,24 @@
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Button } from "@/components/ui/button";
-import { ButtonSpinner, ButtonText } from "@/components/ui/gluestack/button";
+import {
+  Button,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
 import { PRIMARY_BUTTON_SPINNER_COLOR } from "@/constants/theme";
 import { DatePickerField } from "@/components/forms/DatePickerField";
 import { FormTextField } from "@/components/forms/FormTextField";
 import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
-import { SelectField, type SelectFieldOption } from "@/components/forms/SelectField";
+import {
+  SelectTeamField,
+  type SelectTeamFieldOption,
+} from "@/components/forms/SelectTeamField";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useCreateVisit } from "@/hooks/visits";
 import { useReferenceData } from "@/hooks/reference";
@@ -34,14 +35,13 @@ type LogVisitForm = {
 
 function toSelectOptions<T extends { id: string; name: string }>(
   items: T[],
-  formatLabel?: (item: T) => string,
-  getExtra?: (item: T) => Pick<SelectFieldOption, "abbreviation">,
-): SelectFieldOption[] {
+  getExtra?: (item: T) => Pick<SelectTeamFieldOption, "abbreviation" | "city">,
+): SelectTeamFieldOption[] {
   return [...items]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((item) => ({
       value: item.id,
-      label: formatLabel ? formatLabel(item) : item.name,
+      label: item.name,
       ...getExtra?.(item),
     }));
 }
@@ -61,14 +61,10 @@ export default function LogVisitScreen() {
 
   const teamOptions = useMemo(
     () =>
-      toSelectOptions(
-        teams,
-        (t) => {
-          const place = t.city ? `${t.city} — ` : "";
-          return `${place}${t.name} (${t.abbreviation})`;
-        },
-        (t) => ({ abbreviation: t.abbreviation }),
-      ),
+      toSelectOptions(teams, (t) => ({
+        abbreviation: t.abbreviation,
+        city: t.city,
+      })),
     [teams],
   );
 
@@ -143,7 +139,6 @@ export default function LogVisitScreen() {
       <ScreenHeader
         title="Log a visit"
         backAccessibilityLabel="Cancel"
-        trailingSpacerWidth="md"
       />
 
       {referenceLoading ? (
@@ -183,7 +178,7 @@ export default function LogVisitScreen() {
                 field: { value, onChange },
                 fieldState: { error },
               }) => (
-                <SelectField
+                <SelectTeamField
                   label="Home team"
                   nativeID="home-team"
                   value={value}
@@ -209,7 +204,7 @@ export default function LogVisitScreen() {
                 field: { value, onChange },
                 fieldState: { error },
               }) => (
-                <SelectField
+                <SelectTeamField
                   label="Away team"
                   nativeID="away-team"
                   value={value}
@@ -261,7 +256,7 @@ export default function LogVisitScreen() {
             <Button
               className="mt-2"
               onPress={() => void onSubmit()}
-              disabled={isSubmitting || !referenceReady}
+              isDisabled={isSubmitting || !referenceReady}
             >
               {isSubmitting ? (
                 <ButtonSpinner color={PRIMARY_BUTTON_SPINNER_COLOR} />

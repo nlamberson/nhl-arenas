@@ -1,4 +1,4 @@
-import { View, type PressableProps } from "react-native";
+import type { PressableProps } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 
 import {
@@ -7,6 +7,7 @@ import {
   ButtonText,
 } from "@/components/ui/gluestack/button";
 import { Card } from "@/components/ui/gluestack/card";
+import { Box } from "@/components/ui/gluestack/box";
 import { Text } from "@/components/ui/gluestack/text";
 import { MatchupScoreboard } from "@/components/scoreboard/MatchupScoreboard";
 import { formatVisitDateShort } from "@/lib/formatDate";
@@ -38,7 +39,7 @@ export function VisitCard({
       variant="outline"
       className={cn("p-0", className)}
     >
-      <View className="flex-row items-center justify-between px-4 pb-2 pt-3">
+      <Box className="flex-row items-center justify-between px-4 pb-2 pt-3">
         <Text className="text-base font-semibold">
           {formatVisitDateShort(visit.visit_date)}
         </Text>
@@ -48,7 +49,7 @@ export function VisitCard({
         >
           {visit.arena.name}
         </Text>
-      </View>
+      </Box>
 
       <MatchupScoreboard
         awayTeam={visit.away_team}

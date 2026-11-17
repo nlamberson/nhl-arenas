@@ -7,7 +7,6 @@ import {
   Platform,
   StyleSheet,
   useWindowDimensions,
-  View,
 } from "react-native";
 import {
   Gesture,
@@ -23,6 +22,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/icon";
+import { Box } from "@/components/ui/gluestack/box";
 import { Pressable } from "@/components/ui/gluestack/pressable";
 import { Spinner } from "@/components/ui/gluestack/spinner";
 import { Text } from "@/components/ui/gluestack/text";
@@ -48,7 +48,7 @@ const zoomTiming = {
 function LightboxBackdrop() {
   if (Platform.OS === "web") {
     return (
-      <View
+      <Box
         style={[
           StyleSheet.absoluteFill,
           { backgroundColor: "rgba(0, 0, 0, 0.82)", pointerEvents: "none" },
@@ -289,7 +289,7 @@ function LightboxImage({
 
   if (!url) {
     return (
-      <View
+      <Box
         style={{
           width: maxWidth,
           height: maxHeight,
@@ -304,7 +304,7 @@ function LightboxImage({
             {error ?? "Unavailable"}
           </Text>
         )}
-      </View>
+      </Box>
     );
   }
 
@@ -450,7 +450,7 @@ export function VisitImageLightbox({
         >
           <LightboxBackdrop />
 
-          <View
+          <Box
             style={{
               position: "absolute",
               zIndex: 20,
@@ -470,7 +470,7 @@ export function VisitImageLightbox({
             >
               {safeIndex + 1}/{count}
             </Text>
-          </View>
+          </Box>
 
           <Pressable
             accessibilityLabel="Close enlarged image"

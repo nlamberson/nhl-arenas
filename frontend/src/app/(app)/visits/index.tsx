@@ -1,12 +1,9 @@
 import { useMemo } from "react";
-import {
-  RefreshControl,
-  SectionList,
-  View,
-} from "react-native";
+import { RefreshControl, SectionList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AddVisitButton } from "@/components/visits/AddVisitButton";
+import { Box } from "@/components/ui/gluestack/box";
 import { PageLoadingIndicator } from "@/components/feedback/PageLoadingIndicator";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { Spinner } from "@/components/ui/gluestack/spinner";
@@ -45,7 +42,7 @@ export default function VisitsIndexScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <VisitRow visit={item} />}
           renderSectionHeader={({ section: { title, data } }) => (
-            <View
+            <Box
               className="bg-background pb-2 pt-4"
               style={{
                 flexDirection: "row",
@@ -55,25 +52,25 @@ export default function VisitsIndexScreen() {
             >
               <Text variant="large">{title}</Text>
               <Text variant="small">{data.length} visits</Text>
-            </View>
+            </Box>
           )}
           stickySectionHeadersEnabled
           contentContainerClassName="grow pb-24 pt-1"
           contentContainerStyle={{ paddingHorizontal: 24 }}
           ListEmptyComponent={
             !error ? (
-              <View className="py-16">
+              <Box className="py-16">
                 <Text variant="muted" className="text-center">
                   No visits yet. Tap the + button to log your first arena visit.
                 </Text>
-              </View>
+              </Box>
             ) : undefined
           }
           ListFooterComponent={
             loadingMore ? (
-              <View className="py-6">
+              <Box className="py-6">
                 <Spinner />
-              </View>
+              </Box>
             ) : undefined
           }
           ListHeaderComponent={

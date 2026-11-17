@@ -2,9 +2,10 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
-import { Modal, Platform, View } from "react-native";
+import { Modal, Platform } from "react-native";
 
 import { Button, ButtonText } from "@/components/ui/gluestack/button";
+import { Box } from "@/components/ui/gluestack/box";
 import {
   FormControl,
   FormControlError,
@@ -216,7 +217,7 @@ function NativeDatePickerField({
               className="rounded-t-xl bg-card pb-8"
               onPress={(e) => e.stopPropagation()}
             >
-              <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
+              <Box className="flex-row items-center justify-between border-b border-border px-4 py-3">
                 <Text size="lg" bold>
                   {label}
                 </Text>
@@ -231,8 +232,8 @@ function NativeDatePickerField({
                 >
                   <ButtonText>Done</ButtonText>
                 </Button>
-              </View>
-              <View
+              </Box>
+              <Box
                 className={
                   isDark ? "mx-4 overflow-hidden rounded-xl" : "items-center"
                 }
@@ -257,7 +258,7 @@ function NativeDatePickerField({
                   }}
                   {...iosPickerThemeProps(APP_COLOR_SCHEME)}
                 />
-              </View>
+              </Box>
             </Pressable>
           </Pressable>
         </Modal>

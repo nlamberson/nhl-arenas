@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { View } from "react-native";
 import Svg, { Line } from "react-native-svg";
 
 import { MatchupScoreboardHalf } from "@/components/scoreboard/MatchupScoreboardHalf";
+import { Box } from "@/components/ui/gluestack/box";
 import { Text } from "@/components/ui/gluestack/text";
 import { getTeamColors } from "@/lib/teamColors";
 import type { TeamResponse } from "@/lib/types";
@@ -58,13 +58,13 @@ export function MatchupScoreboard({
   const split = cardWidth > 0 ? getSplitCoordinates(cardWidth, height) : null;
 
   return (
-    <View
+    <Box
       className="overflow-hidden"
       style={cardWidth > 0 ? { height, width: cardWidth } : { height }}
       onLayout={(e) => setCardWidth(e.nativeEvent.layout.width)}
     >
       {split ? (
-        <View className="flex-row" style={{ width: cardWidth, height }}>
+        <Box className="flex-row" style={{ width: cardWidth, height }}>
           <MatchupScoreboardHalf
             team={awayTeam}
             side="away"
@@ -87,7 +87,7 @@ export function MatchupScoreboard({
             splitTopX={split.splitTopX}
             splitBottomX={split.splitBottomX}
           />
-        </View>
+        </Box>
       ) : null}
 
       {split ? (
@@ -115,7 +115,7 @@ export function MatchupScoreboard({
 
       {split ? (
         <>
-          <View
+          <Box
             className="absolute justify-center"
             style={{
               left: 0,
@@ -132,9 +132,9 @@ export function MatchupScoreboard({
             >
               {awayScore}
             </Text>
-          </View>
+          </Box>
 
-          <View
+          <Box
             className="absolute justify-center"
             style={{
               left: split.halfWidth + SCORE_CENTER_GAP,
@@ -151,9 +151,9 @@ export function MatchupScoreboard({
             >
               {homeScore}
             </Text>
-          </View>
+          </Box>
         </>
       ) : null}
-    </View>
+    </Box>
   );
 }

@@ -1,14 +1,14 @@
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthScreenShell } from "@/components/auth/AuthScreenShell";
 import { FormTextField } from "@/components/forms/FormTextField";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   ButtonSpinner,
   ButtonText,
 } from "@/components/ui/gluestack/button";
@@ -66,7 +66,7 @@ export default function RegisterScreen() {
 
   return (
     <AuthScreenShell>
-      <View className="gap-5">
+      <Box className="gap-5">
         <FormTextField
           control={control}
           name="email"
@@ -119,7 +119,7 @@ export default function RegisterScreen() {
         <Button
           className="mt-1"
           onPress={() => void onSubmit()}
-          disabled={isSubmitting}
+          isDisabled={isSubmitting}
           accessibilityLabel={
             isSubmitting
               ? showServerWakeupMessage
@@ -153,10 +153,11 @@ export default function RegisterScreen() {
           }}
         />
 
-        <View className="flex-row items-center justify-center gap-1">
+        <Box className="flex-row items-center justify-center gap-1">
           <Text variant="muted">Already have an account?</Text>
           <Link href="/(auth)/login" asChild>
             <Button
+              action="primary"
               variant="link"
               size="sm"
               accessibilityRole="link"
@@ -165,8 +166,8 @@ export default function RegisterScreen() {
               <ButtonText className="font-medium">Sign in</ButtonText>
             </Button>
           </Link>
-        </View>
-      </View>
+        </Box>
+      </Box>
     </AuthScreenShell>
   );
 }

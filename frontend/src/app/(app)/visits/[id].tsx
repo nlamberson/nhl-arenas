@@ -1,8 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { goBackOrHome } from "@/components/layout/BackButton";
 import { Button, ButtonText } from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
@@ -27,12 +28,12 @@ function resolveVisitId(id: string | string[] | undefined): string | undefined {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <View className="gap-1">
+    <Box className="gap-1">
       <Text variant="muted" className="text-xs uppercase tracking-wide">
         {label}
       </Text>
       <Text className="text-base">{value}</Text>
-    </View>
+    </Box>
   );
 }
 
@@ -44,8 +45,8 @@ function SeatingDetailRow({
   onEdit: () => void;
 }) {
   return (
-    <View className="gap-1">
-      <View className="flex-row items-center justify-between gap-2">
+    <Box className="gap-1">
+      <Box className="flex-row items-center justify-between gap-2">
         <Text variant="muted" className="text-xs uppercase tracking-wide">
           Seating
         </Text>
@@ -58,9 +59,9 @@ function SeatingDetailRow({
         >
           <ButtonText>Edit</ButtonText>
         </Button>
-      </View>
+      </Box>
       <Text className="text-base">{value}</Text>
-    </View>
+    </Box>
   );
 }
 
@@ -73,7 +74,7 @@ export default function VisitDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top", "bottom"]}>
-      <ScreenHeader title="Visit" trailingSpacerWidth="md" />
+      <ScreenHeader title="Visit" />
 
       {loading ? (
         <PageLoadingIndicator
@@ -81,16 +82,16 @@ export default function VisitDetailScreen() {
           description="This may take a moment if the server is waking up."
         />
       ) : error || !visit ? (
-        <View className="flex-1 items-center justify-center px-6">
+        <Box className="flex-1 items-center justify-center px-6">
           <Text className="text-center text-destructive">
             {error ?? "Visit not found"}
           </Text>
-        </View>
+        </Box>
       ) : (
         <ScrollView contentContainerClassName="gap-6 px-4 py-6 pb-10">
           <ScoreBug visit={visit} />
 
-          <View className="gap-4 rounded-xl border border-border bg-card px-4 py-4">
+          <Box className="gap-4 rounded-xl border border-border bg-card px-4 py-4">
             <DetailRow label="Arena" value={visit.arena.name} />
             {visit.arena.city ? (
               <DetailRow label="City" value={visit.arena.city} />
@@ -100,7 +101,7 @@ export default function VisitDetailScreen() {
               value={visit.seating_location?.trim() || "Not recorded"}
               onEdit={() => setEditingSeating(true)}
             />
-          </View>
+          </Box>
 
           <VisitImageGrid visitId={visit.id} images={visit.images ?? []} />
 

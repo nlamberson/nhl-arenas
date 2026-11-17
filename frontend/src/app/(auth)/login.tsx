@@ -1,14 +1,17 @@
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { View } from "react-native";
 
+import { Box } from "@/components/ui/gluestack/box";
 import { AuthDivider } from "@/components/auth/AuthDivider";
 import { AuthScreenShell } from "@/components/auth/AuthScreenShell";
 import { FormTextField } from "@/components/forms/FormTextField";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { Button } from "@/components/ui/button";
-import { ButtonSpinner, ButtonText } from "@/components/ui/gluestack/button";
+import {
+  Button,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/gluestack/button";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -59,7 +62,7 @@ export default function LoginScreen() {
 
   return (
     <AuthScreenShell>
-      <View className="gap-5">
+      <Box className="gap-5">
         <FormTextField
           control={control}
           name="email"
@@ -109,7 +112,7 @@ export default function LoginScreen() {
         <Button
           className="mt-1"
           onPress={() => void onSubmit()}
-          disabled={isSubmitting}
+          isDisabled={isSubmitting}
           accessibilityLabel={
             isSubmitting
               ? showServerWakeupMessage
@@ -142,10 +145,11 @@ export default function LoginScreen() {
           }}
         />
 
-        <View className="flex-row items-center justify-center gap-1">
+        <Box className="flex-row items-center justify-center gap-1">
           <Text variant="muted">No account?</Text>
           <Link href="/(auth)/register" asChild>
             <Button
+              action="primary"
               variant="link"
               size="sm"
               accessibilityRole="link"
@@ -154,8 +158,8 @@ export default function LoginScreen() {
               <ButtonText className="font-medium">Create one</ButtonText>
             </Button>
           </Link>
-        </View>
-      </View>
+        </Box>
+      </Box>
     </AuthScreenShell>
   );
 }

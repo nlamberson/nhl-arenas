@@ -1,5 +1,4 @@
-import { View } from "react-native";
-
+import { Box } from "@/components/ui/gluestack/box";
 import { Spinner } from "@/components/ui/gluestack/spinner";
 import { Text } from "@/components/ui/gluestack/text";
 
@@ -16,7 +15,7 @@ export function PageLoadingIndicator({
   className,
 }: PageLoadingIndicatorProps) {
   return (
-    <View
+    <Box
       className={
         className ?? "flex-1 items-center justify-center gap-4 px-6 py-12"
       }
@@ -24,7 +23,7 @@ export function PageLoadingIndicator({
       accessibilityLabel={message}
     >
       <Spinner size="large" />
-      <View className="items-center gap-1">
+      <Box className="items-center gap-1">
         <Text size="md" bold className="text-center">
           {message}
         </Text>
@@ -33,7 +32,7 @@ export function PageLoadingIndicator({
             {description}
           </Text>
         ) : null}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

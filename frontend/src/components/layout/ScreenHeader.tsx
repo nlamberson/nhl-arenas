@@ -1,5 +1,4 @@
-import { View } from "react-native";
-
+import { Box } from "@/components/ui/gluestack/box";
 import { Text } from "@/components/ui/text";
 import { BackButton } from "@/components/layout/BackButton";
 
@@ -17,15 +16,15 @@ const TRAILING_WIDTH = {
 export function ScreenHeader({
   title,
   backAccessibilityLabel,
-  trailingSpacerWidth = "sm",
+  trailingSpacerWidth = "md",
 }: ScreenHeaderProps) {
   return (
-    <View className="flex-row items-center border-b border-border px-4 py-3">
+    <Box className="flex-row shrink-0 items-center border-b border-border px-4 py-3">
       <BackButton accessibilityLabel={backAccessibilityLabel} />
       <Text variant="large" className="flex-1 text-center">
         {title}
       </Text>
-      <View className={TRAILING_WIDTH[trailingSpacerWidth]} />
-    </View>
+      <Box className={TRAILING_WIDTH[trailingSpacerWidth]} />
+    </Box>
   );
 }
