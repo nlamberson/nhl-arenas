@@ -60,9 +60,38 @@ jobs:
       contents: read
     steps:
       - name: Deploy to Render
-        uses: gh-actions-workflows/deploy-docker-render@v2.0
-        with:
-          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-          image-url: "${{ secrets.DOCKER_USERNAME }}/nhl-arenas-api:${{ inputs.image_tag }}"
-          render-api-key: ${{ secrets.RENDER_API_KEY }}
-          wait-for-deployment: true
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_HOOK:-}" ]; then
+            echo "::error::RENDER_DEPLOY_HOOK_URL is not set (repo or production environment secret)."
+            exit 1
+          fi
+
+          IMG_PATH="docker.io/${DOCKER_USERNAME}/nhl-arenas-api:${IMAGE_TAG}"
+          IMG_URL_ENCODED=$(IMG_PATH="$IMG_PATH" python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["IMG_PATH"], safe=""))')
+
+          if [[ "$DEPLOY_HOOK" == *'?'* ]]; then
+            DEPLOY_URL="${DEPLOY_HOOK}&imgURL=${IMG_URL_ENCODED}"
+          else
+            DEPLOY_URL="${DEPLOY_HOOK}?imgURL=${IMG_URL_ENCODED}"
+          fi
+
+          echo "Deploying ${IMG_PATH}"
+
+          RESPONSE_FILE=$(mktemp)
+          trap 'rm -f "$RESPONSE_FILE"' EXIT
+
+          HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" -X POST "$DEPLOY_URL")
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Render deploy hook returned HTTP ${HTTP_CODE}"
+            cat "$RESPONSE_FILE"
+            exit 1
+          fi
+
+          cat "$RESPONSE_FILE"
+          echo "Render deploy triggered successfully."
